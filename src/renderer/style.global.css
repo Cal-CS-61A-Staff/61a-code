@@ -1,0 +1,249 @@
+html {
+    box-sizing: border-box;
+    background-color: black;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+}
+
+/* Launch screen */
+.row {
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 0; /* Header Height */
+    bottom: 0; /* Footer Height */
+    width: 100%;
+    background-color: #282d34;
+    user-select: none;
+}
+
+.introColumn {
+    flex: 50%;
+    border-right: 1px solid white;
+    text-align: center;
+}
+
+.introHolder {
+    top: 40%;
+    left: 50%;
+    position: relative;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+
+.introTitle {
+    font-size: 48px;
+    font-family: "Source Sans Pro", sans-serif;
+    font-weight: 200;
+    color: white;
+
+    margin-bottom: 16px;
+}
+
+.introButton {
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 0);
+
+    width: 200px;
+    height: 24px;
+    margin-bottom: 8px;
+
+    line-height: 24px;
+
+    color: white;
+    font-size: 14px;
+    border: 1px solid white;
+    font-family: "Verdana", "Consolas", sans-serif;
+
+    cursor: pointer;
+}
+
+.introButton:hover {
+    background-color: #6c6c6c;
+}
+
+.recentColumn {
+    flex: 50%;
+}
+
+
+/* Main screen */
+
+#tabRoot {
+    position: absolute;
+    left: 0;
+    top: 30px; /* Header Height */
+    bottom: 0; /* Footer Height */
+    width: 100%;
+}
+
+.navBar {
+    left: 0;
+    right: 0;
+    height: 30px;
+    top: 0;
+    position: absolute;
+    background-color: black;
+    color: white;
+    vertical-align: center;
+    user-select: none;
+}
+
+.pathIndicator {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+}
+
+.commandIcons {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.activeLine {
+    background: darkblue;
+}
+
+.output, .preview {
+    padding: 0 5px;
+    font-family: Monaco, Consolas, monospace;
+    color: white;
+    font-size: 14px;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.6;
+}
+
+.outputControls {
+    display: inline-block;
+    height: 100%;
+    width: 2em;
+    border-right: 1px dashed white;
+    overflow-x: hidden;
+    text-align: center;
+}
+
+.outputWrapper {
+    display: inline-block;
+    height: 100%;
+    position: relative;
+    width: calc(100% - 2em - 1px);
+    bottom: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    cursor: text;
+}
+
+.consoleInput:focus {
+    outline: none;
+}
+
+.okResults {
+    width: 100%;
+    height: 100%;
+}
+
+.testList {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.testListItem {
+    padding: 5px;
+    border-bottom: 1px solid white;
+    color: white;
+    font-family: Verdana, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+    font-size: 10pt;
+    user-select: none;
+}
+
+.testListItem:hover {
+    background: dimgray;
+}
+
+.testElem {
+    background-color: gray;
+    padding-left: 40px;
+}
+
+.testDetails {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.testDetailsHeader {
+    padding-left: 10px;
+    color: white;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    border-bottom: solid 5px;
+    font-size: 24px;
+    font-family: Monaco, Consolas, monospace;
+}
+
+.testDetailsCongrats {
+    text-align: center;
+    position: relative;
+    top: 40%
+}
+
+.rawOKPyOutput {
+    padding: 0 5px;
+    font-family: Monaco, Consolas, monospace;
+    color: white;
+    font-size: 14px;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.6;
+}
+
+.commandIcon {
+    width: 24px;
+    height: 24px;
+    padding: 2px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    overflow-x: hidden;
+}
+
+.commandIcon:hover {
+    border: 1px solid gray;
+}
+
+.commandIcon:focus {
+    outline: 1px solid transparent;
+}
+
+/* Golden Layout stuff */
+
+.lm_title {
+    margin: 5px;
+}
+
+.lm_tab {
+    height: 24px !important;
+    width: 250px;
+    cursor: default !important;
+    text-align: center;
+    font-family: system-ui, sans-serif !important;
+    box-shadow: none !important;
+}
+
+.lm_header {
+    height: 30px !important;
+    background: black;
+}
+
+.lm_close_tab {
+    top: 9px !important;
+}
