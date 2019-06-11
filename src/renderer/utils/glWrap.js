@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {checkAllClosed, requestContainer} from "./goldenLayout";
+import { checkAllClosed, requestContainer } from "./goldenLayout";
 
 export default function glWrap(Component, orientation, targetDim, type, friends) {
     function getGlContainer() {

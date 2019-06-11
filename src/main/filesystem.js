@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 import { dialog } from "electron";
 import { basename } from "path";
 

@@ -1,8 +1,8 @@
 import * as React from "react";
 import CommandIcon from "../../../renderer/components/CommandIcon.js";
 
-import '../pytutor/jquery-ui-1.11.4/jquery-ui.css'
-import '../pytutor/pytutor.css'
+import "../pytutor/jquery-ui-1.11.4/jquery-ui.css";
+import "../pytutor/pytutor.css";
 import "./pytutorOverrides.css";
 
 export class PythonTutorDebug extends React.PureComponent {

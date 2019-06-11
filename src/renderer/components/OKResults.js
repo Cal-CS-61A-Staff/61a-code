@@ -1,13 +1,13 @@
 import React from "react";
 import GoldenLayout from "imports-loader?$=jquery!golden-layout";
 import $ from "jquery";
-import ReactDOM from 'react-dom'
+import ReactDOM from "react-dom";
 import glWrap from "../utils/glWrap";
 import TestDetails from "./TestDetails";
 import TestList from "./TestList";
 
 class OKResults extends React.Component {
-      static getActiveTest(props) {
+    static getActiveTest(props) {
         for (const elem of props.data) {
             if (!elem.success) {
                 return {
@@ -83,13 +83,6 @@ class OKResults extends React.Component {
         });
     }
 
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        if (this.props.data !== nextProps.data) {
-            this.setState(OKResults.getActiveTest(nextProps));
-        }
-    }
-
     handleProblemClick = (selectedProblem) => {
         this.setState({
             selectedProblem,
@@ -100,6 +93,13 @@ class OKResults extends React.Component {
     handleTestClick = (selectedTest) => {
         this.setState({ selectedTest });
     };
+
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        if (this.props.data !== nextProps.data) {
+            this.setState(OKResults.getActiveTest(nextProps));
+        }
+    }
 
     render() {
         let rest = false;

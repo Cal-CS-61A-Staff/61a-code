@@ -20,9 +20,9 @@ class Editor extends React.Component {
             }
             return;
         }
-        const {line} = this.props.debugData;
+        const { line } = this.props.debugData;
         this.highlights = this.editorRef.current.editor.deltaDecorations(this.highlights, [
-            {range: new this.monaco.Range(line, 1, line, 1000), options: {isWholeLine: true, className: "activeLine"}},
+            { range: new this.monaco.Range(line, 1, line, 1000), options: { isWholeLine: true, className: "activeLine" } },
         ]);
         this.editorRef.current.editor.revealLineInCenterIfOutsideViewport(line);
     }

@@ -1,6 +1,7 @@
-import {Menu} from "electron";
-import {exit, out} from "./communication";
-import {MENU_SAVE, MENU_SAVE_AS} from "../common/communication_enums.js";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Menu } from "electron";
+import { exit, out } from "./communication";
+import { MENU_SAVE, MENU_SAVE_AS } from "../common/communication_enums.js";
 
 let menuKey = null;
 
@@ -12,105 +13,93 @@ export function assignMenuKey(key) {
 }
 
 export function initializeMenu() {
-    const isMac = process.platform === 'darwin';
+    const isMac = process.platform === "darwin";
 
     const template = [
         // { role: 'appMenu' }
         ...(isMac ? [{
             label: "61A Editor",
             submenu: [
-                {role: 'about'},
-                {type: 'separator'},
-                {role: 'services'},
-                {type: 'separator'},
-                {role: 'hide'},
-                {role: 'hideothers'},
-                {role: 'unhide'},
-                {type: 'separator'},
-                {role: 'quit'}
-            ]
+                { role: "about" },
+                { type: "separator" },
+                { role: "services" },
+                { type: "separator" },
+                { role: "hide" },
+                { role: "hideothers" },
+                { role: "unhide" },
+                { type: "separator" },
+                { role: "quit" },
+            ],
         }] : []),
         // { role: 'fileMenu' }
         {
-            label: 'File',
+            label: "File",
             submenu: [
-                isMac ? {role: 'close'} : {role: 'quit'},
-                {label: 'Save', accelerator: 'CmdOrCtrl+S', click: saveClick},
-                {label: 'Save As', accelerator: 'Shift+CmdOrCtrl+S', click: saveAsClick},
-            ]
+                isMac ? { role: "close" } : { role: "quit" },
+                { label: "Save", accelerator: "CmdOrCtrl+S", click: saveClick },
+                { label: "Save As", accelerator: "Shift+CmdOrCtrl+S", click: saveAsClick },
+            ],
         },
         // { role: 'editMenu' }
         {
-            label: 'Edit',
+            label: "Edit",
             submenu: [
-                {role: 'undo'},
-                {role: 'redo'},
-                {type: 'separator'},
-                {role: 'cut'},
-                {role: 'copy'},
-                {role: 'paste'},
+                { role: "undo" },
+                { role: "redo" },
+                { type: "separator" },
+                { role: "cut" },
+                { role: "copy" },
+                { role: "paste" },
                 ...(isMac ? [
-                    {role: 'pasteAndMatchStyle'},
-                    {role: 'delete'},
-                    {role: 'selectAll'},
-                    {type: 'separator'},
+                    { role: "pasteAndMatchStyle" },
+                    { role: "delete" },
+                    { role: "selectAll" },
+                    { type: "separator" },
                     {
-                        label: 'Speech',
+                        label: "Speech",
                         submenu: [
-                            {role: 'startspeaking'},
-                            {role: 'stopspeaking'}
-                        ]
-                    }
+                            { role: "startspeaking" },
+                            { role: "stopspeaking" },
+                        ],
+                    },
                 ] : [
-                    {role: 'delete'},
-                    {type: 'separator'},
-                    {role: 'selectAll'}
-                ])
-            ]
+                    { role: "delete" },
+                    { type: "separator" },
+                    { role: "selectAll" },
+                ]),
+            ],
         },
         // { role: 'viewMenu' }
         {
-            label: 'View',
+            label: "View",
             submenu: [
-                {role: 'reload'},
-                {role: 'forcereload'},
-                {role: 'toggledevtools'},
-                {type: 'separator'},
-                {role: 'resetzoom'},
-                {role: 'zoomin'},
-                {role: 'zoomout'},
-                {type: 'separator'},
-                {role: 'togglefullscreen'}
-            ]
+                { role: "reload" },
+                { role: "forcereload" },
+                { role: "toggledevtools" },
+                { type: "separator" },
+                { role: "resetzoom" },
+                { role: "zoomin" },
+                { role: "zoomout" },
+                { type: "separator" },
+                { role: "togglefullscreen" },
+            ],
         },
         // { role: 'windowMenu' }
         {
-            label: 'Window',
+            label: "Window",
             submenu: [
-                {role: 'minimize'},
-                {role: 'zoom'},
+                { role: "minimize" },
+                { role: "zoom" },
                 ...(isMac ? [
-                    {type: 'separator'},
-                    {role: 'front'},
-                    {type: 'separator'},
-                    {role: 'window'}
+                    { type: "separator" },
+                    { role: "front" },
+                    { type: "separator" },
+                    { role: "window" },
                 ] : [
-                    {role: 'close'}
-                ])
-            ]
+                    { role: "close" },
+                ]),
+            ],
         },
-        {
-            role: 'help',
-            submenu: [
-                {
-                    label: 'Learn More',
-                    click: async () => {
-                        const {shell} = require('electron');
-                        await shell.openExternal('https://electronjs.org');
-                    }
-                }
-            ]
-        }
     ];
 
     const menu = Menu.buildFromTemplate(template);

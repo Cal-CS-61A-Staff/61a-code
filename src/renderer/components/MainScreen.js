@@ -1,8 +1,8 @@
 import React from "react";
-import {MENU_SAVE, MENU_SAVE_AS} from "../../common/communication_enums.js";
+import { MENU_SAVE, MENU_SAVE_AS } from "../../common/communication_enums.js";
 import NavBar from "./NavBar";
 import OKResults from "./OKResults";
-import {initGoldenLayout} from "../utils/goldenLayout";
+import { initGoldenLayout } from "../utils/goldenLayout";
 import registerOKPyHandler from "../utils/receiveOKResults";
 import claimMenu from "../utils/menuHandler";
 import File from "./File";

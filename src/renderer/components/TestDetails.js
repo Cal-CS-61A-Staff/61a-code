@@ -40,7 +40,9 @@ export default class TestDetails extends React.Component {
                     {"  "}
                     {this.props.data.rawName}
                     <CommandIcon
-                        style={{ float: "right", marginRight: "25px", width: 30, height: 30 }}
+                        style={{
+                            float: "right", marginRight: "25px", width: 30, height: 30,
+                        }}
                         commandName="Debug"
                         onClick={() => this.props.onDebug(this.props.data)}
                     />

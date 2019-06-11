@@ -1,5 +1,5 @@
-import {sendNoInteract} from "../../../renderer/utils/communication";
-import {GEN_PY_TRACE} from "../constants/communicationEnums";
+import { sendNoInteract } from "../../../renderer/utils/communication";
+import { GEN_PY_TRACE } from "../constants/communicationEnums";
 
 const MAX_GLOBALS = 10;
 

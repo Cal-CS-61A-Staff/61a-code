@@ -1,7 +1,7 @@
 import React from "react";
-import {SHOW_OPEN_DIALOG} from "../../common/communication_enums.js";
+import { SHOW_OPEN_DIALOG } from "../../common/communication_enums.js";
 import IntroBox from "./IntroBox";
-import {sendNoInteract} from "../utils/communication.js";
+import { sendNoInteract } from "../utils/communication.js";
 
 export default class LaunchScreen extends React.Component {
     handleCreateClick = () => {
@@ -26,10 +26,12 @@ export default class LaunchScreen extends React.Component {
         return (
             <div className="row">
                 <div className="introColumn">
-                    <IntroBox onCreateClick={this.handleCreateClick}
-                              onOpenClick={this.handleOpenClick}/>
+                    <IntroBox
+                        onCreateClick={this.handleCreateClick}
+                        onOpenClick={this.handleOpenClick}
+                    />
                 </div>
-                <div className="recentColumn"/>
+                <div className="recentColumn" />
             </div>
         );
     }

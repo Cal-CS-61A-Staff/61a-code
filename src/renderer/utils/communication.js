@@ -5,8 +5,9 @@ import {
     OUT,
     ERR,
     EXIT,
-} from "../../common/communication_enums.js"
+} from "../../common/communication_enums.js";
 
+// eslint-disable-next-line
 const { ipcRenderer } = require("electron");
 
 const activeExecutions = {};
@@ -14,7 +15,7 @@ let nextKey = 0; // todo: make key allocation controlled by server to allow for 
 
 const dummy = () => null;
 
-export function run_py_code(code, onOutput, onErr, onHalt) {
+export function runPyCode(code, onOutput, onErr, onHalt) {
     return send(
         { type: RUN_PY_CODE, code },
         onOutput,
@@ -23,7 +24,7 @@ export function run_py_code(code, onOutput, onErr, onHalt) {
     );
 }
 
-function interact_process(key, line) {
+function interactProcess(key, line) {
     ipcRenderer.send("asynchronous-message", {
         type: INTERACT_PROCESS,
         key,
@@ -44,9 +45,9 @@ export function send(message, onOutput, onErr, onHalt) {
     };
 
     return [
-        line => interact_process(key, line),
-        () => kill_process(key),
-        () => detach_handlers(key),
+        line => interactProcess(key, line),
+        () => killProcess(key),
+        () => detachHandlers(key),
     ];
 }
 
@@ -66,11 +67,11 @@ export function sendNoInteract(message) {
     });
 }
 
-function kill_process(key) {
+function killProcess(key) {
     ipcRenderer.send("asynchronous-message", { key, type: KILL_PROCESS });
 }
 
-function detach_handlers(key) {
+function detachHandlers(key) {
     if (activeExecutions[key]) {
         activeExecutions[key] = {
             onOutput: dummy,

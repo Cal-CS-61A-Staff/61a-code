@@ -8,7 +8,9 @@ class Output extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            // eslint-disable-next-line react/no-unused-state
             history: [],
+            // eslint-disable-next-line react/no-unused-state
             historyIndex: 0,
         };
         this.inputRef = React.createRef();

@@ -1,4 +1,4 @@
-let processes = {};
+const processes = {};
 
 export function registerProcess(key, process) {
     processes[key] = process;

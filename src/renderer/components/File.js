@@ -3,8 +3,9 @@ import Editor from "./Editor";
 import Output from "./Output";
 import Debugger from "./Debugger";
 import generateDebugTrace from "../../languages/python/utils/generateDebugTrace.js";
-import {run_py_code, sendNoInteract} from "../utils/communication.js";
-import {SAVE_FILE, SHOW_SAVE_DIALOG} from "../../common/communication_enums.js"
+import format from "../../languages/python/utils/format.js";
+import { runPyCode, sendNoInteract } from "../utils/communication.js";
+import { SAVE_FILE, SHOW_SAVE_DIALOG } from "../../common/communication_enums.js";
 
 export default class File extends React.Component {
     constructor(props) {
@@ -49,7 +50,7 @@ export default class File extends React.Component {
             this.state.detachCallback();
             this.state.killCallback();
         }
-        const [interactCallback, killCallback, detachCallback] = run_py_code(
+        const [interactCallback, killCallback, detachCallback] = runPyCode(
             this.state.editorText,
             out => this.handleOutputUpdate(out, false),
             out => this.handleOutputUpdate(out, true),
@@ -85,7 +86,7 @@ export default class File extends React.Component {
 
     save = async () => {
         if (!this.state.location) {
-            return this.saveAs();
+            await this.saveAs();
         } else {
             const savedText = this.state.editorText;
             const ret = await sendNoInteract({
