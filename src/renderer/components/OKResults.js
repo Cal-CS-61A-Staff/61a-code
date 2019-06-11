@@ -1,5 +1,5 @@
 import React from "react";
-import GoldenLayout from "../../../static/golden-layout";
+import GoldenLayout from "imports-loader?$=jquery!golden-layout";
 import $ from "jquery";
 import ReactDOM from 'react-dom'
 import glWrap from "../utils/glWrap";

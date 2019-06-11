@@ -2,30 +2,13 @@ const webpack = require("webpack");
 
 module.exports = {
     module: {
-        noParse: /monaco-editor\/min\/vs\/loader\.js/,
-        rules: [
-            {
-                test: /pytutor\.js/,
-                use: "exports-loader?ExecutionVisualizer"
-            }
-        ]
-        // rules: [{
-        //     test: require.resolve('jquery'),
-        //     use: [{
-        //         loader: 'expose-loader',
-        //         options: 'jQuery'
-        //     }, {
-        //         loader: 'expose-loader',
-        //         options: '$'
-        //     }]
-        // }]
-
+        noParse: /monaco-editor\/min\/vs\/loader\.js|jquery\.jsPlumb-1\.3\.10-all-min\.js/,
     },
     plugins: [
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
-            jquery: 'jquery'
+            jquery: 'jquery',
         })
     ]
 };

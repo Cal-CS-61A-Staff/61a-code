@@ -1,10 +1,11 @@
 import path from "path";
-import amdLoader from "monaco-editor/min/vs/loader.js"
+import amdLoader from "monaco-editor/min/vs/loader.js";
 import LaunchScreen from "./components/LaunchScreen.js";
 import MainScreen from "./components/MainScreen.js";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import $ from "jquery";
+
 const amdRequire = amdLoader.require;
 
 import "./style.global.css";
@@ -26,10 +27,23 @@ self.module = undefined;
 
 amdRequire(['vs/editor/editor.main'], init);
 
-function init() {
-    console.log(window.$);
-    window.$ = $;
-    ReactDOM.render(<App />, document.getElementById("app"));
+function injectScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = uriFromPath(path.join(__static, src));
+        document.body.appendChild(script);
+        script.onload = () => resolve();
+    });
+}
+
+async function init() {
+    await injectScript("d3.v2.min.js");
+    await injectScript("jquery-1.8.2.min.js");
+    await injectScript("jquery.ba-bbq.min.js");
+    await injectScript("jquery-ui.min.js");
+    await injectScript("jquery.jsPlumb-1.3.10-all-min.js");
+    await injectScript("pytutor.js");
+    ReactDOM.render(<App/>, document.getElementById("app"));
 }
 
 class App extends React.Component {
@@ -43,7 +57,7 @@ class App extends React.Component {
     }
 
     handleAllClosed = () => {
-        this.setState({ launch: true });
+        this.setState({launch: true});
     };
 
     handleFileCreate = (file) => {
@@ -55,7 +69,7 @@ class App extends React.Component {
 
     render() {
         if (this.state.launch) {
-            return <LaunchScreen onFileCreate={this.handleFileCreate} />;
+            return <LaunchScreen onFileCreate={this.handleFileCreate}/>;
         } else {
             return (
                 <MainScreen

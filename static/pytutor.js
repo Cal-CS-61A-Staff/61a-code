@@ -120,7 +120,7 @@ var curVisualizerID = 1; // global to uniquely identify each ExecutionVisualizer
 //          'ts' for TypeScript, 'ruby' for Ruby, 'c' for C, 'cpp' for C++
 //          [default is Python-style labels]
 //   debugMode - some extra debugging printouts
-export function ExecutionVisualizer(domRootID, dat, params) {
+function ExecutionVisualizer(domRootID, dat, params) {
     this.curInputCode = dat.code.main_code.rtrim(); // kill trailing spaces
     this.curTrace = dat.trace;
     this.sourceFiles = dat.code;

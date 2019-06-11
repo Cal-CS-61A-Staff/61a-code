@@ -5,6 +5,7 @@ import * as path from 'path'
 import { format as formatUrl } from 'url'
 import {initializeMenu} from "./initializeMenu.js";
 import {addHandlers} from "./communication.js";
+import {startOkServer} from "./ok_interface.js";
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -69,3 +70,4 @@ app.on('ready', () => {
 
 initializeMenu();
 addHandlers();
+startOkServer();

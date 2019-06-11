@@ -1,8 +1,8 @@
 import $ from "jquery";
 
-import GoldenLayout from "../../../static/golden-layout";
-import "../../../static/golden-layout/src/css/goldenlayout-base.css"
-import "../../../static/golden-layout/src/css/goldenlayout-dark-theme.css"
+import GoldenLayout from "imports-loader?$=jquery!golden-layout";
+import "golden-layout/src/css/goldenlayout-base.css"
+import "golden-layout/src/css/goldenlayout-dark-theme.css"
 
 let layout;
 const containers = {
