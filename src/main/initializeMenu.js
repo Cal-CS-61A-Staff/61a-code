@@ -1,7 +1,9 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu } from "electron";
 import { exit, out } from "./communication";
-import { MENU_SAVE, MENU_SAVE_AS } from "../common/communication_enums.js";
+import {
+    MENU_NEW, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS,
+} from "../common/communicationEnums.js";
 
 let menuKey = null;
 
@@ -36,6 +38,8 @@ export function initializeMenu() {
             label: "File",
             submenu: [
                 isMac ? { role: "close" } : { role: "quit" },
+                { label: "New", accelerator: "CmdOrCtrl+N", click: newClick },
+                { label: "Open", accelerator: "CmdOrCtrl+O", click: openClick },
                 { label: "Save", accelerator: "CmdOrCtrl+S", click: saveClick },
                 { label: "Save As", accelerator: "Shift+CmdOrCtrl+S", click: saveAsClick },
             ],
@@ -107,6 +111,14 @@ export function initializeMenu() {
 }
 
 // todo: freeze menu items / initialize dummy handler on first start so the checks aren't needed
+
+function newClick() {
+    out(menuKey, MENU_NEW);
+}
+
+function openClick() {
+    out(menuKey, MENU_OPEN);
+}
 
 function saveClick() {
     out(menuKey, MENU_SAVE);

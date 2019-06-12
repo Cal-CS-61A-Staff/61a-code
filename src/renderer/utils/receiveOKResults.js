@@ -1,4 +1,4 @@
-import { REGISTER_OKPY_HANDLER } from "../../common/communication_enums.js";
+import { REGISTER_OKPY_HANDLER } from "../../common/communicationEnums.js";
 import { send } from "./communication";
 
 export default function registerOKPyHandler(onOKPypdate) {

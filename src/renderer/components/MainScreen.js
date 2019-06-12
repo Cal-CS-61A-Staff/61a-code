@@ -1,5 +1,7 @@
 import React from "react";
-import { MENU_SAVE, MENU_SAVE_AS } from "../../common/communication_enums.js";
+import {
+    MENU_NEW, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS, SHOW_OPEN_DIALOG,
+} from "../../common/communicationEnums.js";
 import NavBar from "./NavBar";
 import OKResults from "./OKResults";
 import { initGoldenLayout } from "../utils/goldenLayout";
@@ -7,12 +9,13 @@ import registerOKPyHandler from "../utils/receiveOKResults";
 import claimMenu from "../utils/menuHandler";
 import File from "./File";
 import generateDebugTrace from "../../languages/python/utils/generateDebugTrace.js";
+import { sendNoInteract } from "../utils/communication.js";
 
 export default class MainScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            fileRefs: {},
+            files: {},
             activeFileKey: null,
 
             okResults: null,
@@ -23,18 +26,26 @@ export default class MainScreen extends React.Component {
 
             detachMenuCallback:
                 claimMenu({
+                    [MENU_NEW]: this.newFile,
+                    [MENU_OPEN]: this.openFile,
                     [MENU_SAVE]: this.save,
                     [MENU_SAVE_AS]: this.saveAs,
                 }),
         };
+
+        this.keyCnt = 0;
+
         this.okResultsRef = React.createRef();
         this.terminalRef = React.createRef();
     }
 
     componentDidMount() {
         initGoldenLayout(this.props.onAllClosed);
-        const fileRefs = { 0: React.createRef() };
-        this.setState({ fileRefs });
+        const files = {
+            [this.keyCnt++]:
+                { ref: React.createRef(), initData: this.props.initFile },
+        };
+        this.setState({ files });
     }
 
     componentWillUnmount() {
@@ -42,12 +53,33 @@ export default class MainScreen extends React.Component {
         this.state.detachMenuCallback();
     }
 
+    newFile = () => {
+
+    };
+
+    openFile = async () => {
+        const ret = await sendNoInteract({
+            type: SHOW_OPEN_DIALOG,
+        });
+        if (ret.success) {
+            this.setState(state => ({
+                files: {
+                    ...state.files,
+                    [this.keyCnt++]: {
+                        ref: React.createRef(),
+                        initData: ret.file,
+                    },
+                },
+            }));
+        }
+    };
+
     save = () => {
-        this.state.fileRefs[this.state.activeFileKey].current.save();
+        this.state.files[this.state.activeFileKey].ref.current.save();
     };
 
     saveAs = () => {
-        this.state.fileRefs[this.state.activeFileKey].current.saveAs();
+        this.state.files[this.state.activeFileKey].ref.current.saveAs();
     };
 
     handleOKPyUpdate = (okResults, cachedOKModules, okPath) => {
@@ -72,6 +104,7 @@ export default class MainScreen extends React.Component {
         const setupCodeStr = setupCode.join("\n");
         const caseCodeStr = caseCode.join("\n");
 
+        // todo: make language agnostic
         const debugData = await generateDebugTrace(
             caseCodeStr,
             this.state.cachedOKModules,
@@ -79,7 +112,7 @@ export default class MainScreen extends React.Component {
             this.state.okPath,
         );
 
-        this.state.fileRefs[this.state.activeFileKey].current.debug(debugData);
+        this.state.files[this.state.activeFileKey].ref.current.debug(debugData);
     };
 
     handleFileActivate = (key) => {
@@ -92,16 +125,16 @@ export default class MainScreen extends React.Component {
 
     handleActionClick = (action) => {
         const { activeFileKey } = this.state;
-        this.state.fileRefs[activeFileKey].current[action]();
+        this.state.files[activeFileKey].ref.current[action]();
     };
 
     render() {
-        const fileElems = Object.keys(this.state.fileRefs).map(key => (
+        const fileElems = Object.keys(this.state.files).map(key => (
             <File
                 key={key}
                 id={key}
-                ref={this.state.fileRefs[key]}
-                initFile={this.props.initFile}
+                ref={this.state.files[key].ref}
+                initFile={this.state.files[key].initData}
                 onActivate={this.handleFileActivate}
             />
         ));

@@ -1,13 +1,11 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ipcMain } from "electron";
 
-import { runPyCode } from "./runPython";
 import { interactProcess, killProcess } from "./processes";
 import { save, showOpenDialog, showSaveDialog } from "./filesystem";
 import {
     INTERACT_PROCESS,
     KILL_PROCESS,
-    RUN_PY_CODE,
     SHOW_OPEN_DIALOG,
     SHOW_SAVE_DIALOG,
     OUT,
@@ -15,21 +13,32 @@ import {
     EXIT,
     CLAIM_MENU,
     SAVE_FILE,
-    REGISTER_OKPY_HANDLER,
-} from "../common/communication_enums.js";
+    REGISTER_OKPY_HANDLER, REQUEST_KEY,
+} from "../common/communicationEnums.js";
 
 import * as python from "../languages/python/communication";
+import * as scheme from "../languages/scheme/communication";
 import { assignMenuKey } from "./initializeMenu";
 import { registerOKPyHandler } from "./ok_interface";
+import { PYTHON, SCHEME } from "../common/languages.js";
 
-let commonEvent;
+const senders = {};
+
+let nextKey = 0;
 
 export function addHandlers() {
     ipcMain.on("asynchronous-message", (event, arg) => {
-        if (!commonEvent) {
-            commonEvent = event;
-        }
+        senders[arg.key] = event.sender;
         receive(arg);
+    });
+
+    ipcMain.on("synchronous-message", (event, arg) => {
+        if (arg === REQUEST_KEY) {
+            // eslint-disable-next-line no-param-reassign
+            event.returnValue = nextKey++;
+        } else {
+            console.error("Unknown synchronous request:", arg);
+        }
     });
 }
 
@@ -37,9 +46,7 @@ function receive(arg) {
     console.log("Receive", arg);
     if (!arg.handler) {
         // main server handler
-        if (arg.type === RUN_PY_CODE) {
-            runPyCode(arg.key, arg.code);
-        } else if (arg.type === INTERACT_PROCESS) {
+        if (arg.type === INTERACT_PROCESS) {
             interactProcess(arg.key, arg.line);
         } else if (arg.type === KILL_PROCESS) {
             killProcess(arg.key);
@@ -56,8 +63,10 @@ function receive(arg) {
         } else {
             console.error(`Unknown (or missing) type: ${arg.type}`);
         }
-    } else if (arg.handler === "python") {
+    } else if (arg.handler === PYTHON) {
         python.receive(arg);
+    } else if (arg.handler === SCHEME) {
+        scheme.receive(arg);
     } else {
         console.error(`Unknown handler: ${arg.handler}`);
     }
@@ -65,7 +74,12 @@ function receive(arg) {
 
 export function send(arg) {
     console.log("Send", arg);
-    commonEvent.sender.send("asynchronous-reply", arg);
+    try {
+        senders[arg.key].send("asynchronous-reply", arg);
+    } catch (e) {
+        console.error(e);
+        delete senders[arg.key];
+    }
 }
 
 export function out(key, val) {

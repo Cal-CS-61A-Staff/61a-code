@@ -1,8 +1,7 @@
-import temp from "temp";
-import fs from "fs";
 import { spawn } from "child_process";
+import * as temp from "temp";
+import fs from "fs";
 import { registerProcess } from "./processes";
-
 
 import { err, exit, out } from "./communication";
 

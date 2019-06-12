@@ -1,28 +1,13 @@
 import {
-    RUN_PY_CODE,
-    INTERACT_PROCESS,
-    KILL_PROCESS,
-    OUT,
-    ERR,
-    EXIT,
-} from "../../common/communication_enums.js";
+    ERR, EXIT, INTERACT_PROCESS, KILL_PROCESS, OUT, REQUEST_KEY,
+} from "../../common/communicationEnums.js";
 
 // eslint-disable-next-line
 const { ipcRenderer } = require("electron");
 
 const activeExecutions = {};
-let nextKey = 0; // todo: make key allocation controlled by server to allow for multiple windows
 
 const dummy = () => null;
-
-export function runPyCode(code, onOutput, onErr, onHalt) {
-    return send(
-        { type: RUN_PY_CODE, code },
-        onOutput,
-        onErr,
-        onHalt,
-    );
-}
 
 function interactProcess(key, line) {
     ipcRenderer.send("asynchronous-message", {
@@ -32,10 +17,14 @@ function interactProcess(key, line) {
     });
 }
 
+function requestKey() {
+    return ipcRenderer.sendSync("synchronous-message", REQUEST_KEY);
+}
+
 export function send(message, onOutput, onErr, onHalt) {
     console.log(message);
 
-    const key = nextKey++;
+    const key = requestKey();
 
     ipcRenderer.send("asynchronous-message", { key, ...message });
     activeExecutions[key] = {
@@ -87,6 +76,10 @@ ipcRenderer.on("asynchronous-reply", (event, arg) => {
     } else if (arg.type === ERR) {
         activeExecutions[arg.key].onErr(arg.out);
     } else if (arg.type === EXIT) {
+        if (!activeExecutions[arg.key]) {
+            // key from previous window, is now dead :P
+            return;
+        }
         activeExecutions[arg.key].onHalt(arg.out);
         delete activeExecutions[arg.key];
     } else {

@@ -1,5 +1,5 @@
 import { send } from "./communication";
-import { CLAIM_MENU } from "../../common/communication_enums.js";
+import { CLAIM_MENU } from "../../common/communicationEnums.js";
 
 export default function claimMenu(handlers) {
     const [, , detach] = send({ type: CLAIM_MENU },

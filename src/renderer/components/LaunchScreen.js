@@ -1,5 +1,5 @@
 import React from "react";
-import { SHOW_OPEN_DIALOG } from "../../common/communication_enums.js";
+import { SHOW_OPEN_DIALOG } from "../../common/communicationEnums.js";
 import IntroBox from "./IntroBox";
 import { sendNoInteract } from "../utils/communication.js";
 

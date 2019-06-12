@@ -1,4 +1,5 @@
-export const RUN_PY_CODE = "RUN_PY_CODE";
+export const REQUEST_KEY = "REQUEST_KEY";
+
 export const INTERACT_PROCESS = "INTERACT_PROCESS";
 export const KILL_PROCESS = "KILL_PROCESS";
 
@@ -10,6 +11,8 @@ export const SHOW_OPEN_DIALOG = "SHOW_OPEN_DIALOG";
 export const SHOW_SAVE_DIALOG = "SHOW_SAVE_DIALOG";
 
 export const CLAIM_MENU = "CLAIM_MENU";
+export const MENU_NEW = "MENU_NEW";
+export const MENU_OPEN = "MENU_OPEN";
 export const MENU_SAVE = "MENU_SAVE";
 export const MENU_SAVE_AS = "MENU_SAVE_AS";
 

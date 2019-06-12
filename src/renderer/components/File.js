@@ -2,10 +2,12 @@ import React from "react";
 import Editor from "./Editor";
 import Output from "./Output";
 import Debugger from "./Debugger";
-import generateDebugTrace from "../../languages/python/utils/generateDebugTrace.js";
-import format from "../../languages/python/utils/format.js";
-import { runPyCode, sendNoInteract } from "../utils/communication.js";
-import { SAVE_FILE, SHOW_SAVE_DIALOG } from "../../common/communication_enums.js";
+import { sendNoInteract } from "../utils/communication.js";
+import { SAVE_FILE, SHOW_SAVE_DIALOG } from "../../common/communicationEnums.js";
+import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
+import {
+    format, generateDebugTrace, runCode, runFile,
+} from "../utils/dispatch.js";
 
 export default class File extends React.Component {
     constructor(props) {
@@ -50,12 +52,25 @@ export default class File extends React.Component {
             this.state.detachCallback();
             this.state.killCallback();
         }
-        const [interactCallback, killCallback, detachCallback] = runPyCode(
-            this.state.editorText,
-            out => this.handleOutputUpdate(out, false),
-            out => this.handleOutputUpdate(out, true),
-            this.handleHalt,
-        );
+        let interactCallback;
+        let killCallback;
+        let detachCallback;
+
+        if (this.state.location) {
+            [interactCallback, killCallback, detachCallback] = runFile(this.identifyLanguage())(
+                this.state.location,
+                out => this.handleOutputUpdate(out, false),
+                out => this.handleOutputUpdate(out, true),
+                this.handleHalt,
+            );
+        } else {
+            [interactCallback, killCallback, detachCallback] = runCode(this.identifyLanguage())(
+                this.state.editorText,
+                out => this.handleOutputUpdate(out, false),
+                out => this.handleOutputUpdate(out, true),
+                this.handleHalt,
+            );
+        }
         this.setState({
             interactCallback,
             killCallback,
@@ -72,7 +87,7 @@ export default class File extends React.Component {
         if (data) {
             debugData = data; // data has been generated for us by parent
         } else {
-            debugData = await generateDebugTrace(this.state.editorText);
+            debugData = await generateDebugTrace(this.identifyLanguage())(this.state.editorText);
         }
         this.setState({ debugData, editorInDebugMode: true });
         this.debugRef.current.forceOpen();
@@ -80,7 +95,7 @@ export default class File extends React.Component {
 
     format = async () => {
         // eslint-disable-next-line react/no-access-state-in-setstate
-        const formatted = await format(this.state.editorText);
+        const formatted = await format(this.identifyLanguage())(this.state.editorText);
         this.setState({ editorText: formatted });
     };
 
@@ -151,16 +166,37 @@ export default class File extends React.Component {
         this.handleActivate();
     };
 
+    identifyLanguage = () => {
+        const name = this.state.name.toLowerCase();
+        if (name.endsWith(".py")) {
+            return PYTHON;
+        } else if (name.endsWith(".scm")) {
+            return SCHEME;
+        } else if (name.endsWith(".sql")) {
+            return SQL;
+        } else {
+            const code = this.state.editorText.toLowerCase();
+            if (code.split("def ").length > 1) {
+                return PYTHON;
+            } else if (code.split("define ").length > 1 || code.split("define-macro ").length > 2) {
+                return SCHEME;
+            } else {
+                return SQL;
+            }
+        }
+    };
+
     render() {
         const title = this.state.name + ((this.state.editorText === this.state.savedText) ? "" : "*");
-
         const editorDebugData = this.state.editorInDebugMode ? this.state.editorDebugData : null;
+        const language = this.identifyLanguage().toLowerCase();
 
         return (
             <>
                 <Editor
                     ref={this.editorRef}
                     text={this.state.editorText}
+                    language={language}
                     title={title}
                     onActivate={this.handleActivate}
                     onChange={this.handleEditorChange}
