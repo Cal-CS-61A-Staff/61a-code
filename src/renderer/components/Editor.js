@@ -9,6 +9,7 @@ class Editor extends React.Component {
         this.highlights = [];
         this.editorRef = React.createRef();
         this.monaco = null;
+        this.props.glContainer.on("show", () => this.props.onActivate());
     }
 
     componentDidUpdate() {

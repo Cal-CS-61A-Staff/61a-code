@@ -98,8 +98,21 @@ html {
 
 .pathIndicator {
     position: absolute;
-    left: 5px;
-    top: 5px;
+    left: 10px;
+    top: 7px;
+}
+
+.pathIndicatorElem {
+    font-family: "Verdana", sans-serif;
+    font-size: 10pt;
+}
+
+.folderIndicator {
+    font-weight: lighter;
+    color: slategrey;
+}
+
+.fileIndicator {
 }
 
 .commandIcons {

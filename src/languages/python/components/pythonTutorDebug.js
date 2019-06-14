@@ -5,7 +5,7 @@ import "../pytutor/jquery-ui-1.11.4/jquery-ui.css";
 import "../pytutor/pytutor.css";
 import "./pytutorOverrides.css";
 
-export class PythonTutorDebug extends React.PureComponent {
+export default class PythonTutorDebug extends React.PureComponent {
     constructor(props) {
         super(props);
         this.vizRef = React.createRef();

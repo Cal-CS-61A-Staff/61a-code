@@ -1,11 +1,14 @@
 import React from "react";
 
 export default function FolderIndicator(props) {
-    return (
-        <span key={props.key}>
-            <button type="button">
+    return (props.folderName
+        && (
+            <span className="folderIndicator pathIndicatorElem">
+                {" "}
                 {props.folderName}
-            </button>
-        </span>
+                {" "}
+                <i className="fas fa-chevron-right" />
+            </span>
+        )
     );
 }

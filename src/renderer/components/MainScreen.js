@@ -150,10 +150,24 @@ export default class MainScreen extends React.Component {
                 onActivate={this.handleFileActivate}
             />
         ));
+
+        const { activeFileKey } = this.state;
+        let activePath = [];
+
+        if (activeFileKey) {
+            const activeFile = this.state.files[activeFileKey].ref.current;
+            if (activeFile) {
+                const { location } = activeFile.state;
+                if (location) {
+                    activePath = location.split("/");
+                }
+            }
+        }
+
         return (
             <>
                 <NavBar
-                    path={["folder1", "folder2", "file.py"]}
+                    path={activePath}
                     onActionClick={this.handleActionClick}
                 />
                 {fileElems}

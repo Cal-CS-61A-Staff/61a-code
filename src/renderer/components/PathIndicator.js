@@ -6,7 +6,8 @@ export default function PathIndicator(props) {
     const folderPath = props.path.slice(0, props.path.length - 1);
     const fileName = props.path[props.path.length - 1];
     const folderElems = folderPath.map(
-        (elem, index) => FolderIndicator({ folderName: elem, key: index }),
+        // eslint-disable-next-line react/no-array-index-key
+        (elem, index) => <FolderIndicator key={index} folderName={elem} />,
     );
     return (
         <span className="pathIndicator">

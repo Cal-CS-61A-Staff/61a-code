@@ -3,7 +3,7 @@ import fs from "fs";
 import { runPyScript } from "../../main/runPython.js";
 import { FORMAT, RUN_SCM_CODE, RUN_SCM_FILE } from "./constants/communicationEnums.js";
 
-export function receive(arg) {
+export default function receive(arg) {
     if (arg.type === RUN_SCM_CODE) {
         runScmCode(arg.key, arg.code);
     } else if (arg.type === RUN_SCM_FILE) {

@@ -1,11 +1,11 @@
-module.exports = function (api) {
-  api.cache(true);
+module.exports = (api) => {
+    api.cache(true);
 
-  const presets = [];
-  const plugins = ["@babel/plugin-proposal-class-properties"];
+    const presets = [];
+    const plugins = ["@babel/plugin-proposal-class-properties"];
 
-  return {
-    presets,
-    plugins
-  };
-}
+    return {
+        presets,
+        plugins,
+    };
+};

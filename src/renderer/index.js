@@ -1,11 +1,13 @@
+import "react-hot-loader/patch";
 import path from "path";
 import amdLoader from "monaco-editor/min/vs/loader.js";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import MainScreen from "./components/MainScreen.js";
-import LaunchScreen from "./components/LaunchScreen.js";
 
 import "./style.global.css";
+import { AppContainer } from "react-hot-loader";
+import App from "./components/App.js";
+
 
 const amdRequire = amdLoader.require;
 
@@ -36,6 +38,15 @@ function injectScript(src) {
     });
 }
 
+function render(Component) {
+    ReactDOM.render(
+        <AppContainer>
+            <Component />
+        </AppContainer>,
+        document.getElementById("app"),
+    );
+}
+
 async function init() {
     await injectScript("d3.v2.min.js");
     await injectScript("jquery-1.8.2.min.js");
@@ -43,40 +54,10 @@ async function init() {
     await injectScript("jquery-ui.min.js");
     await injectScript("jquery.jsPlumb-1.3.10-all-min.js");
     await injectScript("pytutor.js");
-    ReactDOM.render(<App />, document.getElementById("app"));
-}
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
+    render(App);
 
-        this.state = {
-            launch: true,
-            initFile: null,
-        };
-    }
-
-    handleAllClosed = () => {
-        this.setState({ launch: true });
-    };
-
-    handleFileCreate = (file) => {
-        this.setState({
-            launch: false,
-            initFile: file,
-        });
-    };
-
-    render() {
-        if (this.state.launch) {
-            return <LaunchScreen onFileCreate={this.handleFileCreate} />;
-        } else {
-            return (
-                <MainScreen
-                    onAllClosed={this.handleAllClosed}
-                    initFile={this.state.initFile}
-                />
-            );
-        }
+    if (module.hot) {
+        module.hot.accept("./components/App.js", () => render(App));
     }
 }

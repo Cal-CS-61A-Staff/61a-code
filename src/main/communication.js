@@ -16,8 +16,8 @@ import {
     REGISTER_OKPY_HANDLER, REQUEST_KEY,
 } from "../common/communicationEnums.js";
 
-import * as python from "../languages/python/communication";
-import * as scheme from "../languages/scheme/communication";
+import python from "../languages/python/communication";
+import scheme from "../languages/scheme/communication";
 import { assignMenuKey } from "./initializeMenu";
 import { registerOKPyHandler } from "./ok_interface";
 import { PYTHON, SCHEME } from "../common/languages.js";
@@ -64,9 +64,9 @@ function receive(arg) {
             console.error(`Unknown (or missing) type: ${arg.type}`);
         }
     } else if (arg.handler === PYTHON) {
-        python.receive(arg);
+        python(arg);
     } else if (arg.handler === SCHEME) {
-        scheme.receive(arg);
+        scheme(arg);
     } else {
         console.error(`Unknown handler: ${arg.handler}`);
     }
