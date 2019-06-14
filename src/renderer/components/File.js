@@ -47,7 +47,10 @@ export default class File extends React.Component {
         }
     }
 
-    run = () => {
+    run = async () => {
+        if (this.state.location) {
+            await this.save();
+        }
         if (this.state.killCallback) {
             this.state.detachCallback();
             this.state.killCallback();
@@ -176,12 +179,12 @@ export default class File extends React.Component {
             return SQL;
         } else {
             const code = this.state.editorText.toLowerCase();
-            if (code.split("def ").length > 1) {
-                return PYTHON;
-            } else if (code.split("define ").length > 1 || code.split("define-macro ").length > 2) {
+            if (code.split("select").length > 1) {
+                return SQL;
+            } else if (code.trim()[0] === "(" || code.split(";") > 1) {
                 return SCHEME;
             } else {
-                return SQL;
+                return PYTHON;
             }
         }
     };

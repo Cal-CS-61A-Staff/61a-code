@@ -123,6 +123,15 @@ html {
     line-height: 1.6;
 }
 
+.output * {
+    overflow-anchor: none;
+}
+
+.outputScrollAnchor {
+    overflow-anchor: auto;
+    height: 1px;
+}
+
 .outputControls {
     display: inline-block;
     height: 100%;

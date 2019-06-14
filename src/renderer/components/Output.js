@@ -14,6 +14,15 @@ class Output extends React.Component {
             historyIndex: 0,
         };
         this.inputRef = React.createRef();
+        this.outputRef = React.createRef();
+    }
+
+    componentDidMount() {
+        this.postRender();
+    }
+
+    componentDidUpdate() {
+        this.postRender();
     }
 
     handleOutputClick = () => {
@@ -27,6 +36,15 @@ class Output extends React.Component {
         }
     };
 
+    handleInput = (text) => {
+        this.postRender(text);
+        this.props.onInput(text);
+    };
+
+    postRender() {
+        this.outputRef.current.scrollTop = this.outputRef.current.scrollHeight;
+    }
+
     render() {
         return (
             <>
@@ -38,12 +56,13 @@ class Output extends React.Component {
                     />
                 </div>
                 {/* eslint-disable-next-line */}
-                <div className="outputWrapper" onClick={this.handleOutputClick}>
+                <div className="outputWrapper" ref={this.outputRef} onClick={this.handleOutputClick}>
                     <div className="output">
                         {/* eslint-disable-next-line react/no-array-index-key */}
                         {this.props.data.map((elem, index) => <OutputElem key={index} {...elem} />)}
                         {this.props.outputActive
-                        && <StdinElem ref={this.inputRef} onInput={this.props.onInput} />}
+                        && <StdinElem ref={this.inputRef} onInput={this.handleInput} />}
+                        <div className="outputScrollAnchor" />
                     </div>
                 </div>
             </>

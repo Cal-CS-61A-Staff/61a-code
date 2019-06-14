@@ -54,7 +54,19 @@ export default class MainScreen extends React.Component {
     }
 
     newFile = () => {
-
+        this.setState(state => ({
+            files: {
+                ...state.files,
+                [this.keyCnt++]: {
+                    ref: React.createRef(),
+                    initData: {
+                        name: "untitled",
+                        location: null,
+                        content: "",
+                    },
+                },
+            },
+        }));
     };
 
     openFile = async () => {
