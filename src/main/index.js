@@ -9,9 +9,11 @@ import { startOkServer } from "./ok_interface.js";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-let mainWindow;
+const windows = new Set();
+let activeWindow;
 
-function createMainWindow() {
+// eslint-disable-next-line import/prefer-default-export
+export function createWindow() {
     const window = new BrowserWindow({
         webPreferences: {
             webSecurity: !isDevelopment,
@@ -32,8 +34,15 @@ function createMainWindow() {
         }));
     }
 
+    window.on("focus", () => {
+        activeWindow = window;
+    });
+
     window.on("closed", () => {
-        mainWindow = null;
+        if (window === activeWindow) {
+            activeWindow = null;
+        }
+        windows.delete(window);
     });
 
     window.webContents.on("devtools-opened", () => {
@@ -43,7 +52,13 @@ function createMainWindow() {
         });
     });
 
-    return window;
+    windows.add(window);
+}
+
+export function closeActiveWindow() {
+    if (activeWindow) {
+        activeWindow.close();
+    }
 }
 
 // quit application when all windows are closed
@@ -56,14 +71,14 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
     // on macOS it is common to re-create a window even after all windows have been closed
-    if (mainWindow === null) {
-        mainWindow = createMainWindow();
+    if (windows.size === 0) {
+        createWindow();
     }
 });
 
 // create main BrowserWindow when electron is ready
 app.on("ready", () => {
-    mainWindow = createMainWindow();
+    createWindow();
 });
 
 initializeMenu();

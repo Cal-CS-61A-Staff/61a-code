@@ -1,9 +1,40 @@
 import React from "react";
-import { SHOW_OPEN_DIALOG } from "../../common/communicationEnums.js";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { remote } from "electron";
+import {
+    MENU_CLOSE_TAB,
+    MENU_NEW,
+    MENU_OPEN,
+    MENU_SAVE, MENU_SAVE_AS,
+    SHOW_OPEN_DIALOG,
+} from "../../common/communicationEnums.js";
 import IntroBox from "./IntroBox";
 import { sendNoInteract } from "../utils/communication.js";
+import claimMenu from "../utils/menuHandler.js";
 
 export default class LaunchScreen extends React.Component {
+    static closeTab() {
+        remote.getCurrentWindow().close();
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            detachMenuCallback:
+                claimMenu({
+                    [MENU_NEW]: this.handleCreateClick,
+                    [MENU_OPEN]: this.handleOpenClick,
+                    [MENU_SAVE]: () => null,
+                    [MENU_SAVE_AS]: () => null,
+                    [MENU_CLOSE_TAB]: LaunchScreen.closeTab,
+                }),
+        };
+    }
+
+    componentWillUnmount() {
+        this.state.detachMenuCallback();
+    }
+
     handleCreateClick = () => {
         const file = {
             name: "untitled",

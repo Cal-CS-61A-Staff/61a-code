@@ -2,8 +2,10 @@
 import { Menu } from "electron";
 import { exit, out } from "./communication";
 import {
+    MENU_CLOSE_TAB,
     MENU_NEW, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS,
 } from "../common/communicationEnums.js";
+import { closeActiveWindow, createWindow } from "./index.js";
 
 let menuKey = null;
 
@@ -37,11 +39,15 @@ export function initializeMenu() {
         {
             label: "File",
             submenu: [
-                isMac ? { role: "close" } : { role: "quit" },
-                { label: "New", accelerator: "CmdOrCtrl+N", click: newClick },
+                { label: "New File", accelerator: "CmdOrCtrl+N", click: newClick },
+                { label: "New Window", accelerator: "CmdOrCtrl+Shift+N", click: createWindow },
                 { label: "Open", accelerator: "CmdOrCtrl+O", click: openClick },
+                { type: "separator" },
                 { label: "Save", accelerator: "CmdOrCtrl+S", click: saveClick },
                 { label: "Save As", accelerator: "Shift+CmdOrCtrl+S", click: saveAsClick },
+                { type: "separator" },
+                { label: "Close Tab", accelerator: "CmdOrCtrl+W", click: closeTabClick },
+                { label: "Close Window", accelerator: "Shift+CmdOrCtrl+W", click: closeActiveWindow },
             ],
         },
         // { role: 'editMenu' }
@@ -126,4 +132,8 @@ function saveClick() {
 
 function saveAsClick() {
     out(menuKey, MENU_SAVE_AS);
+}
+
+function closeTabClick() {
+    out(menuKey, MENU_CLOSE_TAB);
 }

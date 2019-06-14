@@ -15,6 +15,7 @@ export const MENU_NEW = "MENU_NEW";
 export const MENU_OPEN = "MENU_OPEN";
 export const MENU_SAVE = "MENU_SAVE";
 export const MENU_SAVE_AS = "MENU_SAVE_AS";
+export const MENU_CLOSE_TAB = "MENU_CLOSE_TAB";
 
 export const SAVE_FILE = "SAVE_FILE";
 export const READ_FILE = "READ_FILE";
