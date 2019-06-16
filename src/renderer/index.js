@@ -1,11 +1,11 @@
-import "react-hot-loader/patch";
-import path from "path";
 import amdLoader from "monaco-editor/min/vs/loader.js";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
+import path from "path";
+import { URL } from "url";
+
 import "./style.global.css";
-import { AppContainer } from "react-hot-loader";
 import App from "./components/App.js";
 
 
@@ -39,10 +39,12 @@ function injectScript(src) {
 }
 
 function render(Component) {
+    const rawUrl = document.location.toString();
+    const parsedUrl = new URL(rawUrl);
+    console.log(parsedUrl.searchParams);
+    const initialPath = parsedUrl.searchParams.get("initialPath");
     ReactDOM.render(
-        <AppContainer>
-            <Component />
-        </AppContainer>,
+        <Component path={initialPath} />,
         document.getElementById("app"),
     );
 }
@@ -53,11 +55,7 @@ async function init() {
     await injectScript("jquery.ba-bbq.min.js");
     await injectScript("jquery-ui.min.js");
     await injectScript("jquery.jsPlumb-1.3.10-all-min.js");
-    await injectScript("pytutor.js");
+    await injectScript("python/pytutor.js");
 
     render(App);
-
-    if (module.hot) {
-        module.hot.accept("./components/App.js", () => render(App));
-    }
 }

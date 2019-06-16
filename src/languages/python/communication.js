@@ -9,8 +9,8 @@ export default function receive(arg) {
     } else if (arg.type === RUN_PY_FILE) {
         runPyScript(arg.key, arg.location, ["-i"], []);
     } else if (arg.type === GEN_PY_TRACE) {
-        runPyScript(arg.key, `${__dirname}/wrapper.py`, [], [JSON.stringify(arg.data)]);
+        runPyScript(arg.key, `${__static}/python/wrapper.py`, [], [JSON.stringify(arg.data)]);
     } else if (arg.type === RUN_BLACK) {
-        runPyScript(arg.key, `${__dirname}/black`, [], ["--code", arg.code]);
+        runPyScript(arg.key, `${__static}/python/black`, [], ["--code", arg.code]);
     }
 }

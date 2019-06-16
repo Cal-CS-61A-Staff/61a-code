@@ -119,14 +119,18 @@ export default class File extends React.Component {
     };
 
     saveAs = async () => {
-        const ret = await sendNoInteract({ type: SHOW_SAVE_DIALOG });
-        if (!ret.success) {
-            return;
+        const savedText = this.state.editorText;
+        const ret = await sendNoInteract({
+            type: SHOW_SAVE_DIALOG,
+            contents: savedText,
+        });
+        if (ret.success) {
+            this.setState({
+                name: ret.name,
+                savedText,
+                location: ret.location,
+            });
         }
-        this.setState({
-            name: ret.name,
-            location: ret.location,
-        }, this.save);
     };
 
     handleDebugUpdate = (editorDebugData) => {

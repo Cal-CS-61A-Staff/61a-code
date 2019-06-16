@@ -7,7 +7,7 @@ export default function receive(arg) {
     if (arg.type === RUN_SCM_CODE) {
         runScmCode(arg.key, arg.code);
     } else if (arg.type === RUN_SCM_FILE) {
-        runPyScript(arg.key, `${__dirname}/scheme`, [], [arg.location, "-i"]);
+        runPyScript(arg.key, `${__static}/scheme/scheme`, [], [arg.location, "-i"]);
     } else if (arg.type === FORMAT) {
         scmFormat(arg.key, arg.code);
     }
@@ -18,7 +18,7 @@ function runScmCode(key, code) {
         if (!fail) {
             fs.write(info.fd, code, () => {
                 fs.close(info.fd, () => null);
-                runPyScript(key, `${__dirname}/scheme`, [], [info.path, "-i"]);
+                runPyScript(key, `${__static}/scheme/scheme`, [], [info.path, "-i"]);
             });
         }
     });
@@ -29,7 +29,7 @@ function scmFormat(key, code) {
         if (!fail) {
             fs.write(info.fd, code, () => {
                 fs.close(info.fd, () => null);
-                runPyScript(key, `${__dirname}/formatter`, [], ["--reformat", info.path]);
+                runPyScript(key, `${__static}/scheme/formatter`, [], ["--reformat", info.path]);
             });
         }
     });

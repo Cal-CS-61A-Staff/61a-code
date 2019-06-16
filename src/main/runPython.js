@@ -6,7 +6,7 @@ import { registerProcess } from "./processes";
 import { err, exit, out } from "./communication";
 
 export function runPyScript(key, scriptLocation, interpreterArgs, args) {
-    const python = spawn("python", ["-u"].concat(interpreterArgs).concat([scriptLocation]).concat(args));
+    const python = spawn("python3.6", ["-u"].concat(interpreterArgs).concat([scriptLocation]).concat(args));
     registerProcess(key, python);
     // const bufferedOut = makeBuffer(x => out(key, x), 50, 500);
     // const bufferedErr = makeBuffer(x => err(key, x), 50, 500);

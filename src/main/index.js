@@ -12,12 +12,21 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 const windows = new Set();
 let activeWindow;
 
+let initialPath = "";
+
+let ready = false;
+
 // eslint-disable-next-line import/prefer-default-export
 export function createWindow() {
     const window = new BrowserWindow({
+        show: false,
         webPreferences: {
             webSecurity: !isDevelopment,
         },
+    });
+
+    window.once("ready-to-show", () => {
+        window.show();
     });
 
     if (isDevelopment) {
@@ -31,8 +40,11 @@ export function createWindow() {
             pathname: path.join(__dirname, "index.html"),
             protocol: "file",
             slashes: true,
+            query: { initialPath },
         }));
     }
+
+    initialPath = null;
 
     window.on("focus", () => {
         activeWindow = window;
@@ -76,9 +88,19 @@ app.on("activate", () => {
     }
 });
 
+// TODO: implement equivalent for Windows!
+app.on("open-file", (event, initPath) => {
+    event.preventDefault();
+    initialPath = initPath;
+    if (ready) {
+        createWindow();
+    }
+});
+
 // create main BrowserWindow when electron is ready
 app.on("ready", () => {
     createWindow();
+    ready = true;
 });
 
 initializeMenu();

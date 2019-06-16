@@ -1,15 +1,30 @@
 import * as React from "react";
 import LaunchScreen from "./LaunchScreen.js";
 import MainScreen from "./MainScreen.js";
+import { sendNoInteract } from "../utils/communication.js";
+import { OPEN_FILE } from "../../common/communicationEnums.js";
 
 export default class App extends React.Component {
     constructor(props) {
         super(props);
 
+        console.log(props.path);
+
         this.state = {
             launch: true,
             initFile: null,
         };
+
+        if (props.path) {
+            sendNoInteract({
+                type: OPEN_FILE,
+                location: props.path,
+            }).then((value) => {
+                if (value.success) {
+                    this.handleFileCreate(value.file);
+                }
+            });
+        }
     }
 
     handleAllClosed = () => {

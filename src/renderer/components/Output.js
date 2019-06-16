@@ -25,6 +25,10 @@ class Output extends React.Component {
         this.postRender();
     }
 
+    componentWillUnmount() {
+        this.props.onStop();
+    }
+
     handleOutputClick = () => {
         if (this.inputRef.current) {
             setTimeout(() => {

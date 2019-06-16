@@ -2,7 +2,9 @@
 import { ipcMain } from "electron";
 
 import { interactProcess, killProcess } from "./processes";
-import { save, showOpenDialog, showSaveDialog } from "./filesystem";
+import {
+    save, open, showOpenDialog, showSaveDialog,
+} from "./filesystem";
 import {
     INTERACT_PROCESS,
     KILL_PROCESS,
@@ -13,7 +15,7 @@ import {
     EXIT,
     CLAIM_MENU,
     SAVE_FILE,
-    REGISTER_OKPY_HANDLER, REQUEST_KEY,
+    REGISTER_OKPY_HANDLER, REQUEST_KEY, OPEN_FILE,
 } from "../common/communicationEnums.js";
 
 import python from "../languages/python/communication";
@@ -52,12 +54,14 @@ function receive(arg) {
             killProcess(arg.key);
         } else if (arg.type === SHOW_OPEN_DIALOG) {
             showOpenDialog(arg.key);
+        } else if (arg.type === OPEN_FILE) {
+            open(arg.key, arg.location);
         } else if (arg.type === SHOW_SAVE_DIALOG) {
-            showSaveDialog(arg.key);
-        } else if (arg.type === CLAIM_MENU) {
-            assignMenuKey(arg.key);
+            showSaveDialog(arg.key, arg.contents);
         } else if (arg.type === SAVE_FILE) {
             save(arg.key, arg.contents, arg.location);
+        } else if (arg.type === CLAIM_MENU) {
+            assignMenuKey(arg.key);
         } else if (arg.type === REGISTER_OKPY_HANDLER) {
             registerOKPyHandler(arg.key, arg.fileName);
         } else {

@@ -18,6 +18,6 @@ export const MENU_SAVE_AS = "MENU_SAVE_AS";
 export const MENU_CLOSE_TAB = "MENU_CLOSE_TAB";
 
 export const SAVE_FILE = "SAVE_FILE";
-export const READ_FILE = "READ_FILE";
+export const OPEN_FILE = "OPEN_FILE";
 
 export const REGISTER_OKPY_HANDLER = "REGISTER_OKPY_HANDLER";

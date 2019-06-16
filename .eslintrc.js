@@ -49,5 +49,6 @@ module.exports = {
       "import/no-cycle": 0,
       "no-console": 0,
       "import/no-webpack-loader-syntax": 0,
+      "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
     }
 };
