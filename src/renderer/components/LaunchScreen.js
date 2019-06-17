@@ -1,6 +1,6 @@
 import React from "react";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { remote } from "electron";
+// import { remote } from "electron"; // todo: RE-ENABLE!!!
 import {
     MENU_CLOSE_TAB,
     MENU_NEW,
@@ -14,7 +14,7 @@ import claimMenu from "../utils/menuHandler.js";
 
 export default class LaunchScreen extends React.Component {
     static closeTab() {
-        remote.getCurrentWindow().close();
+        remote.getCurrentWindow().close(); // TODO: RE-ENABLE!
     }
 
     constructor(props) {

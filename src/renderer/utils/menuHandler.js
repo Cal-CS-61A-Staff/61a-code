@@ -1,9 +1,16 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { remote } from "electron";
 import { send } from "./communication";
 import { CLAIM_MENU } from "../../common/communicationEnums.js";
 
+let remote;
+if (ELECTRON) {
+    ({ remote } = require("electron"));
+}
+
 export default function claimMenu(handlers) {
+    if (!ELECTRON) {
+        return () => null; // dummy function!
+    }
     let detach;
 
     claim();

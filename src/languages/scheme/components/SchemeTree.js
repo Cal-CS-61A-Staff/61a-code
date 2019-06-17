@@ -1,6 +1,6 @@
 import * as React from "react";
 import $ from "jquery";
-// import svgPanZoom from "svg-pan-zoom";
+import svgPanZoom from "svg-pan-zoom/dist/svg-pan-zoom.min.js";
 import SVG from "svg.js";
 
 function getDims() {
@@ -29,11 +29,20 @@ export default class SchemeTree extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.postRender();
+        this.postRender(null);
     }
 
-    componentDidUpdate() {
-        this.postRender();
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.postRender(snapshot);
+    }
+
+    getSnapshotBeforeUpdate() {
+        const out = {
+            zoom: svgPanZoom(this.svgRef.current).getZoom(),
+            pan: svgPanZoom(this.svgRef.current).getPan(),
+        };
+        svgPanZoom(this.svgRef.current).destroy();
+        return out;
     }
 
     getDataAtIndex(data, i) {
@@ -146,23 +155,28 @@ export default class SchemeTree extends React.PureComponent {
         this.displayTreeWorker(data, svg, 10, 15, 0, [0]);
     }
 
-
-    async draw(rawSVG) {
+    async draw(rawSVG, snapshot) {
         const svg = SVG.adopt(rawSVG).size(3000, 2000);
         svg.clear();
-        // svgPanZoom(rawSVG, {
-        //     fit: false,
-        //     zoomEnabled: true,
-        //     center: false,
-        //     controlIconsEnabled: true,
-        // });
 
         await this.displayTree(svg, this.props.data);
+
+        svgPanZoom(rawSVG, {
+            fit: false,
+            zoomEnabled: true,
+            center: false,
+            controlIconsEnabled: true,
+        });
+
+        if (snapshot) {
+            svgPanZoom(rawSVG).zoom(snapshot.zoom);
+            svgPanZoom(rawSVG).pan(snapshot.pan);
+        }
     }
 
-    postRender() {
+    postRender(snapshot) {
         // noinspection JSIgnoredPromiseFromCall
-        this.draw(this.svgRef.current);
+        this.draw(this.svgRef.current, snapshot);
     }
 
     render() {

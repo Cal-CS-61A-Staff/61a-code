@@ -2,9 +2,12 @@ import {
     ERR, EXIT, INTERACT_PROCESS, KILL_PROCESS, OUT, REQUEST_KEY,
 } from "../../common/communicationEnums.js";
 
-// eslint-disable-next-line
-const { ipcRenderer } = require("electron");
+let ipcRenderer;
 
+// // eslint-disable-next-line
+if (ELECTRON) {
+    ({ ipcRenderer } = require("electron")); // TODO: RE-ENABLE!!!
+}
 const activeExecutions = {};
 
 const dummy = () => null;
@@ -17,8 +20,14 @@ function interactProcess(key, line) {
     });
 }
 
+let nextKey = 0;
+
 function requestKey() {
-    return ipcRenderer.sendSync("synchronous-message", REQUEST_KEY);
+    if (ELECTRON) {
+        return ipcRenderer.sendSync("synchronous-message", REQUEST_KEY);
+    } else {
+        return ++nextKey;
+    }
 }
 
 export function send(message, onOutput, onErr, onHalt) {
@@ -26,7 +35,11 @@ export function send(message, onOutput, onErr, onHalt) {
 
     const key = requestKey();
 
-    ipcRenderer.send("asynchronous-message", { key, ...message });
+    if (ELECTRON) {
+        ipcRenderer.send("asynchronous-message", { key, ...message });
+    } else {
+        // todo!
+    }
     activeExecutions[key] = {
         onOutput: onOutput || dummy,
         onErr: onErr || dummy,
@@ -57,7 +70,11 @@ export function sendNoInteract(message) {
 }
 
 function killProcess(key) {
-    ipcRenderer.send("asynchronous-message", { key, type: KILL_PROCESS });
+    if (ELECTRON) {
+        ipcRenderer.send("asynchronous-message", { key, type: KILL_PROCESS });
+    } else {
+        // TODO
+    }
 }
 
 function detachHandlers(key) {
@@ -70,19 +87,21 @@ function detachHandlers(key) {
     }
 }
 
-ipcRenderer.on("asynchronous-reply", (event, arg) => {
-    if (arg.type === OUT) {
-        activeExecutions[arg.key].onOutput(arg.out);
-    } else if (arg.type === ERR) {
-        activeExecutions[arg.key].onErr(arg.out);
-    } else if (arg.type === EXIT) {
-        if (!activeExecutions[arg.key]) {
-            // key from previous window, is now dead :P
-            return;
+if (ELECTRON) {
+    ipcRenderer.on("asynchronous-reply", (event, arg) => {
+        if (arg.type === OUT) {
+            activeExecutions[arg.key].onOutput(arg.out);
+        } else if (arg.type === ERR) {
+            activeExecutions[arg.key].onErr(arg.out);
+        } else if (arg.type === EXIT) {
+            if (!activeExecutions[arg.key]) {
+                // key from previous window, is now dead :P
+                return;
+            }
+            activeExecutions[arg.key].onHalt(arg.out);
+            delete activeExecutions[arg.key];
+        } else {
+            console.log(arg);
         }
-        activeExecutions[arg.key].onHalt(arg.out);
-        delete activeExecutions[arg.key];
-    } else {
-        console.log(arg);
-    }
-});
+    });
+}

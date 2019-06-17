@@ -78,7 +78,7 @@ class SchemeDebugger extends React.PureComponent {
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.props.data !== nextProps.data) {
-            this.setState({ index: 0 });
+            this.setState({ index: 1 });
         }
     }
 

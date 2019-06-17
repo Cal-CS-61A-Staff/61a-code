@@ -1,6 +1,8 @@
 import { processSize } from './utils/process-size.js';
 import * as React from "react";
 
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api"; // TODO: REMOVE???
+
 function noop() { }
 
 class MonacoEditor extends React.Component {

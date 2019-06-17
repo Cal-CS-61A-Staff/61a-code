@@ -1,6 +1,9 @@
 {
   "name": "61a-editor",
   "productName": "61A Editor",
+  "sideEffects": [
+    "*.css"
+  ],
   "author": {
     "name": "Rahul Arya",
     "email": "rahularya@berkeley.edu"
@@ -11,11 +14,12 @@
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder",
-    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
+    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
+    "web-dev": "webpack-dev-server --hot --open --config webpack.web.config.js --mode development",
+    "web-dist": "webpack --config webpack.web.config.js --mode production"
   },
   "dependencies": {
-    "source-map-support": "^0.5.10",
-    "svg-pan-zoom": "^3.6.0"
+    "source-map-support": "^0.5.10"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
@@ -24,8 +28,13 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "@fortawesome/fontawesome-free": "^5.9.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.19",
+    "@fortawesome/free-brands-svg-icons": "^5.9.0",
+    "@fortawesome/free-regular-svg-icons": "^5.9.0",
+    "@fortawesome/free-solid-svg-icons": "^5.9.0",
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.3",
     "css-hot-loader": "^1.4.4",
     "css-loader": "^2.1.1",
     "electron": "4.0.1",
@@ -41,17 +50,24 @@
     "exports-loader": "^0.7.0",
     "expose-loader": "^0.7.5",
     "golden-layout": "^1.5.9",
+    "html-webpack-plugin": "^3.2.0",
     "imports-loader": "^0.8.0",
     "jquery": "^3.4.1",
     "monaco-editor": "^0.17.0",
+    "monaco-editor-webpack-plugin": "^1.7.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-hot-loader": "^4.11.1",
     "react-monaco-editor": "^0.26.2",
     "script-loader": "^0.7.2",
+    "svg-pan-zoom": "^3.6.0",
     "svg.js": "^2.7.1",
     "temp": "^0.9.0",
     "typescript": "^3.5.1",
-    "webpack": "4.28.4"
+    "url-loader": "^2.0.0",
+    "webpack": "^4.34.0",
+    "webpack-bundle-analyzer": "^3.3.2",
+    "webpack-dev-server": "^3.7.1"
   },
   "electronWebpack": {
     "renderer": {

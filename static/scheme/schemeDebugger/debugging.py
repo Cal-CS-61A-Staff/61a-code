@@ -217,7 +217,7 @@ def impersonate(obj) -> 'DebugObj':
     if isinstance(obj, int):
         return DebugInt(obj, id=get_id(obj))
     elif isinstance(obj, Pair):
-        return DebugPair(impersonate(obj.p94cc908), impersonate(obj.U__BH), id=get_id(obj))
+        return DebugPair(impersonate(first(obj)), impersonate(second(obj)), id=get_id(obj))
     elif isinstance(obj, str):
         return DebugStr(obj, id=get_id(obj))
     elif isinstance(obj, nil.__class__):
@@ -226,7 +226,24 @@ def impersonate(obj) -> 'DebugObj':
         raise TypeError("Expected int, Pair, or str, received", obj, type(obj))
 
 
+class NameDetector(ast.NodeVisitor):
+    def __init__(self):
+        self.names = {}
+
+    def visit_Assign(self, node):
+        targets, value = node.targets, node.value
+        target = targets[0].id
+        if isinstance(value, ast.Name):
+            self.names[target] = value.id
+
+        self.generic_visit(node)
+
+
 class DebugRewrite(ast.NodeTransformer):
+    def __init__(self, lookup):
+        self.lookup = lookup
+        super()
+
     def visit_Compare(self, node):
         self.generic_visit(node)
         if len(node.ops) == 1 and isinstance(node.ops[0], ast.Is):
@@ -240,6 +257,8 @@ class DebugRewrite(ast.NodeTransformer):
     def visit_FunctionDef(self, node):
         if node.name == "debug":
             return None
+        elif node.name == self.lookup["scheme_eval"]:
+            node.decorator_list.append(ast.fix_missing_locations(ast.Name("debug", ast.Load())))
         self.generic_visit(node)
         return node
 
@@ -248,23 +267,36 @@ def magic_is(a, b):
     return get_id(a) == get_id(b)
 
 
+def first(pair):
+    return pair.p94cc908
+
+
+def second(pair):
+    return pair.U__BH
+
+
 if __name__ == '__main__':
+    detector = NameDetector()
+    names = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scheme.py")
+    with open(names) as f:
+        raw = f.read()
+    tree = ast.parse(raw)
+    detector.visit(tree)
+    lookup = detector.names
+
     target = os.path.join(os.path.dirname(os.path.abspath(__file__)), "interpreter.py")
     with open(target) as f:
         raw = f.read()
     tree = ast.parse(raw)
-    DebugRewrite().visit(tree)
+    DebugRewrite(lookup).visit(tree)
 
     debug, run = make_debugger()
 
     exec(compile(tree, filename="<scheme_debug>", mode="exec"))
 
-    # class DebugBool(DebugObjImmutable, bool):
-    #     ...
-
 
     class DebugInt(DebugObjImmutable, int):
-        ...
+        pass
 
 
     class DebugNil(DebugObjMutable, nil.__class__):
@@ -275,22 +307,20 @@ if __name__ == '__main__':
     class DebugPair(DebugObjMutable, Pair):
         @property
         def first(self):
-            return self.p94cc908
+            return first(self)
 
         @property
         def second(self):
-            return self.U__BH
-
-        ...
+            return second(self)
 
 
     class DebugStr(DebugObjImmutable, str):
-        ...
+        pass
 
 
     f = StringIO()
 
     with redirect_stdout(f):
-       YY__LMP_(*sys.argv[1:]) # and this is y I love lamp
+        eval(lookup["run"])(*sys.argv[1:]) # and this is y I love lamp
 
     print(run.export())

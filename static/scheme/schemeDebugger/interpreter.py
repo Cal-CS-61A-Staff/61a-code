@@ -15,9 +15,6 @@ import sys
 import tokenize
 
 # will be injected in debugging mode
-def debug(f):
-    return f
-
 'k61W3UfDcd_7__8Z4Rsy0_C2O86J3'
 
 def w_1Fh30(LMft4_):
@@ -905,7 +902,6 @@ def YY__LMP_(*W1396B3xw):
 'nc6_8_a8BV7Z2_D22_Y2mW'
 __version__ = ((('' + '1.') + ('' + '2.')) + chr(51))
 
-@debug
 def zGLT__(By3f_, u7ByO_hb_, Tix5jx2=None):
     'Cs_4607hW1b_qk_7KIk5_2_N3'
     u7ByO_hb_.stack.append(By3f_)

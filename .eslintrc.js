@@ -12,6 +12,7 @@ module.exports = {
   globals: {
     __static: true,
       ExecutionVisualizer: true,
+      ELECTRON: true,
   },
   rules: {
         'import/no-unresolved': false,

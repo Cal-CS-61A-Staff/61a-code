@@ -1,15 +1,24 @@
-import amdLoader from "monaco-editor/min/vs/loader.js";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import path from "path";
-import { URL } from "url";
 
 import "./style.global.css";
 import App from "./components/App.js";
 
-
-const amdRequire = amdLoader.require;
+if (ELECTRON) {
+    const amdLoader = require("monaco-editor/min/vs/loader.js");
+    const amdRequire = amdLoader.require;
+    amdRequire.config({
+        baseUrl: uriFromPath(path.join(__static, "/monaco-editor/min")),
+    });
+    // workaround monaco-css not understanding the environment
+    // eslint-disable-next-line no-restricted-globals
+    self.module = undefined;
+    amdRequire(["vs/editor/editor.main"], init);
+} else {
+    init();
+}
 
 function uriFromPath(_path) {
     let pathName = path.resolve(_path).replace(/\\/g, "/");
@@ -19,20 +28,12 @@ function uriFromPath(_path) {
     return encodeURI(`file://${pathName}`);
 }
 
-amdRequire.config({
-    baseUrl: uriFromPath(path.join(__static, "/monaco-editor/min")),
-});
-
-// workaround monaco-css not understanding the environment
-// eslint-disable-next-line no-restricted-globals
-self.module = undefined;
-
-amdRequire(["vs/editor/editor.main"], init);
 
 function injectScript(src) {
+    console.log(__static);
     return new Promise((resolve) => {
         const script = document.createElement("script");
-        script.src = uriFromPath(path.join(__static, src));
+        script.src = `./${path.join(__static, src)}`;
         document.body.appendChild(script);
         script.onload = () => resolve();
     });
@@ -56,6 +57,12 @@ async function init() {
     await injectScript("jquery-ui.min.js");
     await injectScript("jquery.jsPlumb-1.3.10-all-min.js");
     await injectScript("python/pytutor.js");
+
+    if (!ELECTRON) {
+        const elem = document.createElement("div");
+        elem.id = "app";
+        document.body.appendChild(elem);
+    }
 
     render(App);
 }
