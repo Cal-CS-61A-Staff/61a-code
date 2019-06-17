@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Menu } from "electron";
+import { app, Menu } from "electron";
 import { exit, out } from "./communication";
 import {
     MENU_CLOSE_TAB,
@@ -32,7 +32,7 @@ export function initializeMenu() {
                 { role: "hideothers" },
                 { role: "unhide" },
                 { type: "separator" },
-                { role: "quit" },
+                { label: "Quit 61A Editor", accelerator: "Cmd+Q", click: () => setTimeout(() => app.quit(), 0) },
             ],
         }] : []),
         // { role: 'fileMenu' }

@@ -1,11 +1,12 @@
 import * as React from "react";
-import CommandIcon from "../../../renderer/components/CommandIcon.js";
 
 import "../pytutor/jquery-ui-1.11.4/jquery-ui.css";
 import "../pytutor/pytutor.css";
 import "./pytutorOverrides.css";
+import glWrap from "../../../renderer/utils/glWrap.js";
+import PositionChooser from "../../../renderer/components/PositionChooser.js";
 
-export class PythonTutorDebug extends React.PureComponent {
+class PythonTutorDebug extends React.PureComponent {
     constructor(props) {
         super(props);
         this.vizRef = React.createRef();
@@ -85,86 +86,12 @@ export class PythonTutorDebug extends React.PureComponent {
     }
 }
 
+export default glWrap(PythonTutorDebug, "row", 50, "debugger", ["debugger"]);
+
 // PythonTutorDebug.propTypes = {
 //     data: PropTypes.object,
 //     glContainer: PropTypes.shape({
 //         on: PropTypes.func,
 //     }),
 //     onUpdate: PropTypes.func,
-// };
-
-class PositionChooser extends React.Component {
-    handlePrevClick = () => {
-        this.props.onChange(Math.max(this.props.value - 1, 0));
-    };
-
-    handleNextClick = () => {
-        this.props.onChange(Math.min(this.props.value + 1, this.props.num));
-    };
-
-    handleDrag = (e) => {
-        this.props.onChange(parseInt(e.target.value, 10));
-    };
-
-    render() {
-        return (
-            <div className="pyPosChooser">
-                <NavButton prev onClick={this.handlePrevClick} />
-                <PositionSlider
-                    num={this.props.num}
-                    value={this.props.value}
-                    onChange={this.handleDrag}
-                />
-                <NavButton next onClick={this.handleNextClick} />
-            </div>
-        );
-    }
-}
-
-// PositionChooser.propTypes = {
-//     onChange: PropTypes.func,
-//     value: PropTypes.number,
-//     num: PropTypes.number,
-// };
-
-function NavButton(props) {
-    if (props.prev) {
-        return (
-            <CommandIcon
-                commandName="Prev"
-                style={{ backgroundColor: "black" }}
-                onClick={props.onClick}
-            />
-        );
-    } else {
-        return (
-            <CommandIcon
-                commandName="Next"
-                style={{ backgroundColor: "black" }}
-                onClick={props.onClick}
-            />
-        );
-    }
-}
-
-function PositionSlider(props) {
-    return (
-        <div className="pyPosSlider">
-            <input
-                type="range"
-                min={0}
-                max={props.num}
-                value={props.value}
-                step={1}
-                className="pyPosSliderElem"
-                onChange={props.onChange}
-            />
-        </div>
-    );
-}
-
-// PositionSlider.propTypes = {
-//     onChange: PropTypes.func,
-//     value: PropTypes.number,
-//     num: PropTypes.number,
 // };

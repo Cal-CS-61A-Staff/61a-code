@@ -48,7 +48,7 @@ class Editor extends React.Component {
         };
         return ReactDOM.createPortal(
             <MonacoEditor
-                language={this.props.language}
+                language={this.props.language.toLowerCase()}
                 theme="vs-dark"
                 ref={this.editorRef}
                 value={code}

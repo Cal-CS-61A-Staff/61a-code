@@ -25,11 +25,8 @@ class OKResults extends React.Component {
         this.state = {
             testList: null,
             testDetails: null,
-            selectedProblem: null,
-            selectedTest: null,
+            ...OKResults.getActiveTest(props),
         };
-
-        this.state = { ...this.state, ...OKResults.getActiveTest(props) };
     }
 
     componentDidMount() {
@@ -128,8 +125,7 @@ class OKResults extends React.Component {
                             selectedProblem={this.state.selectedProblem}
                             selectedTest={this.state.selectedTest}
                         />,
-                        this.state.testList.getElement()
-                            .get(0),
+                        this.state.testList.getElement().get(0),
                     )}
                     {ReactDOM.createPortal(
                         <TestDetails
@@ -137,8 +133,7 @@ class OKResults extends React.Component {
                             data={this.state.selectedTest || selectedProblemData}
                             onDebug={this.props.onDebug}
                         />,
-                        this.state.testDetails.getElement()
-                            .get(0),
+                        this.state.testDetails.getElement().get(0),
                     )}
                 </>
             );

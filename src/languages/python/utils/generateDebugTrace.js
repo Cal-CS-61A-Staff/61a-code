@@ -4,7 +4,6 @@ import { PYTHON } from "../../../common/languages.js";
 
 const MAX_GLOBALS = 10;
 
-// eslint-disable-next-line camelcase
 export default async function generateDebugTrace(code, modules = {}, setup_code = "", working_directory = "") {
     const params = {
         code, modules, setup_code, working_directory,

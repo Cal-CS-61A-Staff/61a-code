@@ -1,11 +1,11 @@
 import React from "react";
 import Editor from "./Editor";
 import Output from "./Output";
-import Debugger from "./Debugger";
 import { sendNoInteract } from "../utils/communication.js";
 import { SAVE_FILE, SHOW_SAVE_DIALOG } from "../../common/communicationEnums.js";
 import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import {
+    Debugger,
     format, generateDebugTrace, runCode, runFile,
 } from "../utils/dispatch.js";
 
@@ -196,7 +196,9 @@ export default class File extends React.Component {
     render() {
         const title = this.state.name + ((this.state.editorText === this.state.savedText) ? "" : "*");
         const editorDebugData = this.state.editorInDebugMode ? this.state.editorDebugData : null;
-        const language = this.identifyLanguage().toLowerCase();
+        const language = this.identifyLanguage();
+
+        const CurrDebugger = Debugger(language);
 
         return (
             <>
@@ -218,7 +220,7 @@ export default class File extends React.Component {
                     onRestart={this.run}
                     onInput={this.handleInput}
                 />
-                <Debugger
+                <CurrDebugger
                     ref={this.debugRef}
                     title={`${this.state.name} (Debug)`}
                     data={this.state.debugData}

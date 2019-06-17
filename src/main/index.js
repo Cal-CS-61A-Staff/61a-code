@@ -2,6 +2,7 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 import { format as formatUrl } from "url";
+import * as os from "os";
 import { initializeMenu } from "./initializeMenu.js";
 import { addHandlers } from "./communication.js";
 import { startOkServer } from "./ok_interface.js";
@@ -77,7 +78,7 @@ export function closeActiveWindow() {
 app.on("window-all-closed", () => {
     // on macOS it is common for applications to stay open until the user explicitly quits
     if (process.platform !== "darwin") {
-        app.quit();
+        setTimeout(() => app.quit(), 0);
     }
 });
 
@@ -99,6 +100,11 @@ app.on("open-file", (event, initPath) => {
 
 // create main BrowserWindow when electron is ready
 app.on("ready", () => {
+    if (isDevelopment) {
+        BrowserWindow.addDevToolsExtension(
+            path.join(os.homedir(), "/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0"),
+        );
+    }
     createWindow();
     ready = true;
 });
