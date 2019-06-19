@@ -36,7 +36,7 @@ function scmDebug(key, code) {
         if (!fail) {
             fs.write(info.fd, code, () => {
                 fs.close(info.fd, () => null);
-                runPyScript(key, `${__static}/scheme/schemeDebugger/debugging.py`, [], [info.path]);
+                runPyScript(key, `${__static}/scheme/scheme`, [], ["-debug", info.path]);
             });
         }
     });
