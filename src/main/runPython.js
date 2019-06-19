@@ -1,9 +1,12 @@
 import { spawn } from "child_process";
 import * as temp from "temp";
 import fs from "fs";
-import { registerProcess } from "./processes";
+import fixPath from "fix-path";
 
+import { registerProcess } from "./processes";
 import { err, exit, out } from "./communication";
+
+fixPath();
 
 export function runPyScript(key, scriptLocation, interpreterArgs, args) {
     const python = spawn("python3.6", ["-u"].concat(interpreterArgs).concat([scriptLocation]).concat(args));

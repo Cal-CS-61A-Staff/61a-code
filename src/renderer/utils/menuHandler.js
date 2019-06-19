@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { send } from "./communication";
 import { CLAIM_MENU } from "../../common/communicationEnums.js";

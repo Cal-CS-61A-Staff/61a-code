@@ -5,7 +5,7 @@ import {
     MENU_CLOSE_TAB,
     MENU_NEW, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS,
 } from "../common/communicationEnums.js";
-import { closeActiveWindow, createWindow } from "./index.js";
+import { closeActiveWindow, createWindow, windows } from "./index.js";
 
 let menuKey = null;
 
@@ -119,7 +119,11 @@ export function initializeMenu() {
 // todo: freeze menu items / initialize dummy handler on first start so the checks aren't needed
 
 function newClick() {
-    out(menuKey, MENU_NEW);
+    if (!windows.size) {
+        createWindow();
+    } else {
+        out(menuKey, MENU_NEW);
+    }
 }
 
 function openClick() {

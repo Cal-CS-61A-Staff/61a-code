@@ -1,4 +1,8 @@
-import { hot } from "react-hot-loader/root";
+/* eslint-disable import/first,global-require */
+let hot;
+if (!ELECTRON) {
+    ({ hot } = require("react-hot-loader/root"));
+}
 import * as React from "react";
 import LaunchScreen from "./LaunchScreen.js";
 import MainScreen from "./MainScreen.js";
@@ -53,4 +57,4 @@ class App extends React.Component {
     }
 }
 
-export default hot(App);
+export default (ELECTRON ? App : hot(App));

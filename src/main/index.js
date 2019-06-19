@@ -10,7 +10,7 @@ import { startOkServer } from "./ok_interface.js";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-const windows = new Set();
+export const windows = new Set();
 let activeWindow;
 
 let initialPath = "";

@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
@@ -33,7 +34,12 @@ function injectScript(src) {
     console.log(__static);
     return new Promise((resolve) => {
         const script = document.createElement("script");
-        script.src = `./${path.join(__static, src)}`;
+        if (ELECTRON) {
+            script.src = uriFromPath(path.join(__static, src));
+        } else {
+            script.src = `./${path.join(__static, src)}`;
+        }
+        script.async = false;
         document.body.appendChild(script);
         script.onload = () => resolve();
     });
@@ -51,12 +57,19 @@ function render(Component) {
 }
 
 async function init() {
-    await injectScript("d3.v2.min.js");
-    await injectScript("jquery-1.8.2.min.js");
-    await injectScript("jquery.ba-bbq.min.js");
-    await injectScript("jquery-ui.min.js");
-    await injectScript("jquery.jsPlumb-1.3.10-all-min.js");
-    await injectScript("python/pytutor.js");
+    await Promise.all([
+        injectScript("d3.v2.min.js"),
+        injectScript("jquery-1.8.2.min.js"),
+        injectScript("jquery.ba-bbq.min.js"),
+        injectScript("jquery-ui.min.js"),
+        injectScript("jquery.jsPlumb-1.3.10-all-min.js"),
+        injectScript("python/pytutor.js")
+    ]);
+
+    if (!ELECTRON) {
+        injectScript("brython.js");
+        injectScript("brython_stdlib.js");
+    }
 
     if (!ELECTRON) {
         const elem = document.createElement("div");

@@ -11,7 +11,7 @@ module.exports = {
         path: path.resolve(__dirname, "dist/web"),
         // publicPath: "dist/web",
     },
-    devtool: "inline-source-map",
+    devtool: "source-map",
     devServer: {
         contentBase: ".",
     },

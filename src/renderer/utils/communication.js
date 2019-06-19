@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 import {
     ERR, EXIT, INTERACT_PROCESS, KILL_PROCESS, OUT, REQUEST_KEY,
 } from "../../common/communicationEnums.js";
@@ -7,6 +8,8 @@ let ipcRenderer;
 // // eslint-disable-next-line
 if (ELECTRON) {
     ({ ipcRenderer } = require("electron")); // TODO: RE-ENABLE!!!
+} else {
+    ipcRenderer = require("../../web/webBackend.js").default;
 }
 const activeExecutions = {};
 
@@ -35,11 +38,7 @@ export function send(message, onOutput, onErr, onHalt) {
 
     const key = requestKey();
 
-    if (ELECTRON) {
-        ipcRenderer.send("asynchronous-message", { key, ...message });
-    } else {
-        // todo!
-    }
+    ipcRenderer.send("asynchronous-message", { key, ...message });
     activeExecutions[key] = {
         onOutput: onOutput || dummy,
         onErr: onErr || dummy,
@@ -70,11 +69,7 @@ export function sendNoInteract(message) {
 }
 
 function killProcess(key) {
-    if (ELECTRON) {
-        ipcRenderer.send("asynchronous-message", { key, type: KILL_PROCESS });
-    } else {
-        // TODO
-    }
+    ipcRenderer.send("asynchronous-message", { key, type: KILL_PROCESS });
 }
 
 function detachHandlers(key) {
@@ -87,21 +82,19 @@ function detachHandlers(key) {
     }
 }
 
-if (ELECTRON) {
-    ipcRenderer.on("asynchronous-reply", (event, arg) => {
-        if (arg.type === OUT) {
-            activeExecutions[arg.key].onOutput(arg.out);
-        } else if (arg.type === ERR) {
-            activeExecutions[arg.key].onErr(arg.out);
-        } else if (arg.type === EXIT) {
-            if (!activeExecutions[arg.key]) {
-                // key from previous window, is now dead :P
-                return;
-            }
-            activeExecutions[arg.key].onHalt(arg.out);
-            delete activeExecutions[arg.key];
-        } else {
-            console.log(arg);
+ipcRenderer.on("asynchronous-reply", (event, arg) => {
+    if (arg.type === OUT) {
+        activeExecutions[arg.key].onOutput(arg.out);
+    } else if (arg.type === ERR) {
+        activeExecutions[arg.key].onErr(arg.out);
+    } else if (arg.type === EXIT) {
+        if (!activeExecutions[arg.key]) {
+            // key from previous window, is now dead :P
+            return;
         }
-    });
-}
+        activeExecutions[arg.key].onHalt(arg.out);
+        delete activeExecutions[arg.key];
+    } else {
+        console.log(arg);
+    }
+});

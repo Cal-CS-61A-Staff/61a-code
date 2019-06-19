@@ -1,7 +1,11 @@
 import { processSize } from './utils/process-size.js';
 import * as React from "react";
 
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api"; // TODO: REMOVE???
+import * as monacoImport from "monaco-editor/esm/vs/editor/editor.api"; // TODO: REMOVE???
+
+if (!ELECTRON) {
+  window.monaco = monacoImport;
+}
 
 function noop() { }
 

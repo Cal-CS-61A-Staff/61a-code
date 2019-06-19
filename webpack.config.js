@@ -18,6 +18,9 @@ module.exports = {
     },
     plugins: [
         new CleanWebpackPlugin(),
+        new webpack.DefinePlugin({
+            ELECTRON: true,
+        }),
         new webpack.ProvidePlugin({
             $: "jquery",
             jQuery: "jquery",
