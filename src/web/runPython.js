@@ -1,4 +1,5 @@
-import console from "./web_console.py";
+import { out } from "./webBackend.js";
+import { registerProcess } from "../main/processes.js";
 
 export function runPyScript(key, scriptLocation, interpreterArgs, args) {
     // const python = spawn("python3.6", ["-u"].concat(interpreterArgs).concat([scriptLocation]).concat(args));
@@ -17,6 +18,12 @@ export function runPyCode(key, code) {
     const worker = new Worker("pythonWorker.js");
     worker.postMessage({ code });
     worker.onmessage = (e) => {
-        console.log(e.data);
+        out(key, e.data);
     };
+    registerProcess(key, {
+        stdin: {
+            write: line => worker.postMessage({ code: line }),
+        },
+        kill: () => worker.terminate(),
+    });
 }

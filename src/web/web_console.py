@@ -1,3 +1,4 @@
+import browser
 import sys
 import tb as traceback
 
@@ -56,8 +57,8 @@ class Stream:
         self.obj.write(raw)
 
 
-# stdout = Stream(browser.self.stdout)
-# stderr = Stream(browser.self.stderr)
+stdout = Stream(browser.self.stdout)
+stderr = Stream(browser.self.stderr)
 
 
 def credits():
@@ -207,3 +208,5 @@ def handleInput(currentLine):
 v = sys.implementation.version
 write("Brython %s.%s.%s\n>>> " % (v[0], v[1], v[2]))
 # doc['code'].value += 'Type "copyright", "credits" or "license" for more information.'
+
+browser.self.stdin.on(handleInput)

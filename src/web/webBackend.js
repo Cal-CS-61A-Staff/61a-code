@@ -7,6 +7,7 @@ import {
 } from "../common/communicationEnums.js";
 import { PYTHON, SCHEME } from "../common/languages.js";
 import python from "../languages/python/web/communication.js";
+import { interactProcess, killProcess } from "../main/processes.js";
 // import scheme from "../languages/scheme/communication.js";
 
 let handler;
@@ -27,7 +28,9 @@ function receive(arg) {
     if (!arg.handler) {
         // main server handler
         if (arg.type === INTERACT_PROCESS) {
-            // interactProcess(arg.key, arg.line);
+            interactProcess(arg.key, arg.line);
+        } else if (arg.type === KILL_PROCESS) {
+            killProcess(arg.key);
         } else {
             console.error(`Unknown (or missing) type: ${arg.type}`);
         }

@@ -141,7 +141,6 @@ export default class File extends React.Component {
     };
 
     handleOutputUpdate = (text, isErr) => {
-        console.log(text);
         this.setState((state) => {
             const outputData = state.outputData.concat([{
                 text,
