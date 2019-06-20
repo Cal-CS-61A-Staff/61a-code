@@ -18,6 +18,6 @@ export default async function receive(arg) {
         parsed.code = { main_code: parsed.code };
         sendAndExit(arg.key, JSON.stringify(parsed));
     } else if (arg.type === RUN_BLACK) {
-        alert("Unable to run BLACK at this time on the we!");
+        alert("Unable to run BLACK at this time on the web!");
     }
 }
