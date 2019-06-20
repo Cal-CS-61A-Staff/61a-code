@@ -145,9 +145,44 @@ editor_ns = {'credits': credits,
              'license': license,
              '__name__': '__main__'}
 
+first = True
 
-def handleInput(currentLine):
-    global _status
+def handleInput(line):
+    global src, _status, first
+
+    if first:
+        if line.strip():
+            try:
+                _ = exec(line, editor_ns)
+                if _ is not None:
+                    print(repr(_))
+            except:
+                print_tb()
+            write(">>> ")
+        else:
+            v = sys.implementation.version
+            write("Brython %s.%s.%s\n>>> " % (v[0], v[1], v[2]))
+            # doc['code'].value += 'Type "copyright", "credits" or "license" for more information.'
+        first = False
+        return
+
+    src += line[:-1]
+
+    if _status == "main":
+        currentLine = src[src.rfind('>>>') + 4:]
+    elif _status == "3string":
+        currentLine = src[src.rfind('>>>') + 4:]
+        currentLine = currentLine.replace('\n... ', '\n')
+    else:
+        currentLine = src[src.rfind('...') + 4:]
+
+
+    src += "\n"
+
+    if _status == 'main' and not currentLine.strip():
+        write('>>> ')
+        return
+
     if _status == "main" or _status == "3string":
         try:
             _ = editor_ns['_'] = eval(currentLine, editor_ns)
@@ -204,9 +239,5 @@ def handleInput(currentLine):
     else:
         write('... ')
 
-
-v = sys.implementation.version
-write("Brython %s.%s.%s\n>>> " % (v[0], v[1], v[2]))
-# doc['code'].value += 'Type "copyright", "credits" or "license" for more information.'
 
 browser.self.stdin.on(handleInput)

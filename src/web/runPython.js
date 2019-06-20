@@ -1,4 +1,4 @@
-import { out } from "./webBackend.js";
+import { exit, out } from "./webBackend.js";
 import { registerProcess } from "../main/processes.js";
 
 export function runPyScript(key, scriptLocation, interpreterArgs, args) {
@@ -24,6 +24,15 @@ export function runPyCode(key, code) {
         stdin: {
             write: line => worker.postMessage({ code: line }),
         },
-        kill: () => worker.terminate(),
+        kill: () => {
+            try {
+                worker.terminate();
+            } catch {
+                exit(key, "\n\nBrython web worker did not terminate correctly. "
+                    + "You may want to refresh the page.");
+                return;
+            }
+            exit(key, "\n\nBrython web worker terminated.");
+        },
     });
 }
