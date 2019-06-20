@@ -6,12 +6,13 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     entry: {
-        app: "./src/renderer/index.js",
+        main: "./src/renderer/index.js",
         pythonWorker: "./src/web/pythonWorker.js",
     },
     output: {
-        filename: "main.js",
+        filename: "[name].js",
         path: path.resolve(__dirname, "dist/web"),
+        globalObject: "this", // workaround for HMR, https://github.com/webpack/webpack/issues/6642
         // publicPath: "dist/web",
     },
     devtool: "source-map",
@@ -37,10 +38,16 @@ module.exports = {
                 test: /\.(eot|woff|woff2|ttf|svg|png|jpe?g|gif)(\?\S*)?$/,
                 loader: "url-loader",
             },
+            {
+                test: /\.py$/i,
+                use: "raw-loader",
+            },
         ],
     },
     plugins: [
-        new HtmlWebpackPlugin(),
+        new HtmlWebpackPlugin({
+            excludeChunks: ["pythonWorker"],
+        }),
         new webpack.DefinePlugin({
             ELECTRON: false,
             __static: JSON.stringify("./dist/web/static"),

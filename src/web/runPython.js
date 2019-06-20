@@ -1,4 +1,5 @@
-import { err, out } from "./webBackend.js";
+import startConsole from "./start_console.py";
+import console from "./web_console.py";
 
 export function runPyScript(key, scriptLocation, interpreterArgs, args) {
     // const python = spawn("python3.6", ["-u"].concat(interpreterArgs).concat([scriptLocation]).concat(args));
@@ -25,29 +26,22 @@ function interceptWrite(handler) {
     return id;
 }
 
+function addPyScriptElem(id, script, web) {
+    const elem = document.createElement("script");
+    elem.innerHTML = script;
+    elem.type = "text/python";
+    elem.class = "webworker";
+    elem.id = id;
+    document.body.appendChild(elem);
+}
+
 export function runPyCode(key, code) {
-    const stdout = interceptWrite(data => out(key, data));
-    const stderr = interceptWrite(data => err(key, data));
-    const realCode = `
-import sys
-import browser
-
-class Stream:
-    def __init__(self, obj):
-        self.obj = obj
-    def write(self, raw):
-        self.obj.write(raw)
-
-sys.stdout = Stream(browser.window.${stdout})
-sys.stderr = Stream(browser.window.${stderr})
-
-${code}`;
-    const js = __BRYTHON__.python_to_js(realCode);
-    console.log(js);
+    // const worker = new Worker("pythonWorker.js");
+    // worker.postMessage({ code });
+    // worker.onmessage = (e) => {
+    //     console.log(e.data);
+    // };
+    addPyScriptElem("pyMain", startConsole);
+    addPyScriptElem("pyWorker", console);
     brython();
-    try {
-        (1, eval)(js); // FIXME: NO!
-    } catch (err) {
-        console.error(err);
-    }
 }

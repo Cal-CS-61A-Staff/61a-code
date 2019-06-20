@@ -63,13 +63,13 @@ async function init() {
         injectScript("jquery.ba-bbq.min.js"),
         injectScript("jquery-ui.min.js"),
         injectScript("jquery.jsPlumb-1.3.10-all-min.js"),
-        injectScript("python/pytutor.js")
+        injectScript("python/pytutor.js"),
     ]);
 
-    // if (!ELECTRON) {
-    //     injectScript("brython.js");
-    //     injectScript("brython_stdlib.js");
-    // }
+    if (!ELECTRON) {
+        injectScript("brython/brython.js");
+        injectScript("brython/brython_stdlib.js");
+    }
 
     if (!ELECTRON) {
         const elem = document.createElement("div");
