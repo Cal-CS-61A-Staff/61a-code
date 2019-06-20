@@ -1,6 +1,7 @@
 import {
     GEN_PY_TRACE, RUN_BLACK, RUN_PY_FILE, RUN_PY_CODE,
 } from "../constants/communicationEnums.js";
+import { runPyCode } from "../../../web/runPython.js";
 
 export default function receive(arg) {
     if (arg.type === RUN_PY_CODE) {

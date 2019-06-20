@@ -13,6 +13,7 @@ module.exports = {
     __static: true,
       ExecutionVisualizer: true,
       ELECTRON: true,
+      brython: true,
   },
   rules: {
         'import/no-unresolved': false,

@@ -74,13 +74,16 @@ export default class File extends React.Component {
                 this.handleHalt,
             );
         }
-        this.setState({
+
+        const numTrunc = this.state.outputData.length;
+
+        this.setState(state => ({
             interactCallback,
             killCallback,
             detachCallback,
-            outputData: [],
+            outputData: state.outputData.slice(numTrunc),
             outputActive: true,
-        });
+        }));
 
         this.outputRef.current.forceOpen();
     };
@@ -138,6 +141,7 @@ export default class File extends React.Component {
     };
 
     handleOutputUpdate = (text, isErr) => {
+        console.log(text);
         this.setState((state) => {
             const outputData = state.outputData.concat([{
                 text,

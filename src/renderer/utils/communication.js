@@ -38,12 +38,12 @@ export function send(message, onOutput, onErr, onHalt) {
 
     const key = requestKey();
 
-    ipcRenderer.send("asynchronous-message", { key, ...message });
     activeExecutions[key] = {
         onOutput: onOutput || dummy,
         onErr: onErr || dummy,
         onHalt: onHalt || dummy,
     };
+    ipcRenderer.send("asynchronous-message", { key, ...message });
 
     return [
         line => interactProcess(key, line),

@@ -5,7 +5,10 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-    entry: "./src/renderer/index.js",
+    entry: {
+        app: "./src/renderer/index.js",
+        pythonWorker: "./src/web/pythonWorker.js",
+    },
     output: {
         filename: "main.js",
         path: path.resolve(__dirname, "dist/web"),

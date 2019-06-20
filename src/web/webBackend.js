@@ -6,7 +6,7 @@ import {
     SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG
 } from "../common/communicationEnums.js";
 import { PYTHON, SCHEME } from "../common/languages.js";
-// import python from "../languages/python/communication.js";
+import python from "../languages/python/web/communication.js";
 // import scheme from "../languages/scheme/communication.js";
 
 let handler;
@@ -27,19 +27,7 @@ function receive(arg) {
     if (!arg.handler) {
         // main server handler
         if (arg.type === INTERACT_PROCESS) {
-            interactProcess(arg.key, arg.line);
-        } else if (arg.type === KILL_PROCESS) {
-            killProcess(arg.key);
-        } else if (arg.type === SHOW_OPEN_DIALOG) {
-            showOpenDialog(arg.key);
-        } else if (arg.type === OPEN_FILE) {
-            open(arg.key, arg.location);
-        } else if (arg.type === SHOW_SAVE_DIALOG) {
-            showSaveDialog(arg.key, arg.contents);
-        } else if (arg.type === SAVE_FILE) {
-            save(arg.key, arg.contents, arg.location);
-        } else if (arg.type === CLAIM_MENU) {
-            // assignMenuKey(arg.key);
+            // interactProcess(arg.key, arg.line);
         } else {
             console.error(`Unknown (or missing) type: ${arg.type}`);
         }
