@@ -18,6 +18,12 @@ module.exports = {
     devtool: "source-map",
     devServer: {
         contentBase: ".",
+        proxy: {
+            "/api": {
+                target: "http://localhost:5000",
+                secure: false,
+            },
+        },
     },
     module: {
         noParse: /monaco-editor\/min\/vs\/loader\.js|jquery\.jsPlumb-1\.3\.10-all-min\.js/,

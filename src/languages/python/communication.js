@@ -3,7 +3,7 @@ import {
     GEN_PY_TRACE, RUN_BLACK, RUN_PY_FILE, RUN_PY_CODE,
 } from "./constants/communicationEnums.js";
 
-export default function receive(arg) {
+export default async function receive(arg) {
     if (arg.type === RUN_PY_CODE) {
         runPyCode(arg.key, arg.code);
     } else if (arg.type === RUN_PY_FILE) {
