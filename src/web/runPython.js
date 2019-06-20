@@ -1,4 +1,3 @@
-import startConsole from "./start_console.py";
 import console from "./web_console.py";
 
 export function runPyScript(key, scriptLocation, interpreterArgs, args) {
@@ -14,34 +13,10 @@ export function runPyScript(key, scriptLocation, interpreterArgs, args) {
     // );
 }
 
-function randomID() {
-    return Math.random().toString(36).replace(/[^a-z]+/g, "").substr(2, 10);
-}
-
-function interceptWrite(handler) {
-    const id = randomID();
-    window[id] = {
-        write: handler,
-    };
-    return id;
-}
-
-function addPyScriptElem(id, script, web) {
-    const elem = document.createElement("script");
-    elem.innerHTML = script;
-    elem.type = "text/python";
-    elem.class = "webworker";
-    elem.id = id;
-    document.body.appendChild(elem);
-}
-
 export function runPyCode(key, code) {
-    // const worker = new Worker("pythonWorker.js");
-    // worker.postMessage({ code });
-    // worker.onmessage = (e) => {
-    //     console.log(e.data);
-    // };
-    addPyScriptElem("pyMain", startConsole);
-    addPyScriptElem("pyWorker", console);
-    brython();
+    const worker = new Worker("pythonWorker.js");
+    worker.postMessage({ code });
+    worker.onmessage = (e) => {
+        console.log(e.data);
+    };
 }

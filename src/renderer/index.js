@@ -66,10 +66,10 @@ async function init() {
         injectScript("python/pytutor.js"),
     ]);
 
-    if (!ELECTRON) {
-        injectScript("brython/brython.js");
-        injectScript("brython/brython_stdlib.js");
-    }
+    // if (!ELECTRON) {
+    //     injectScript("brython/brython.js");
+    //     injectScript("brython/brython_stdlib.js");
+    // }
 
     if (!ELECTRON) {
         const elem = document.createElement("div");

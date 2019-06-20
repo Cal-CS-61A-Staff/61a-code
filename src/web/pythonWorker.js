@@ -2,10 +2,8 @@ import { join } from "path";
 
 import console from "./web_console.py";
 
-importScripts(join(__static, "brython.js"));
-importScripts(join(__static, "brython_stdlib.js"));
-
-self.window = this;
+importScripts(join(__static, "brython/brython.js"));
+importScripts(join(__static, "brython/brython_stdlib.js"));
 
 onmessage = (e) => {
     const { data } = e;
