@@ -8,6 +8,7 @@ import {
 import { PYTHON, SCHEME } from "../common/languages.js";
 import python from "../languages/python/web/communication.js";
 import { interactProcess, killProcess } from "../main/processes.js";
+import { assignMenuKey } from "./webMenuHandler.js";
 // import scheme from "../languages/scheme/communication.js";
 
 let handler;
@@ -31,6 +32,8 @@ function receive(arg) {
             interactProcess(arg.key, arg.line);
         } else if (arg.type === KILL_PROCESS) {
             killProcess(arg.key);
+        } else if (arg.type === CLAIM_MENU) {
+            assignMenuKey(arg.key);
         } else {
             console.error(`Unknown (or missing) type: ${arg.type}`);
         }
