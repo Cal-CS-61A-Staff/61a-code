@@ -165,7 +165,7 @@ html {
     text-align: center;
 }
 
-.textHolder {
+.centeredTextHolder {
   display: table-cell;
   vertical-align: middle;
   line-height: normal;
@@ -271,10 +271,7 @@ html {
 
 .recentColumn {
     flex: 50%;
-    padding-top: 10vh;
-    padding-right: 10%;
-    padding-left: 10%;
-    padding-bottom: 25vh;
+    padding: 10vh 10% 25vh;
     color: white;
     display: flex;
     align-items: center;

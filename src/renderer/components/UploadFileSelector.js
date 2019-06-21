@@ -29,16 +29,11 @@ export default class UploadFileSelector extends Component {
 
         const dt = e.dataTransfer;
         const { files } = dt;
-        const file = files[0];
-        const reader = new FileReader();
-        reader.readAsText(file);
-        reader.onload = () => {
-            this.props.onFileSelect({
-                name: file.name ? file.name : "untitled",
-                location: null,
-                content: reader.result,
-            });
-        };
+        this.processFilesUploaded(files);
+    };
+
+    handleFileUpload = (e) => {
+        this.processFilesUploaded(e.target.files);
     };
 
     highlight = (elem) => {
@@ -51,6 +46,19 @@ export default class UploadFileSelector extends Component {
         elem.style.borderColor = "white";
     };
 
+    processFilesUploaded(files) {
+        const file = files[0];
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = () => {
+            this.props.onFileSelect({
+                name: file.name ? file.name : "untitled",
+                location: null,
+                content: reader.result,
+            });
+        };
+    }
+
     render() {
         return (
             <div className="modalCol localFileSelector">
@@ -61,11 +69,18 @@ export default class UploadFileSelector extends Component {
                     onDragLeave={this.handleDragLeave}
                     onDrop={this.handleDrop}
                 >
-                    <span className="textHolder"> Drag files here to upload. </span>
+                    <span className="centeredTextHolder"> Drag files here to upload. </span>
                 </div>
-                <div className="fileUploadButton">
-                    <span className="textHolder"> Or click here to select files. </span>
-                </div>
+                <label>
+                    <div className="fileUploadButton">
+                        <span className="centeredTextHolder"> Or click here to select files. </span>
+                    </div>
+                    <input
+                        style={{ display: "none" }}
+                        type="file"
+                        onChange={this.handleFileUpload}
+                    />
+                </label>
             </div>
         );
     }
