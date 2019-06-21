@@ -1,5 +1,5 @@
 import {
-    CLAIM_MENU, ERR, EXIT,
+    CLAIM_MENU, ERR, EXIT, GET_RECENT_FILES,
     INTERACT_PROCESS,
     KILL_PROCESS,
     OPEN_FILE, OUT, SAVE_FILE,
@@ -10,6 +10,7 @@ import python from "../languages/python/web/communication.js";
 import { interactProcess, killProcess } from "../main/processes.js";
 import { assignMenuKey } from "./webMenuHandler.js";
 import {
+    getRecentFiles,
     open, save, showOpenDialog, showSaveDialog,
 } from "./filesystem.js";
 
@@ -42,6 +43,8 @@ function receive(arg) {
             showSaveDialog(arg.key, arg.contents, arg.hint);
         } else if (arg.type === SAVE_FILE) {
             save(arg.key, arg.contents, arg.location);
+        } else if (arg.type === GET_RECENT_FILES) {
+            getRecentFiles(arg.key);
         } else if (arg.type === CLAIM_MENU) {
             assignMenuKey(arg.key);
         } else {

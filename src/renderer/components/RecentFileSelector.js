@@ -2,7 +2,7 @@
 import React from "react";
 import FileCard from "./FileCard.js";
 
-export default function BrowserFileSelector(props) {
+export default function RecentFileSelector(props) {
     const cards = props.files.map((file, index) => (
         <FileCard
             key={index}
@@ -10,10 +10,20 @@ export default function BrowserFileSelector(props) {
             onClick={() => props.onFileSelect(file)}
         />
     ));
+    let content;
+    if (props.files.length > 0) {
+        content = (
+            <>
+            Recent files
+                {cards}
+            </>
+        );
+    } else {
+        content = "No recent files.";
+    }
     return (
         <div className="modalCol browserFileSelector">
-            Recent files
-            {cards}
+            {content}
         </div>
     );
 }

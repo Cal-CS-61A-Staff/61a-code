@@ -22,7 +22,7 @@ export async function showOpenDialog(key) {
         sendAndExit(key, { success: true, file });
     }
 
-    const recents = await getRecents();
+    const recents = await getRecentFiles();
 
     ReactDOM.render(
         <OpenDialog
@@ -102,11 +102,18 @@ async function getDB() {
 
 export async function save(key, content, location) {
     const db = await getDB();
-    await db.put(OBJECT_STORE, { name: location, location, content, time: new Date() });
+    await db.put(OBJECT_STORE, {
+        name: location, location, content, time: new Date().getTime(),
+    });
     sendAndExit(key, { success: true, name: location, location });
 }
 
-async function getRecents() {
+export async function getRecentFiles(key) {
     const db = await openDB(DATABASE, VERSION);
-    return db.getAll(OBJECT_STORE);
+    const out = await db.getAll(OBJECT_STORE);
+    out.sort((a, b) => b.time - a.time);
+    if (key) {
+        sendAndExit(key, out);
+    }
+    return out;
 }

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import LocalFileSelector from "./LocalFileSelector.js";
-import BrowserFileSelector from "./BrowserFileSelector.js";
+import UploadFileSelector from "./UploadFileSelector.js";
+import RecentFileSelector from "./RecentFileSelector.js";
 
 export default class OpenDialog extends Component {
     handleClick = (e) => {
@@ -16,8 +16,8 @@ export default class OpenDialog extends Component {
                     <span className="close" onClick={this.props.onClose}>&times;</span>
                     <div className="modalHeader">Open</div>
                     <div className="modalContent">
-                        <LocalFileSelector onFileSelect={this.props.onFileSelect} />
-                        <BrowserFileSelector
+                        <UploadFileSelector onFileSelect={this.props.onFileSelect} />
+                        <RecentFileSelector
                             files={this.props.recents}
                             onFileSelect={this.props.onFileSelect}
                         />

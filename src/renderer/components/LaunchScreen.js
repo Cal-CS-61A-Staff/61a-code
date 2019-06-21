@@ -1,5 +1,6 @@
 import React from "react";
 import {
+    GET_RECENT_FILES,
     MENU_CLOSE_TAB,
     MENU_NEW,
     MENU_OPEN,
@@ -11,6 +12,7 @@ import { sendNoInteract } from "../utils/communication.js";
 import claimMenu from "../utils/menuHandler.js";
 // eslint-disable-next-line no-unused-vars
 import MenuBar from "./MenuBar.js";
+import RecentFileSelector from "./RecentFileSelector.js";
 
 export default class LaunchScreen extends React.Component {
     static closeTab() {
@@ -24,6 +26,7 @@ export default class LaunchScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            recentFiles: [],
             detachMenuCallback:
                 claimMenu({
                     [MENU_NEW]: this.handleCreateClick,
@@ -33,6 +36,9 @@ export default class LaunchScreen extends React.Component {
                     [MENU_CLOSE_TAB]: LaunchScreen.closeTab,
                 }),
         };
+        sendNoInteract({
+            type: GET_RECENT_FILES,
+        }).then(recentFiles => this.setState({ recentFiles }));
     }
 
     componentWillUnmount() {
@@ -66,7 +72,14 @@ export default class LaunchScreen extends React.Component {
                         onOpenClick={this.handleOpenClick}
                     />
                 </div>
-                <div className="recentColumn" />
+                <div className="recentColumn">
+                    <div className="recentHolder">
+                        <RecentFileSelector
+                            files={this.state.recentFiles}
+                            onFileSelect={this.props.onFileCreate}
+                        />
+                    </div>
+                </div>
             </div>
         );
     }

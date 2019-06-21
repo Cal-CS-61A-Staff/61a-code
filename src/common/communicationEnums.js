@@ -19,5 +19,6 @@ export const MENU_CLOSE_TAB = "MENU_CLOSE_TAB";
 
 export const SAVE_FILE = "SAVE_FILE";
 export const OPEN_FILE = "OPEN_FILE";
+export const GET_RECENT_FILES = "GET_RECENT_FILES";
 
 export const REGISTER_OKPY_HANDLER = "REGISTER_OKPY_HANDLER";

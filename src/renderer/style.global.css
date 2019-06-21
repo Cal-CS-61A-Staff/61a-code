@@ -37,7 +37,7 @@ html {
     line-height: 30px;
     padding: 10px;
     border: 1px white solid;
-    margin-top: 10px;
+    margin: 10px;
 
     text-align: left;
     font-family: 'Consolas', 'Monaco', monospace;
@@ -271,6 +271,19 @@ html {
 
 .recentColumn {
     flex: 50%;
+    padding-top: 10vh;
+    padding-right: 10%;
+    padding-left: 10%;
+    padding-bottom: 25vh;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.recentHolder {
+    flex: 1 1 auto;
+    max-height: 80%;
+    overflow-y: hidden;
 }
 
 

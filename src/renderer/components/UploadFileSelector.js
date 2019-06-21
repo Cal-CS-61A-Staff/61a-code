@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-export default class LocalFileSelector extends Component {
+export default class UploadFileSelector extends Component {
     handleDragEnter = (e) => {
         e.preventDefault();
         e.stopPropagation();
