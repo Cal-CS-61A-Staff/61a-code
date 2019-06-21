@@ -4,6 +4,7 @@ html {
     box-sizing: border-box;
     background-color: black;
 }
+
 *, *:before, *:after {
     box-sizing: inherit;
 }
@@ -13,6 +14,151 @@ html {
     height: 100%;
 }
 
+#modalOverlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.modal {
+    position: fixed;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+    font-family: "Verdana", "Consolas", sans-serif;
+}
+
+.modalBody {
+    background-color: #000000;
+    margin-top: 80px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px 5px 5px 25px;
+    border: 1px solid #888;
+    width: 70%;
+    height: 70%;
+    color: white;
+}
+
+.modal > * {
+    user-select: none;
+}
+
+.modalHeader {
+    font-family: "Source Sans Pro", sans-serif;
+    font-weight: 200;
+    font-size: 36pt;
+    padding-top: 10px;
+    padding-bottom: 5px;
+}
+
+.modalContent {
+    display: flex;
+    width: calc(100% - 20px);
+    bottom: 20px;
+    height: calc(100% - 90px);
+}
+
+.modalCol {
+    flex: 0 0 50%;
+}
+
+.fileNameField {
+    background-color: black;
+    color: white;
+    font-size: 16pt;
+    font-family: 'Consolas', 'Monaco', monospace;
+    padding: 5px;
+    width: calc(100% - 75px);
+    vertical-align: middle;
+    border: 1px solid white;
+}
+
+.fileNameField:focus {
+    outline-color: white;
+}
+
+.fileNameSubmitBtn {
+    width: 70px;
+    height: 42px;
+    margin-left: 5px;
+    vertical-align: middle;
+    background-color: black;
+    color: white;
+    font-size: 18px;
+    font-family: Calibri, sans-serif;
+}
+
+.fileNameSubmitBtn:hover {
+    color: white;
+    cursor: pointer;
+    background-color: dimgray;
+}
+
+.fileDownloadBtn {
+    width: 100%;
+    height: 42px;
+    vertical-align: middle;
+    background-color: black;
+    color: white;
+    font-size: 18px;
+    font-family: Calibri, sans-serif;
+}
+
+.fileDownloadBtn:hover {
+    color: white;
+    cursor: pointer;
+    background-color: dimgray;
+}
+
+.fileUploadButton {
+    width: 90%;
+    height: 40px;
+    border: 1px solid white;
+    display: table;
+    text-align: center;
+}
+
+.fileUploadButton:hover {
+    background-color: dimgray;
+    cursor: pointer;
+}
+
+.fileDropTarget {
+    width: 90%;
+    height: calc(100% - 70px);
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 2px dotted white;
+    display: table;
+    text-align: center;
+}
+
+.textHolder {
+  display: table-cell;
+  vertical-align: middle;
+  line-height: normal;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .menuBar {
     position: absolute;
     width: 100%;
@@ -20,7 +166,7 @@ html {
     left: 0;
     height: 30px;
     display: flex;
-    z-index: 10;
+    z-index: 1;
     pointer-events: none;
 }
 

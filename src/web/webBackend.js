@@ -2,14 +2,16 @@ import {
     CLAIM_MENU, ERR, EXIT,
     INTERACT_PROCESS,
     KILL_PROCESS,
-    OPEN_FILE, OUT, REGISTER_OKPY_HANDLER, SAVE_FILE,
-    SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG
+    OPEN_FILE, OUT, SAVE_FILE,
+    SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG,
 } from "../common/communicationEnums.js";
-import { PYTHON, SCHEME } from "../common/languages.js";
+import { PYTHON } from "../common/languages.js";
 import python from "../languages/python/web/communication.js";
 import { interactProcess, killProcess } from "../main/processes.js";
 import { assignMenuKey } from "./webMenuHandler.js";
-// import scheme from "../languages/scheme/communication.js";
+import {
+    open, save, showOpenDialog, showSaveDialog,
+} from "./filesystem.js";
 
 let handler;
 
@@ -32,6 +34,14 @@ function receive(arg) {
             interactProcess(arg.key, arg.line);
         } else if (arg.type === KILL_PROCESS) {
             killProcess(arg.key);
+        } else if (arg.type === SHOW_OPEN_DIALOG) {
+            showOpenDialog(arg.key);
+        } else if (arg.type === OPEN_FILE) {
+            open(arg.key, arg.location);
+        } else if (arg.type === SHOW_SAVE_DIALOG) {
+            showSaveDialog(arg.key, arg.contents);
+        } else if (arg.type === SAVE_FILE) {
+            save(arg.key, arg.contents, arg.location);
         } else if (arg.type === CLAIM_MENU) {
             assignMenuKey(arg.key);
         } else {

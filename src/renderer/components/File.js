@@ -16,7 +16,7 @@ export default class File extends React.Component {
         this.state = {
             name: this.props.initFile.name,
             editorText: this.props.initFile.content,
-            savedText: this.props.initFile.content,
+            savedText: this.props.initFile.location ? this.props.initFile.content : -1,
             location: this.props.initFile.location,
 
             outputData: [],

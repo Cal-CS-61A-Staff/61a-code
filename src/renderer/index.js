@@ -31,7 +31,6 @@ function uriFromPath(_path) {
 
 
 function injectScript(src) {
-    console.log(__static);
     return new Promise((resolve) => {
         const script = document.createElement("script");
         if (ELECTRON) {
@@ -43,6 +42,12 @@ function injectScript(src) {
         document.body.appendChild(script);
         script.onload = () => resolve();
     });
+}
+
+function injectDiv(id) {
+    const elem = document.createElement("div");
+    elem.id = id;
+    document.body.appendChild(elem);
 }
 
 function render(Component) {
@@ -72,9 +77,8 @@ async function init() {
     // }
 
     if (!ELECTRON) {
-        const elem = document.createElement("div");
-        elem.id = "app";
-        document.body.appendChild(elem);
+        injectDiv("app");
+        injectDiv("modalOverlay");
     }
 
     render(App);
