@@ -6,6 +6,8 @@ if (!ELECTRON) {
 import * as React from "react";
 import LaunchScreen from "./LaunchScreen.js";
 import MainScreen from "./MainScreen.js";
+// eslint-disable-next-line no-unused-vars
+import MenuBar from "./MenuBar.js";
 import { sendNoInteract } from "../utils/communication.js";
 import { OPEN_FILE } from "../../common/communicationEnums.js";
 
@@ -44,14 +46,25 @@ class App extends React.Component {
     };
 
     render() {
+        let primaryElem;
         if (this.state.launch) {
-            return <LaunchScreen onFileCreate={this.handleFileCreate} />;
+            primaryElem = <LaunchScreen onFileCreate={this.handleFileCreate} />;
         } else {
-            return (
+            primaryElem = (
                 <MainScreen
                     onAllClosed={this.handleAllClosed}
                     initFile={this.state.initFile}
                 />
+            );
+        }
+        if (ELECTRON) {
+            return primaryElem;
+        } else {
+            return (
+                <>
+                    <MenuBar />
+                    { primaryElem }
+                </>
             );
         }
     }

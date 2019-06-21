@@ -1,17 +1,13 @@
-/* eslint-disable global-require */
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { send } from "./communication";
 import { CLAIM_MENU } from "../../common/communicationEnums.js";
 
 let remote;
 if (ELECTRON) {
+    // eslint-disable-next-line global-require
     ({ remote } = require("electron"));
 }
 
 export default function claimMenu(handlers) {
-    if (!ELECTRON) {
-        return () => null; // dummy function!
-    }
     let detach;
 
     claim();
@@ -27,7 +23,12 @@ export default function claimMenu(handlers) {
             });
     }
 
-    remote.getCurrentWindow().on("focus", () => { detach(); claim(); });
+    if (ELECTRON) {
+        remote.getCurrentWindow().on("focus", () => {
+            detach();
+            claim();
+        });
+    }
 
     return () => {
         detach();

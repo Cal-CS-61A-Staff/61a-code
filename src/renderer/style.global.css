@@ -13,6 +13,33 @@ html {
     height: 100%;
 }
 
+.menuBar {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 30px;
+    display: flex;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.menuElem {
+    flex: 0 0 60px;
+    margin: 2px;
+    color: white;
+    text-align: center;
+    font-family: "Source Sans Pro", sans-serif;
+    line-height: 26px;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+}
+
+.menuElem:hover {
+    background-color: #6c6c6c;
+}
+
 /* Launch screen */
 .row {
     display: flex;

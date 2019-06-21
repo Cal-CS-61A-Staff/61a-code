@@ -9,6 +9,8 @@ import {
 import IntroBox from "./IntroBox";
 import { sendNoInteract } from "../utils/communication.js";
 import claimMenu from "../utils/menuHandler.js";
+// eslint-disable-next-line no-unused-vars
+import MenuBar from "./MenuBar.js";
 
 export default class LaunchScreen extends React.Component {
     static closeTab() {
