@@ -5,7 +5,7 @@ import NavBarIcons from "./NavBarIcons";
 export default function NavBar(props) {
     return (
         <span className="navBar">
-            <PathIndicator path={props.path} />
+            {ELECTRON ? <PathIndicator path={props.path} /> : false}
             <NavBarIcons onActionClick={props.onActionClick} />
         </span>
     );

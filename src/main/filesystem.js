@@ -33,7 +33,8 @@ export function open(key, location) {
     });
 }
 
-export function showSaveDialog(key, contents) {
+// TODO: take the hint! (xD)
+export function showSaveDialog(key, contents, hint) {
     dialog.showSaveDialog({}, (location) => {
         if (location) {
             save(key, contents, location);

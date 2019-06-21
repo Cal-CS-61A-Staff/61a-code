@@ -6,6 +6,11 @@ export default class FileNameField extends Component {
         this.inputRef = React.createRef();
     }
 
+    componentDidMount() {
+        this.inputRef.current.focus();
+        this.inputRef.current.select();
+    }
+
     handleKeyUp = (e) => {
         if (e.keyCode === 13) {
             this.handleClick();
@@ -25,6 +30,8 @@ export default class FileNameField extends Component {
                 <input
                     ref={this.inputRef}
                     className="fileNameField"
+                    defaultValue={this.props.defaultValue}
+                    spellCheck={false}
                     onKeyUp={this.handleKeyUp}
                 />
                 <button className="fileNameSubmitBtn" type="button" onClick={this.handleClick}>

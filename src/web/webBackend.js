@@ -39,7 +39,7 @@ function receive(arg) {
         } else if (arg.type === OPEN_FILE) {
             open(arg.key, arg.location);
         } else if (arg.type === SHOW_SAVE_DIALOG) {
-            showSaveDialog(arg.key, arg.contents);
+            showSaveDialog(arg.key, arg.contents, arg.hint);
         } else if (arg.type === SAVE_FILE) {
             save(arg.key, arg.contents, arg.location);
         } else if (arg.type === CLAIM_MENU) {

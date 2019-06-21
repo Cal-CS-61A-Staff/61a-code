@@ -9,7 +9,7 @@ const DATABASE = "FileStorage";
 const OBJECT_STORE = "Files";
 const VERSION = 1;
 
-export function showOpenDialog(key) {
+export async function showOpenDialog(key) {
     const elem = document.getElementById("modalOverlay");
 
     function handleClose() {
@@ -22,8 +22,11 @@ export function showOpenDialog(key) {
         sendAndExit(key, { success: true, file });
     }
 
+    const recents = await getRecents();
+
     ReactDOM.render(
         <OpenDialog
+            recents={recents}
             onClose={handleClose}
             onFileSelect={handleFileSelect}
         />,
@@ -49,7 +52,7 @@ export function open(key, location) {
     });
 }
 
-export function showSaveDialog(key, contents) {
+export function showSaveDialog(key, contents, hint) {
     const elem = document.getElementById("modalOverlay");
 
     function handleClose() {
@@ -63,11 +66,23 @@ export function showSaveDialog(key, contents) {
     }
 
     function handleDownloadClick() {
-        alert("Not yet implemented!");
+        // https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
+        const element = document.createElement("a");
+        element.setAttribute("href", `data:text/plain;charset=utf-8,${encodeURIComponent(contents)}`);
+        element.setAttribute("download", hint);
+
+        element.style.display = "none";
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
     }
+
 
     ReactDOM.render(
         <SaveDialog
+            defaultValue={hint}
             onClose={handleClose}
             onNameSelect={handleNameSelect}
             onDownloadClick={handleDownloadClick}
@@ -76,20 +91,22 @@ export function showSaveDialog(key, contents) {
     );
 }
 
-export async function save(key, contents, location) {
-    try {
-        const db = await openDB(DATABASE, VERSION, {
-            upgrade(db) {
-                db.createObjectStore(OBJECT_STORE, { keyPath: "location" });
-                // who needs to preserve files anyway
-            },
-        });
+async function getDB() {
+    return openDB(DATABASE, VERSION, {
+        upgrade(db) {
+            db.createObjectStore(OBJECT_STORE, { keyPath: "location" });
+            // who needs to preserve files anyway
+        },
+    });
+}
 
-        await db.put(OBJECT_STORE, { location, contents });
+export async function save(key, content, location) {
+    const db = await getDB();
+    await db.put(OBJECT_STORE, { name: location, location, content, time: new Date() });
+    sendAndExit(key, { success: true, name: location, location });
+}
 
-        sendAndExit(key, { success: true, name: location, location });
-    } catch {
-        alert("Unable to save! Make sure to grant this app access to IndexedDB");
-        sendAndExit(key, { success: false });
-    }
+async function getRecents() {
+    const db = await openDB(DATABASE, VERSION);
+    return db.getAll(OBJECT_STORE);
 }

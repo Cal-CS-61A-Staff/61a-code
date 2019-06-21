@@ -24,6 +24,31 @@ html {
     pointer-events: none;
 }
 
+.browserFileSelector {
+    overflow-y: auto;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 24px;
+    font-weight: 200;
+    text-align: center;
+}
+
+.fileCard {
+    height: 50px;
+    line-height: 30px;
+    padding: 10px;
+    border: 1px white solid;
+    margin-top: 10px;
+
+    text-align: left;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 16px;
+}
+
+.fileCard:hover {
+    background-color: dimgray;
+    cursor: pointer;
+}
+
 .modal {
     position: fixed;
     z-index: 2;
