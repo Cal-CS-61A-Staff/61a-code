@@ -115,14 +115,14 @@ export default class File extends React.Component {
     };
 
     debugExecutedCode = async () => {
-        const TEMPLATE_CODE = "# these lines stub out the debugging functions you have available"
-            + "def draw(): pass"
-            + "def autodraw(): pass"
-            + "def disableAutodraw(): pass"
-            + "def debug(): pass"
-            + "def editor(): pass"
+        const TEMPLATE_CODE = "# these lines stub out the debugging functions you have available\n"
+            + "def draw(): pass\n"
+            + "def autodraw(): pass\n"
+            + "def disableAutodraw(): pass\n"
+            + "def visualize(): pass\n"
+            + "def editor(): pass\n\n"
             + "# your code is below\n";
-        const code = TEMPLATE_CODE + this.state.executedCode.join("");
+        const code = TEMPLATE_CODE + this.state.executedCode.join("\n");
         const debugData = await generateDebugTrace(this.identifyLanguage())(code);
         this.setState({ debugData, editorInDebugMode: true });
         this.debugRef.current.forceOpen();

@@ -344,6 +344,7 @@ html {
     white-space: pre-wrap;
     word-break: break-all;
     line-height: 1.6;
+    padding-bottom: 100px;
 }
 
 .output * {
