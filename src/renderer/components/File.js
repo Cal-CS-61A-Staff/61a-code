@@ -9,6 +9,9 @@ import {
     format, generateDebugTrace, runCode, runFile,
 } from "../utils/dispatch.js";
 
+const DEBUG_MARKER = "DEBUG: ";
+const EDITOR_MARKER = "EDITOR: ";
+
 export default class File extends React.Component {
     constructor(props) {
         super(props);
@@ -21,6 +24,8 @@ export default class File extends React.Component {
 
             outputData: [],
             outputActive: false,
+
+            executedCode: [],
 
             debugData: null,
             editorInDebugMode: false,
@@ -82,6 +87,8 @@ export default class File extends React.Component {
         const numTrunc = this.state.outputData.length;
 
         this.setState(state => ({
+            // eslint-disable-next-line react/no-access-state-in-setstate
+            executedCode: [this.state.editorText],
             interactCallback,
             killCallback,
             detachCallback,
@@ -96,9 +103,27 @@ export default class File extends React.Component {
         let debugData;
         if (data) {
             debugData = data; // data has been generated for us by parent
-        } else {
+        } else if (this.state.editorText !== "") {
             debugData = await generateDebugTrace(this.identifyLanguage())(this.state.editorText);
+        } else {
+            this.debugExecutedCode();
+            return;
         }
+        this.setState({ debugData, editorInDebugMode: true });
+        this.editorRef.current.forceOpen();
+        this.debugRef.current.forceOpen();
+    };
+
+    debugExecutedCode = async () => {
+        const TEMPLATE_CODE = "# these lines stub out the debugging functions you have available"
+            + "def draw(): pass"
+            + "def autodraw(): pass"
+            + "def disableAutodraw(): pass"
+            + "def debug(): pass"
+            + "def editor(): pass"
+            + "# your code is below\n";
+        const code = TEMPLATE_CODE + this.state.executedCode.join("");
+        const debugData = await generateDebugTrace(this.identifyLanguage())(code);
         this.setState({ debugData, editorInDebugMode: true });
         this.debugRef.current.forceOpen();
     };
@@ -146,13 +171,19 @@ export default class File extends React.Component {
     };
 
     handleOutputUpdate = (text, isErr) => {
-        this.setState((state) => {
-            const outputData = state.outputData.concat([{
-                text,
-                isErr,
-            }]);
-            return { outputData };
-        });
+        if (text.startsWith(DEBUG_MARKER)) {
+            this.debugExecutedCode();
+        } else if (text.startsWith(EDITOR_MARKER)) {
+            this.editorRef.current.forceOpen();
+        } else {
+            this.setState((state) => {
+                const outputData = state.outputData.concat([{
+                    text,
+                    isErr,
+                }]);
+                return { outputData };
+            });
+        }
     };
 
     handleHalt = (text) => {
@@ -171,6 +202,7 @@ export default class File extends React.Component {
     handleInput = (line) => {
         this.state.interactCallback(line);
         this.handleOutputUpdate(line, false);
+        this.setState(state => ({ executedCode: state.executedCode.concat([line]) }));
     };
 
     handleEditorChange = (editorText) => {

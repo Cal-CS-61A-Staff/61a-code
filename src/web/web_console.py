@@ -8,8 +8,9 @@ Welcome to the 61A Python web interpreter!
 Check out the code for this app on GitHub.
 
 To visualize a list, call draw(<list>).
-Call autodraw() to draw list visualizations automatically.
-Call debug() to view an environment diagram of your entire program.
+To draw list visualizations automatically, call autodraw().
+To view an environment diagram of your entire program, call visualize().
+To launch an editor associated with your console, call editor().
 """
 
 _credits = """    Thanks to CWI, CNRI, BeOpen.com, Zope Corporation and a cast of thousands
@@ -216,6 +217,14 @@ def draw(lst):
     wrap_debug([draw_worker(lst), heap])
 
 
+def visualize():
+    print("DEBUG: ")
+
+
+def editor():
+    print("EDITOR: ")
+
+
 # execution namespace
 editor_ns = {'credits': credits,
              'copyright': copyright,
@@ -223,6 +232,8 @@ editor_ns = {'credits': credits,
              'autodraw': autodraw,
              'disable_autodraw': disable_autodraw,
              'draw': draw,
+             'visualize': visualize,
+             'editor': editor,
              '__name__': '__main__'}
 
 first = True
