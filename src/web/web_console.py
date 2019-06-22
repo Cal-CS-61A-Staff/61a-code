@@ -6,6 +6,10 @@ _launchtext = """CS61A Python Web Interpreter
 --------------------------------------------------------------------------------
 Welcome to the 61A Python web interpreter! 
 Check out the code for this app on GitHub.
+
+To visualize a list, call draw(<list>).
+Call autodraw() to draw list visualizations automatically.
+Call debug() to view an environment diagram of your entire program.
 """
 
 _credits = """    Thanks to CWI, CNRI, BeOpen.com, Zope Corporation and a cast of thousands
@@ -145,13 +149,84 @@ history = []
 current = 0
 _status = "main"  # or "block" if typing inside a block
 
+autodraw_active = False
+
+
+def json_repr(elem):
+    if isinstance(elem, list):
+        elem_reprs = [json_repr(x) for x in elem]
+        return "[" + ", ".join(elem_reprs) + "]"
+    elif isinstance(elem, str):
+        return '"' + repr(elem)[1:-1] + '"'
+    elif isinstance(elem, dict):
+        key_val_reprs = [json_repr(key) + ": " + json_repr(val) for key, val in elem.items()]
+        return "{" + ", ".join(key_val_reprs) + "}"
+    elif isinstance(elem, bool):
+        if elem:
+            return "true"
+        else:
+            return "false"
+    elif isinstance(elem, int):
+        return '"' + repr(elem) + '"'
+    else:
+        raise Exception("Unable to serialize object of type " + str(type(elem)))
+
+
+def wrap_debug(out):
+    print("DRAW: " + json_repr(out))
+
+
+def autodraw():
+    global autodraw_active
+    autodraw_active = True
+    print("Call disable_autodraw() to disable automatic visualization of lists.")
+
+
+def disable_autodraw():
+    global autodraw_active
+    autodraw_active = False
+    print("Autodraw disabled.")
+
+
+def atomic(elem):
+    listlike = list, tuple
+    return not isinstance(elem, listlike)
+
+
+def inline(elem):
+    inline = int, bool, float, str, type(None)
+    return isinstance(elem, inline)
+
+
+def draw(lst):
+    heap = {}
+
+    def draw_worker(elem):
+        if inline(elem):
+            return ["inline", repr(elem)]
+        if atomic(elem):
+            val = ["atomic", ["inline", repr(elem)]]
+        elif len(elem) == 0:
+            val = ["atomic", ["inline", "Empty list"]]
+        else:
+            val = ["list", [draw_worker(x) for x in elem]]
+        heap[id(elem)] = val
+        return ["ref", id(elem)]
+
+    wrap_debug([draw_worker(lst), heap])
+
+
 # execution namespace
 editor_ns = {'credits': credits,
              'copyright': copyright,
              'license': license,
+             'autodraw': autodraw,
+             'disable_autodraw': disable_autodraw,
+             'draw': draw,
              '__name__': '__main__'}
 
 first = True
+
 
 def handleInput(line):
     global src, _status, first
@@ -159,9 +234,7 @@ def handleInput(line):
     if first:
         if line.strip():
             try:
-                _ = exec(line, editor_ns)
-                if _ is not None:
-                    print(repr(_))
+                exec(line, editor_ns)
             except:
                 print_tb()
             write(">>> ")
@@ -182,7 +255,6 @@ def handleInput(line):
     else:
         currentLine = src[src.rfind('...') + 4:]
 
-
     src += "\n"
 
     if _status == 'main' and not currentLine.strip():
@@ -195,6 +267,8 @@ def handleInput(line):
             flush()
             if _ is not None:
                 write(repr(_) + '\n')
+                if not atomic(_) and autodraw_active:
+                    draw(_)
             flush()
             write('>>> ')
             _status = "main"
