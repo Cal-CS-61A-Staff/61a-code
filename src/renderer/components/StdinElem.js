@@ -6,7 +6,18 @@ export default class StdinElem extends React.Component {
         this.inputRef = React.createRef();
     }
 
-    handleInput(e) {
+    setText(text) {
+        this.inputRef.current.innerText = text;
+    }
+
+    handleKeyDown = (e) => {
+        if (e.keyCode === 9) {
+            e.preventDefault();
+            document.execCommand("insertHTML", false, "&#009");
+        }
+    };
+
+    handleInput = (e) => {
         let text = e.currentTarget.innerText;
         const lines = text.split(/\r\n|\r|\n/);
         for (let i = 0; i !== lines.length - 1; ++i) {
@@ -19,7 +30,7 @@ export default class StdinElem extends React.Component {
         if (lines.length > 1) {
             this.inputRef.current.innerText = text;
         }
-    }
+    };
 
     focus() {
         this.inputRef.current.focus();
@@ -30,7 +41,8 @@ export default class StdinElem extends React.Component {
             <span
                 ref={this.inputRef}
                 className="consoleInput"
-                onInput={this.handleInput.bind(this)}
+                onInput={this.handleInput}
+                onKeyDown={this.handleKeyDown}
                 contentEditable="plaintext-only"
             />
         );

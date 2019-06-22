@@ -8,9 +8,7 @@ class Output extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // eslint-disable-next-line react/no-unused-state
-            history: [],
-            // eslint-disable-next-line react/no-unused-state
+            history: [""],
             historyIndex: 0,
         };
         this.inputRef = React.createRef();
@@ -43,6 +41,32 @@ class Output extends React.Component {
     handleInput = (text) => {
         this.postRender(text);
         this.props.onInput(text);
+        this.setState(state => ({
+            history: state.history.slice(0, state.history.length - 1).concat([text.trim(), ""]),
+            historyIndex: state.history.length,
+        }));
+    };
+
+    handleKeyDown = (e) => {
+        if (e.keyCode === 38) {
+            e.preventDefault();
+            this.setState((state) => {
+                const newIndex = Math.max(0, state.historyIndex - 1);
+                this.inputRef.current.setText(state.history[newIndex]);
+                return {
+                    historyIndex: newIndex,
+                };
+            });
+        } else if (e.keyCode === 40) {
+            e.preventDefault();
+            this.setState((state) => {
+                const newIndex = Math.min(state.history.length - 1, state.historyIndex + 1);
+                this.inputRef.current.setText(state.history[newIndex]);
+                return {
+                    historyIndex: newIndex,
+                };
+            });
+        }
     };
 
     postRender() {
@@ -60,7 +84,12 @@ class Output extends React.Component {
                     />
                 </div>
                 {/* eslint-disable-next-line */}
-                <div className="outputWrapper" ref={this.outputRef} onClick={this.handleOutputClick}>
+                <div
+                    className="outputWrapper"
+                    ref={this.outputRef}
+                    onClick={this.handleOutputClick}
+                    onKeyDown={this.handleKeyDown}
+                >
                     <div className="output">
                         {/* eslint-disable-next-line react/no-array-index-key */}
                         {this.props.data.map((elem, index) => <OutputElem key={index} {...elem} />)}
