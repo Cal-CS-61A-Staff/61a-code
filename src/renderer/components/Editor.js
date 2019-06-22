@@ -60,4 +60,4 @@ class Editor extends React.Component {
     }
 }
 
-export default glWrap(Editor, "column", 50, "editor", ["editor", "debugger"]);
+export default glWrap(Editor, "column", 50, "editor", ["editor", "debugger", "output", "okResults"]);

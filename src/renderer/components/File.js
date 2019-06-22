@@ -37,7 +37,11 @@ export default class File extends React.Component {
     }
 
     componentDidMount() {
-        this.editorRef.current.forceOpen();
+        if (this.props.startInterpreter) {
+            this.run();
+        } else {
+            this.editorRef.current.forceOpen();
+        }
     }
 
     componentWillUnmount() {

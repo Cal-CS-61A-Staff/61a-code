@@ -38,14 +38,17 @@ export default class MainScreen extends React.Component {
         this.keyCnt = 0;
 
         this.okResultsRef = React.createRef();
-        this.terminalRef = React.createRef();
     }
 
     componentDidMount() {
         initGoldenLayout(this.props.onAllClosed);
         const files = {
             [this.keyCnt++]:
-                { ref: React.createRef(), initData: this.props.initFile },
+                {
+                    ref: React.createRef(),
+                    initData: this.props.initFile,
+                    startInterpreter: this.props.startInterpreter,
+                },
         };
         this.setState({ files });
     }
@@ -153,6 +156,7 @@ export default class MainScreen extends React.Component {
                 id={key}
                 ref={this.state.files[key].ref}
                 initFile={this.state.files[key].initData}
+                startInterpreter={this.state.files[key].startInterpreter}
                 onActivate={this.handleFileActivate}
             />
         ));

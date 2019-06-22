@@ -38,10 +38,11 @@ class App extends React.Component {
         this.setState({ launch: true });
     };
 
-    handleFileCreate = (file) => {
+    handleFileCreate = (file, startInterpreter) => {
         this.setState({
             launch: false,
             initFile: file,
+            startInterpreter,
         });
     };
 
@@ -54,6 +55,7 @@ class App extends React.Component {
                 <MainScreen
                     onAllClosed={this.handleAllClosed}
                     initFile={this.state.initFile}
+                    startInterpreter={this.state.startInterpreter}
                 />
             );
         }

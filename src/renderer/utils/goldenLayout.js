@@ -65,12 +65,13 @@ export function initGoldenLayout(callback) {
 
     layout.registerComponent("dummy", dummyComponent);
     layout.init();
-
-    initializeContainer(initContainer, "editor");
+    console.log(initContainer);
 }
 
 export function requestContainer(orientation, targetDim, type, friends) {
+    console.log("Requested", type);
     if (initContainer) {
+        initializeContainer(initContainer, type);
         const ret = initContainer;
         initContainer = null;
         return ret;

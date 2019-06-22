@@ -10,8 +10,6 @@ import {
 import IntroBox from "./IntroBox";
 import { sendNoInteract } from "../utils/communication.js";
 import claimMenu from "../utils/menuHandler.js";
-// eslint-disable-next-line no-unused-vars
-import MenuBar from "./MenuBar.js";
 import RecentFileSelector from "./RecentFileSelector.js";
 
 export default class LaunchScreen extends React.Component {
@@ -45,13 +43,13 @@ export default class LaunchScreen extends React.Component {
         this.state.detachMenuCallback();
     }
 
-    handleCreateClick = () => {
+    handleCreateClick = (startInterpreter) => {
         const file = {
             name: "untitled",
             location: null,
             content: "",
         };
-        this.props.onFileCreate(file);
+        this.props.onFileCreate(file, startInterpreter);
     };
 
     handleOpenClick = async () => {

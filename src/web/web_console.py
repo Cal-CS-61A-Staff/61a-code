@@ -2,6 +2,12 @@ import browser
 import sys
 import tb as traceback
 
+_launchtext = """CS61A Python Web Interpreter
+--------------------------------------------------------------------------------
+Welcome to the 61A Python web interpreter! 
+Check out the code for this app on GitHub.
+"""
+
 _credits = """    Thanks to CWI, CNRI, BeOpen.com, Zope Corporation and a cast of thousands
     for supporting Python development.  See www.python.org for more information."""
 
@@ -160,8 +166,8 @@ def handleInput(line):
                 print_tb()
             write(">>> ")
         else:
-            v = sys.implementation.version
-            write("Brython %s.%s.%s\n>>> " % (v[0], v[1], v[2]))
+            write(_launchtext)
+            write("\n>>> ")
             # doc['code'].value += 'Type "copyright", "credits" or "license" for more information.'
         first = False
         return
