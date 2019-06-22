@@ -1,21 +1,23 @@
 module.exports = {
-  /* your base configuration of choice */
-  extends: 'airbnb',
-  parser: 'babel-eslint',
-  parserOptions: {
-    sourceType: 'module'
-  },
-  env: {
-    browser: true,
-    node: true
-  },
-  globals: {
-    __static: true,
-      ExecutionVisualizer: true,
-      ELECTRON: true,
-      brython: true,
-  },
-  rules: {
+    /* your base configuration of choice */
+    extends: 'airbnb',
+    parser: 'babel-eslint',
+    parserOptions: {
+        sourceType: 'module'
+    },
+    env: {
+        browser: true,
+        node: true
+    },
+    globals: {
+        __static: true,
+        ExecutionVisualizer: true,
+        ELECTRON: true,
+        brython: true,
+        __BRYTHON__: true,
+        importScripts: true,
+    },
+    rules: {
         'import/no-unresolved': false,
         "import/extensions": false,
         "prefer-const": ["error", {
@@ -46,11 +48,19 @@ module.exports = {
         "react/no-multi-comp": 0,
         "jsx-a11y/click-events-have-key-events": 0,
         "jsx-a11y/no-static-element-interactions": 0,
-      "no-continue": 0,
-      "react/prop-types": 0,
-      "import/no-cycle": 0,
-      "no-console": 0,
-      "import/no-webpack-loader-syntax": 0,
-      "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+        "no-continue": 0,
+        "react/prop-types": 0,
+        "import/no-cycle": 0,
+        "no-console": 0,
+        "import/no-webpack-loader-syntax": 0,
+        "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+        "jsx-a11y/label-has-for": {
+            "required": {
+                "some": ["nesting", "id"]
+            }
+        },
+        "jsx-a11y/label-has-associated-control": [2, {
+            "assert": "either",
+        }],
     }
 };

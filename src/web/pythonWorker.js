@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { join } from "path";
 
 import pyConsole from "./web_console.py";

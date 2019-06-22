@@ -1,17 +1,9 @@
 import { exit, out } from "./webBackend.js";
 import { registerProcess } from "../main/processes.js";
 
+// eslint-disable-next-line no-unused-vars
 export function runPyScript(key, scriptLocation, interpreterArgs, args) {
-    // const python = spawn("python3.6", ["-u"].concat(interpreterArgs).concat([scriptLocation]).concat(args));
-    // registerProcess(key, python);
-
-    alert("doesn't work!!!");
-
-    // python.stdout.on("data", data => out(key, data.toString("utf-8")));
-    // python.stderr.on("data", data => err(key, data.toString("utf-8")));
-    // python.on(
-    //     "exit", (code, signal) => exit(key, `\nProcess finished with exit code ${code} (signal: ${signal})`),
-    // );
+    // TODO
 }
 
 export function runPyCode(key, code) {

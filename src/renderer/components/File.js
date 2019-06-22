@@ -3,7 +3,7 @@ import Editor from "./Editor";
 import Output from "./Output";
 import { sendNoInteract } from "../utils/communication.js";
 import { SAVE_FILE, SHOW_SAVE_DIALOG } from "../../common/communicationEnums.js";
-import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
+import { PYTHON } from "../../common/languages.js";
 import {
     Debugger,
     format, generateDebugTrace, runCode, runFile,
@@ -59,7 +59,7 @@ export default class File extends React.Component {
         let killCallback;
         let detachCallback;
 
-        if (this.state.location) {
+        if (ELECTRON && this.state.location) {
             [interactCallback, killCallback, detachCallback] = runFile(this.identifyLanguage())(
                 this.state.location,
                 out => this.handleOutputUpdate(out, false),

@@ -34,22 +34,10 @@ export async function showOpenDialog(key) {
     );
 }
 
-export function open(key, location) {
-    readFile(location, (error, data) => {
-        if (error) {
-            sendAndExit(key, { success: false });
-        } else {
-            const content = data.toString("utf-8");
-            sendAndExit(key, {
-                success: true,
-                file: {
-                    name: basename(location),
-                    location,
-                    content,
-                },
-            });
-        }
-    });
+export async function open(key, location) {
+    const db = await getDB();
+    const file = await db.get(OBJECT_STORE, location);
+    sendAndExit(key, { success: true, file });
 }
 
 export function showSaveDialog(key, contents, hint) {

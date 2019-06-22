@@ -48,6 +48,15 @@ module.exports = {
                 test: /\.py$/i,
                 use: "raw-loader",
             },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: "eslint-loader",
+                options: {
+                    emitError: true,
+                    emitWarning: true,
+                },
+            },
         ],
     },
     plugins: [
