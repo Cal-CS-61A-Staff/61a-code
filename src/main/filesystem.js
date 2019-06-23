@@ -34,6 +34,7 @@ export function open(key, location) {
 }
 
 // TODO: take the hint! (xD)
+// eslint-disable-next-line
 export function showSaveDialog(key, contents, hint) {
     dialog.showSaveDialog({}, (location) => {
         if (location) {

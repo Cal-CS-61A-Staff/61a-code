@@ -39,6 +39,8 @@ export default class File extends React.Component {
         this.editorRef = React.createRef();
         this.outputRef = React.createRef();
         this.debugRef = React.createRef();
+
+        this.props.onActivate(this.props.id);
     }
 
     componentDidMount() {

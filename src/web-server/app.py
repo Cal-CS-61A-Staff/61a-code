@@ -1,10 +1,15 @@
 from flask import Flask, request
 import requests
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder="")
 
 
-# FIXME: DO NOT DEPLOY, unless you want Prof. Guo to be _very_ angry :P
+@app.route('/')
+def root():
+    return app.send_static_file('dist/web/index.html')
+
+
+# FIXME: DO NOT DEPLOY
 @app.route('/api/pytutor', methods=['POST'])
 def pytutor_proxy():
     response = requests.post("http://pythontutor.com/web_exec_py3.py", data={

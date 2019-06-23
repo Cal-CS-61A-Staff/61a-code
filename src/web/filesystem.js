@@ -97,7 +97,7 @@ export async function save(key, content, location) {
 }
 
 export async function getRecentFiles(key) {
-    const db = await openDB(DATABASE, VERSION);
+    const db = await getDB();
     const out = await db.getAll(OBJECT_STORE);
     out.sort((a, b) => b.time - a.time);
     if (key) {
