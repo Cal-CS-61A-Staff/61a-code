@@ -8,12 +8,17 @@ export default class StdinElem extends React.Component {
 
     setText(text) {
         this.inputRef.current.innerText = text;
+        this.goToEnd();
     }
 
     handleKeyDown = (e) => {
         if (e.keyCode === 9) {
             e.preventDefault();
             document.execCommand("insertHTML", false, "&#009");
+        } else if (e.keyCode === 13) {
+            e.preventDefault();
+            this.props.onInput(`${this.inputRef.current.innerText}\n`);
+            this.setText("");
         }
     };
 
@@ -28,9 +33,20 @@ export default class StdinElem extends React.Component {
         }
         text = lines[lines.length - 1];
         if (lines.length > 1) {
-            this.inputRef.current.innerText = text;
+            this.setText(text);
         }
     };
+
+    // https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity/3866442#3866442
+    goToEnd() {
+        const range = document.createRange();
+        range.selectNodeContents(this.inputRef.current);
+        range.collapse(false);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
 
     focus() {
         this.inputRef.current.focus();
