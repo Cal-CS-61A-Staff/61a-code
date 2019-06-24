@@ -6,6 +6,8 @@
       <excludeFolder url="file://$MODULE_DIR$/src/languages/python/black" />
       <excludeFolder url="file://$MODULE_DIR$/src/languages/python/pytutor" />
       <excludeFolder url="file://$MODULE_DIR$/static/brython" />
+      <excludeFolder url="file://$MODULE_DIR$/static/font-awesome" />
+      <excludeFolder url="file://$MODULE_DIR$/static/font-awesome/webfonts" />
       <excludeFolder url="file://$MODULE_DIR$/static/golden-layout" />
       <excludeFolder url="file://$MODULE_DIR$/static/monaco-editor" />
       <excludeFolder url="file://$MODULE_DIR$/static/monaco-react" />

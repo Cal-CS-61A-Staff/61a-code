@@ -222,6 +222,8 @@ export default class File extends React.Component {
     };
 
     identifyLanguage = () => {
+        return PYTHON;
+        // eslint-disable-next-line no-unreachable
         const name = this.state.name.toLowerCase();
         if (name.endsWith(".py")) {
             return PYTHON;

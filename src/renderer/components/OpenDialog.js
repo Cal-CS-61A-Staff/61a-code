@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import * as React from "react";
 import UploadFileSelector from "./UploadFileSelector.js";
 import RecentFileSelector from "./RecentFileSelector.js";
 
-export default class OpenDialog extends Component {
+export default class OpenDialog extends React.Component {
     handleClick = (e) => {
         if (e.target === e.currentTarget) {
             this.props.onClose();
