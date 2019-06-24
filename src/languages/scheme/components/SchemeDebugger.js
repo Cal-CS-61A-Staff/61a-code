@@ -118,4 +118,4 @@ class SchemeDebugger extends React.PureComponent {
     }
 }
 
-export default glWrap(SchemeDebugger, "row", 50, "debugger", ["editor", "debugger"]);
+export default glWrap(SchemeDebugger, "right", 50, "debugger", ["editor", "debugger"]);

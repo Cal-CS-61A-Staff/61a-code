@@ -5,9 +5,11 @@ export default function IntroBox(props) {
     return (
         <div className="introHolder">
             <div className="introTitle">61A Editor</div>
-            <IntroButton name="Create new file" onClick={() => props.onCreateClick(false)} />
+            <IntroButton name="Create new file" onClick={() => props.onCreateClick()} />
             <IntroButton name="Open existing file" onClick={props.onOpenClick} />
-            <IntroButton name="Start Python interpreter" onClick={() => props.onCreateClick(true)} />
+            <IntroButton name="Start Python interpreter" onClick={() => props.onCreateClick(".py")} />
+            {/* <IntroButton
+            name="Start Scheme interpreter" onClick={() => props.onCreateClick(".scm")} /> */}
         </div>
     );
 }

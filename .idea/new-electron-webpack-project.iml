@@ -12,6 +12,7 @@
       <excludeFolder url="file://$MODULE_DIR$/static/python/black" />
       <excludeFolder url="file://$MODULE_DIR$/static/python/pytutor" />
       <excludeFolder url="file://$MODULE_DIR$/static/scheme/formatter" />
+      <excludeFolder url="file://$MODULE_DIR$/static/scheme/scheme" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

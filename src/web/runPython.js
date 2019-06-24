@@ -2,19 +2,15 @@ import { exit, out } from "./webBackend.js";
 import { registerProcess } from "../main/processes.js";
 
 // eslint-disable-next-line no-unused-vars
-export function runPyScript(key, scriptLocation, interpreterArgs, args) {
-    // TODO
-}
-
-export function runPyCode(key, code) {
+export default function runPyScript(key, script, args) {
     const worker = new Worker("pythonWorker.js");
-    worker.postMessage({ code });
+    worker.postMessage(script);
     worker.onmessage = (e) => {
         out(key, e.data);
     };
     registerProcess(key, {
         stdin: {
-            write: line => worker.postMessage({ code: line }),
+            write: line => worker.postMessage(line),
         },
         kill: () => {
             try {

@@ -43,13 +43,14 @@ export default class LaunchScreen extends React.Component {
         this.state.detachMenuCallback();
     }
 
-    handleCreateClick = (startInterpreter) => {
+    handleCreateClick = (extension) => {
+        const realExtension = extension ? `.${extension}` : "";
         const file = {
-            name: "untitled",
+            name: `untitled${realExtension}`,
             location: null,
             content: "",
         };
-        this.props.onFileCreate(file, startInterpreter);
+        this.props.onFileCreate(file, Boolean(realExtension));
     };
 
     handleOpenClick = async () => {

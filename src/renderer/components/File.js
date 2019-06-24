@@ -3,7 +3,7 @@ import Editor from "./Editor";
 import Output from "./Output";
 import { sendNoInteract } from "../utils/communication.js";
 import { SAVE_FILE, SHOW_SAVE_DIALOG } from "../../common/communicationEnums.js";
-import { PYTHON } from "../../common/languages.js";
+import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import {
     Debugger,
     format, generateDebugTrace, runCode, runFile,
@@ -215,27 +215,27 @@ export default class File extends React.Component {
         this.handleActivate();
     };
 
-    // eslint-disable-next-line arrow-body-style
     identifyLanguage = () => {
-        return PYTHON;
-        // const name = this.state.name.toLowerCase();
-        // if (name.endsWith(".py")) {
-        //     return PYTHON;
-        // } else if (name.endsWith(".scm")) {
-        //     return SCHEME;
-        // } else if (name.endsWith(".sql")) {
-        //     return SQL;
-        // } else {
-        //     const code = this.state.editorText.toLowerCase();
-        //     if (code.split("select").length > 1) {
-        //         return SQL;
-        //     } else if (code.trim()[0] === "(" || code.split(";") > 1) {
-        //         return SCHEME;
-        //     } else {
-        //         return PYTHON;
-        //     }
-        // }
-    }
+        const name = this.state.name.toLowerCase();
+        if (name.endsWith(".py")) {
+            return PYTHON;
+        } else if (name.endsWith(".scm")) {
+            return SCHEME;
+        } else if (name.endsWith(".sql")) {
+            return SQL;
+        } else {
+            const code = this.state.editorText.toLowerCase();
+            if (code.split("select").length > 1) {
+                return SQL;
+            } else if (code.split("def ") > 1) {
+                return PYTHON;
+            } else if (code.trim()[0] === "(" || code.split(";") > 1) {
+                return SCHEME;
+            } else {
+                return PYTHON;
+            }
+        }
+    };
 
     render() {
         const title = this.state.name + ((this.state.editorText === this.state.savedText) ? "" : "*");

@@ -86,7 +86,7 @@ class PythonTutorDebug extends React.PureComponent {
     }
 }
 
-export default glWrap(PythonTutorDebug, "row", 50, "debugger", ["debugger"]);
+export default glWrap(PythonTutorDebug, "right", 50, "debugger", ["debugger"]);
 
 // PythonTutorDebug.propTypes = {
 //     data: PropTypes.object,

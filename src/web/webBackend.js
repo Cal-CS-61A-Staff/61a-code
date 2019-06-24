@@ -52,6 +52,8 @@ function receive(arg) {
         }
     } else if (arg.handler === PYTHON) {
         python(arg);
+    // } else if (arg.handler === SCHEME) {
+    //     scheme(arg);
     } else {
         console.error(`Unknown handler: ${arg.handler}`);
     }

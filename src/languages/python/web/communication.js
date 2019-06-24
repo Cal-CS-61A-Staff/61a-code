@@ -2,8 +2,11 @@ import $ from "jquery";
 import {
     GEN_PY_TRACE, RUN_BLACK, RUN_PY_CODE,
 } from "../constants/communicationEnums.js";
-import { runPyCode } from "../../../web/runPython.js";
 import { sendAndExit } from "../../../web/webBackend.js";
+import { interactProcess } from "../../../main/processes.js";
+
+import webConsole from "./web_console.py";
+import runPyScript from "../../../web/runPython.js";
 
 export default async function receive(arg) {
     if (arg.type === RUN_PY_CODE) {
@@ -20,4 +23,9 @@ export default async function receive(arg) {
         // eslint-disable-next-line no-alert
         alert("Unable to run BLACK at this time on the web!");
     }
+}
+
+function runPyCode(key, code) {
+    runPyScript(key, webConsole, []);
+    interactProcess(key, code);
 }

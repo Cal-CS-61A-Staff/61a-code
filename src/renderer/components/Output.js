@@ -103,4 +103,4 @@ class Output extends React.Component {
     }
 }
 
-export default glWrap(Output, "column", 30, "output", ["output", "okResults", "terminal"]);
+export default glWrap(Output, "bottom", 30, "output", ["output", "okResults", "terminal"]);

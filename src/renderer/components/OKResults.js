@@ -150,4 +150,4 @@ class OKResults extends React.Component {
     }
 }
 
-export default glWrap(OKResults, "column", 30, "okResults", ["okResults", "output", "terminal"]);
+export default glWrap(OKResults, "bottom", 30, "okResults", ["okResults", "output", "terminal"]);

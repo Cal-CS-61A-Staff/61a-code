@@ -1,6 +1,6 @@
 import * as temp from "temp";
 import fs from "fs";
-import { runPyScript } from "../../main/runPython.js";
+import runPyScript from "../../main/runPython.js";
 import {
     FORMAT,
     GEN_SCM_TRACE,

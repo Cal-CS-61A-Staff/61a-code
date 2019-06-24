@@ -68,14 +68,25 @@ export function initGoldenLayout(callback) {
     console.log(initContainer);
 }
 
-export function requestContainer(orientation, targetDim, type, friends) {
-    console.log("Requested", type);
+export function requestContainer(position, targetDim, type, friends) {
     if (initContainer) {
         initializeContainer(initContainer, type);
         const ret = initContainer;
         initContainer = null;
         return ret;
     }
+
+    let orientation;
+    let tryFirst;
+
+    if (position === "left" || position === "right") {
+        orientation = "row";
+        tryFirst = (position === "left");
+    } else {
+        orientation = "column";
+        tryFirst = (position === "top");
+    }
+
     let outputContainer;
 
     const config = {
@@ -120,7 +131,13 @@ export function requestContainer(orientation, targetDim, type, friends) {
             });
             layout.root.replaceChild(oldRoot, newRoot);
             newRoot.addChild(oldRoot);
-            newRoot.addChild(stackedConfig);
+            if (tryFirst) {
+                newRoot.addChild(stackedConfig, 0);
+            } else {
+                newRoot.addChild(stackedConfig);
+            }
+        } else if (tryFirst) {
+            layout.root.contentItems[0].addChild(stackedConfig, 0);
         } else {
             layout.root.contentItems[0].addChild(stackedConfig);
         }

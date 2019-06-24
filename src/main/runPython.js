@@ -1,6 +1,4 @@
 import { spawn } from "child_process";
-import * as temp from "temp";
-import fs from "fs";
 import fixPath from "fix-path";
 
 import { registerProcess } from "./processes";
@@ -8,7 +6,7 @@ import { err, exit, out } from "./communication";
 
 fixPath();
 
-export function runPyScript(key, scriptLocation, interpreterArgs, args) {
+export default function runPyScript(key, scriptLocation, interpreterArgs, args) {
     const python = spawn("python3.6", ["-u"].concat(interpreterArgs).concat([scriptLocation]).concat(args));
     registerProcess(key, python);
     // const bufferedOut = makeBuffer(x => out(key, x), 50, 500);
@@ -51,13 +49,3 @@ export function runPyScript(key, scriptLocation, interpreterArgs, args) {
 //     };
 // }
 
-export function runPyCode(key, code) {
-    temp.open("pythonTempFile", (fail, info) => {
-        if (!fail) {
-            fs.write(info.fd, code, () => {
-                fs.close(info.fd, () => null);
-                runPyScript(key, info.path, ["-i"], []);
-            });
-        }
-    });
-}
