@@ -225,6 +225,16 @@ def editor():
     print("EDITOR: ")
 
 
+def record_exec(code, wrap):
+    if wrap:
+        out = "try:\n"
+        for line in code.split("\n"):
+            out += "\t" + line + "\n"
+        out += "except Exception as e:\n\tprint(e)\n"
+        record_exec(out, False)
+    else:
+        print("EXEC: " + code)
+
 # execution namespace
 editor_ns = {'credits': credits,
              'copyright': copyright,
@@ -246,7 +256,9 @@ def handleInput(line):
         if line.strip():
             try:
                 exec(line, editor_ns)
+                record_exec(line, False)
             except:
+                record_exec(line, True)
                 print_tb()
             write(">>> ")
         else:
@@ -259,22 +271,23 @@ def handleInput(line):
     src += line[:-1]
 
     if _status == "main":
-        currentLine = src[src.rfind('>>>') + 4:]
+        current_line = src[src.rfind('>>>') + 4:]
     elif _status == "3string":
-        currentLine = src[src.rfind('>>>') + 4:]
-        currentLine = currentLine.replace('\n... ', '\n')
+        current_line = src[src.rfind('>>>') + 4:]
+        current_line = current_line.replace('\n... ', '\n')
     else:
-        currentLine = src[src.rfind('...') + 4:]
+        current_line = src[src.rfind('...') + 4:]
 
     src += "\n"
 
-    if _status == 'main' and not currentLine.strip():
+    if _status == 'main' and not current_line.strip():
         write('>>> ')
         return
 
     if _status == "main" or _status == "3string":
         try:
-            _ = editor_ns['_'] = eval(currentLine, editor_ns)
+            _ = editor_ns['_'] = eval(current_line, editor_ns)
+            record_exec(current_line, False)
             flush()
             if _ is not None:
                 write(repr(_) + '\n')
@@ -293,9 +306,11 @@ def handleInput(line):
                 _status = "3string"
             elif str(msg) == 'eval() argument must be an expression':
                 try:
-                    exec(currentLine, editor_ns)
+                    exec(current_line, editor_ns)
+                    record_exec(current_line, False)
                 except:
                     print_tb()
+                    record_exec(current_line, True)
                 flush()
                 write('>>> ')
                 _status = "main"
@@ -310,10 +325,11 @@ def handleInput(line):
             # the full traceback includes the call to eval(); to
             # remove it, it is stored in a buffer and the 2nd and 3rd
             # lines are removed
+            record_exec(current_line, True)
             print_tb()
             write('>>> ')
             _status = "main"
-    elif currentLine == "":  # end of block
+    elif current_line == "":  # end of block
         block = src[src.rfind('>>>') + 4:].splitlines()
         block = [block[0]] + [b[4:] for b in block[1:]]
         block_src = '\n'.join(block)
@@ -321,9 +337,11 @@ def handleInput(line):
         _status = "main"
         try:
             _ = exec(block_src, editor_ns)
+            record_exec(block_src, False)
             if _ is not None:
                 print(repr(_))
         except:
+            record_exec(block_src, True)
             print_tb()
         flush()
         write('>>> ')

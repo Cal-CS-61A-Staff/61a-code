@@ -11,6 +11,7 @@ import {
 
 const DEBUG_MARKER = "DEBUG: ";
 const EDITOR_MARKER = "EDITOR: ";
+const EXEC_MARKER = "EXEC: ";
 
 export default class File extends React.Component {
     constructor(props) {
@@ -116,9 +117,11 @@ export default class File extends React.Component {
         this.debugRef.current.forceOpen();
     };
 
+    // TODO: Make language agnostic! Probably move to lang/web folder at some point
     debugExecutedCode = async () => {
+        // language=Python
         const TEMPLATE_CODE = "# these lines stub out the debugging functions you have available\n"
-            + "def draw(): pass\n"
+            + "def draw(something): pass\n"
             + "def autodraw(): pass\n"
             + "def disableAutodraw(): pass\n"
             + "def visualize(): pass\n"
@@ -127,6 +130,7 @@ export default class File extends React.Component {
         const code = TEMPLATE_CODE + this.state.executedCode.join("\n");
         const debugData = await generateDebugTrace(this.identifyLanguage())(code);
         this.setState({ debugData, editorInDebugMode: true });
+        this.editorRef.current.forceOpen();
         this.debugRef.current.forceOpen();
     };
 
@@ -177,6 +181,9 @@ export default class File extends React.Component {
             this.debugExecutedCode();
         } else if (text.startsWith(EDITOR_MARKER)) {
             this.editorRef.current.forceOpen();
+        } else if (text.startsWith(EXEC_MARKER)) {
+            const code = text.substr(EXEC_MARKER.length);
+            this.setState(state => ({ executedCode: state.executedCode.concat([code]) }));
         } else {
             this.setState((state) => {
                 const outputData = state.outputData.concat([{
@@ -204,7 +211,6 @@ export default class File extends React.Component {
     handleInput = (line) => {
         this.state.interactCallback(line);
         this.handleOutputUpdate(line, false);
-        this.setState(state => ({ executedCode: state.executedCode.concat([line]) }));
     };
 
     handleEditorChange = (editorText) => {
