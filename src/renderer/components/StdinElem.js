@@ -14,7 +14,7 @@ export default class StdinElem extends React.Component {
     handleKeyDown = (e) => {
         if (e.keyCode === 9) {
             e.preventDefault();
-            document.execCommand("insertHTML", false, "&#009");
+            document.execCommand("insertHTML", false, "    ");
         } else if (e.keyCode === 13) {
             e.preventDefault();
             this.props.onInput(`${this.inputRef.current.innerText}\n`);
