@@ -59,7 +59,7 @@ export default class StdinElem extends React.Component {
                 className="consoleInput"
                 onInput={this.handleInput}
                 onKeyDown={this.handleKeyDown}
-                contentEditable="plaintext-only"
+                contentEditable="true"
             />
         );
     }
