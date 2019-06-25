@@ -1,8 +1,8 @@
 import React from "react";
 import Editor from "./Editor";
 import Output from "./Output";
-import { sendNoInteract } from "../utils/communication.js";
-import { SAVE_FILE, SHOW_SAVE_DIALOG } from "../../common/communicationEnums.js";
+import { send, sendNoInteract } from "../utils/communication.js";
+import { SAVE_FILE, SHOW_ERROR_DIALOG, SHOW_SAVE_DIALOG } from "../../common/communicationEnums.js";
 import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import {
     Debugger,
@@ -112,9 +112,17 @@ export default class File extends React.Component {
             this.debugExecutedCode();
             return;
         }
-        this.setState({ debugData, editorInDebugMode: true });
-        this.editorRef.current.forceOpen();
-        this.debugRef.current.forceOpen();
+        if (debugData.success) {
+            this.setState({ debugData: debugData.data, editorInDebugMode: true });
+            this.editorRef.current.forceOpen();
+            this.debugRef.current.forceOpen();
+        } else {
+            send({
+                type: SHOW_ERROR_DIALOG,
+                title: "Unable to debug",
+                message: debugData.error,
+            });
+        }
     };
 
     // TODO: Make language agnostic! Probably move to lang/web folder at some point
@@ -129,15 +137,31 @@ export default class File extends React.Component {
             + "# your code is below\n";
         const code = TEMPLATE_CODE + this.state.executedCode.join("\n");
         const debugData = await generateDebugTrace(this.identifyLanguage())(code);
-        this.setState({ debugData, editorInDebugMode: true });
-        this.editorRef.current.forceOpen();
-        this.debugRef.current.forceOpen();
+        if (debugData.success) {
+            this.setState({ debugData: debugData.data, editorInDebugMode: true });
+            this.editorRef.current.forceOpen();
+            this.debugRef.current.forceOpen();
+        } else {
+            send({
+                type: SHOW_ERROR_DIALOG,
+                title: "Unable to debug",
+                message: debugData.error,
+            });
+        }
     };
 
     format = async () => {
         // eslint-disable-next-line react/no-access-state-in-setstate
-        const formatted = await format(this.identifyLanguage())(this.state.editorText);
-        this.setState({ editorText: formatted });
+        const ret = await format(this.identifyLanguage())(this.state.editorText);
+        if (ret.success) {
+            this.setState({ editorText: ret.code });
+        } else {
+            send({
+                type: SHOW_ERROR_DIALOG,
+                title: "Unable to format",
+                message: ret.error,
+            });
+        }
     };
 
     save = async () => {

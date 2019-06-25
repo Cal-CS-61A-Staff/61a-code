@@ -2,7 +2,7 @@ import { sendNoInteract } from "../../../renderer/utils/communication";
 import { GEN_PY_TRACE } from "../constants/communicationEnums";
 import { PYTHON } from "../../../common/languages.js";
 
-const MAX_GLOBALS = 10;
+const MAX_GLOBALS = 100000000;
 
 export default async function generateDebugTrace(code, modules = {}, setup_code = "", working_directory = "") {
     const params = {
@@ -15,10 +15,14 @@ export default async function generateDebugTrace(code, modules = {}, setup_code 
         data: params,
     }));
 
-    const globals = data.trace[data.trace.length - 1].ordered_globals;
+    if (data.trace.length === 1 && data.trace[0].event === "uncaught_exception") {
+        return { success: false, error: data.trace[0].exception_msg };
+    }
+
+    const globals = data.trace[Math.max(data.trace.length - 2, 0)].ordered_globals;
 
     if (globals.length < MAX_GLOBALS) {
-        return data;
+        return { success: true, data };
     }
 
     const requiredGlobals = new Set();
@@ -32,6 +36,7 @@ export default async function generateDebugTrace(code, modules = {}, setup_code 
         }
     }
 
+    // FIXME
     for (const point of data.trace) {
         const displayedGlobals = [];
         for (const global of globals) {
@@ -44,5 +49,5 @@ export default async function generateDebugTrace(code, modules = {}, setup_code 
 
     data.filtered = true;
 
-    return data;
+    return { success: true, data };
 }

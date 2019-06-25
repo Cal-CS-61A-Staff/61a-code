@@ -2,7 +2,7 @@ import $ from "jquery";
 import {
     GEN_PY_TRACE, RUN_BLACK, RUN_PY_CODE,
 } from "../constants/communicationEnums.js";
-import { sendAndExit } from "../../../web/webBackend.js";
+import { err, exit, sendAndExit } from "../../../web/webBackend.js";
 import { interactProcess } from "../../../main/processes.js";
 
 import webConsole from "./web_console.py";
@@ -19,9 +19,13 @@ export default async function receive(arg) {
         parsed.code = { main_code: parsed.code };
         sendAndExit(arg.key, JSON.stringify(parsed));
     } else if (arg.type === RUN_BLACK) {
-        // FIXME
-        // eslint-disable-next-line no-alert
-        alert("Unable to run BLACK at this time on the web!");
+        const ret = await $.post("./api/black", { code: arg.code });
+        if (ret.success) {
+            sendAndExit(arg.key, ret.code);
+        } else {
+            err(arg.key, ret.error);
+            exit(arg.key);
+        }
     }
 }
 

@@ -1,12 +1,13 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import requests
+import black
 
 app = Flask(__name__, static_url_path='', static_folder="")
 
 
 @app.route('/')
 def root():
-    return app.send_static_file('dist/web/index.html')
+    return app.send_static_file('./index.html')
 
 
 # FIXME: DO NOT DEPLOY
@@ -16,6 +17,14 @@ def pytutor_proxy():
         "user_script": request.form["code"],
     })
     return response.text
+
+
+@app.route("/api/black", methods=["POST"])
+def black_proxy():
+    try:
+        return jsonify({"success": True, "code": black.format_str(request.form["code"], mode=black.FileMode()) + "\n"})
+    except Exception as e:
+        return jsonify({"success": False, "error": repr(e)})
 
 
 if __name__ == "__main__":

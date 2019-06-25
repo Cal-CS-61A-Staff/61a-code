@@ -48,7 +48,6 @@ function curvedArrow(container, x1, y1, x2, y2) {
 }
 
 function displayElem(x, y, id, allData, container, depth, cache, index, x1 = false, y1 = false) {
-    console.log(id);
     if (id[0] === "ref") {
         let data = allData[id[1]];
 

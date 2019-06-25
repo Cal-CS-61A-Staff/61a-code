@@ -10,4 +10,5 @@ export default async function generateDebugTrace(code, _, setup_code = "", worki
         code,
         working_directory,
     }));
+    // TODO: Include failure condition!
 }

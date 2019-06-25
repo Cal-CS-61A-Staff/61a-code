@@ -44,7 +44,7 @@ export default class LaunchScreen extends React.Component {
     }
 
     handleCreateClick = (extension) => {
-        const realExtension = extension ? `.${extension}` : "";
+        const realExtension = extension || "";
         const file = {
             name: `untitled${realExtension}`,
             location: null,

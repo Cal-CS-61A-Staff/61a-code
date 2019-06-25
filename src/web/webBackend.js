@@ -2,7 +2,7 @@ import {
     CLAIM_MENU, ERR, EXIT, GET_RECENT_FILES,
     INTERACT_PROCESS,
     KILL_PROCESS,
-    OPEN_FILE, OUT, SAVE_FILE,
+    OPEN_FILE, OUT, SAVE_FILE, SHOW_ERROR_DIALOG,
     SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG,
 } from "../common/communicationEnums.js";
 import { PYTHON } from "../common/languages.js";
@@ -13,6 +13,7 @@ import {
     getRecentFiles,
     open, save, showOpenDialog, showSaveDialog,
 } from "./filesystem.js";
+import showErrorDialog from "./errorDialog.js";
 
 let handler;
 
@@ -47,6 +48,8 @@ function receive(arg) {
             getRecentFiles(arg.key);
         } else if (arg.type === CLAIM_MENU) {
             assignMenuKey(arg.key);
+        } else if (arg.type === SHOW_ERROR_DIALOG) {
+            showErrorDialog(arg.title, arg.message);
         } else {
             console.error(`Unknown (or missing) type: ${arg.type}`);
         }

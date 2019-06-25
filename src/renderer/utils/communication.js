@@ -55,16 +55,26 @@ export function send(message, onOutput, onErr, onHalt) {
 export function sendNoInteract(message) {
     return new Promise((resolve, reject) => {
         let out = null;
+        let error = null;
         send(message, (val) => {
             if (out) {
                 out += val;
             } else {
                 out = val;
             }
-        }, (arg) => {
-            console.error(arg);
-            reject(arg);
-        }, () => resolve(out));
+        }, (val) => {
+            if (out) {
+                error += val;
+            } else {
+                error = val;
+            }
+        }, () => {
+            if (error) {
+                reject(Error(error));
+            } else {
+                resolve(out);
+            }
+        });
     });
 }
 

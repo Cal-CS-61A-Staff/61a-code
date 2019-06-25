@@ -9,6 +9,7 @@ export const EXIT = "EXIT";
 
 export const SHOW_OPEN_DIALOG = "SHOW_OPEN_DIALOG";
 export const SHOW_SAVE_DIALOG = "SHOW_SAVE_DIALOG";
+export const SHOW_ERROR_DIALOG = "SHOW_ERROR_DIALOG";
 
 export const CLAIM_MENU = "CLAIM_MENU";
 export const MENU_NEW = "MENU_NEW";
