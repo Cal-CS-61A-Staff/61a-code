@@ -4,4 +4,5 @@ module.exports = {
         "@semantic-release/release-notes-generator",
         "@semantic-release/github",
     ],
+    ci: false,
 };
