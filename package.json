@@ -8,7 +8,7 @@
     "name": "Rahul Arya",
     "email": "rahularya@berkeley.edu"
   },
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "dev": "electron-webpack dev",
