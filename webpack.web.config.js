@@ -13,7 +13,7 @@ module.exports = {
         filename: "[name].js",
         path: path.resolve(__dirname, "dist/web"),
         globalObject: "this", // workaround for HMR, https://github.com/webpack/webpack/issues/6642
-        publicPath: "/",
+        publicPath: path.resolve(__dirname, "dist/web"),
     },
     devtool: "source-map",
     devServer: {
@@ -65,7 +65,7 @@ module.exports = {
         }),
         new webpack.DefinePlugin({
             ELECTRON: false,
-            __static: JSON.stringify("./dist/web/static"),
+            __static: JSON.stringify("./static"),
         }),
         new MonacoWebpackPlugin({
             languages: ["python", "scheme", "sql"],
@@ -78,6 +78,10 @@ module.exports = {
         new CopyWebpackPlugin([{
             from: "static",
             to: "static",
+        },
+        {
+            from: "src/web-server",
+            to: ".",
         }]),
     ],
 
