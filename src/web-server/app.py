@@ -10,7 +10,6 @@ def root():
     return app.send_static_file('./index.html')
 
 
-# FIXME: DO NOT DEPLOY
 @app.route('/api/pytutor', methods=['POST'])
 def pytutor_proxy():
     response = requests.post("http://pythontutor.com/web_exec_py3.py", data={
