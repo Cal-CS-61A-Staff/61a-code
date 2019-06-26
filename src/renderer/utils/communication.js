@@ -7,7 +7,7 @@ let ipcRenderer;
 
 // // eslint-disable-next-line
 if (ELECTRON) {
-    ({ ipcRenderer } = require("electron")); // TODO: RE-ENABLE!!!
+    ({ ipcRenderer } = require("electron"));
 } else {
     ipcRenderer = require("../../web/webBackend.js").default;
 }

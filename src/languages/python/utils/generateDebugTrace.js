@@ -2,7 +2,7 @@ import { sendNoInteract } from "../../../renderer/utils/communication";
 import { GEN_PY_TRACE } from "../constants/communicationEnums";
 import { PYTHON } from "../../../common/languages.js";
 
-const MAX_GLOBALS = 100000000;
+const MAX_GLOBALS = 10;
 
 export default async function generateDebugTrace(code, modules = {}, setup_code = "", working_directory = "") {
     const params = {
@@ -36,10 +36,9 @@ export default async function generateDebugTrace(code, modules = {}, setup_code 
         }
     }
 
-    // FIXME
     for (const point of data.trace) {
         const displayedGlobals = [];
-        for (const global of globals) {
+        for (const global of point.ordered_globals) {
             if (requiredGlobals.has(global)) {
                 displayedGlobals.push(global);
             }
