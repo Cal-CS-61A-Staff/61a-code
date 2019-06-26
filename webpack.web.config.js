@@ -13,7 +13,7 @@ module.exports = {
         filename: "[name].js",
         path: path.resolve(__dirname, "dist/web"),
         globalObject: "this", // workaround for HMR, https://github.com/webpack/webpack/issues/6642
-        publicPath: path.resolve(__dirname, "dist/web"),
+        publicPath: "/",
     },
     devtool: "source-map",
     devServer: {
