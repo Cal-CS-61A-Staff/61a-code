@@ -6,8 +6,11 @@ if (!ELECTRON) {
 import * as React from "react";
 import LaunchScreen from "./LaunchScreen.js";
 import MainScreen from "./MainScreen.js";
-// eslint-disable-next-line no-unused-vars
-import MenuBar from "./MenuBar.js";
+
+let MenuBar;
+if (!ELECTRON) {
+    MenuBar = require("./MenuBar.js");
+}
 import { sendNoInteract } from "../utils/communication.js";
 import { OPEN_FILE } from "../../common/communicationEnums.js";
 
