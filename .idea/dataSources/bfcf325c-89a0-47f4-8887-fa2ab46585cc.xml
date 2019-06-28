@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="shortlinks.db">
+  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.14">
+    <root id="1">
+      <ServerVersion>3.25.1</ServerVersion>
+    </root>
+    <schema id="2" parent="1" name="main">
+      <Current>1</Current>
+      <Visible>1</Visible>
+    </schema>
+    <collation id="3" parent="1" name="BINARY"/>
+    <collation id="4" parent="1" name="NOCASE"/>
+    <collation id="5" parent="1" name="RTRIM"/>
+    <table id="6" parent="2" name="links"/>
+    <table id="7" parent="2" name="sqlite_master">
+      <System>1</System>
+    </table>
+    <column id="8" parent="6" name="short_link">
+      <Position>1</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="9" parent="6" name="url">
+      <Position>2</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="10" parent="6" name="data">
+      <Position>3</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="11" parent="6" name="full_name">
+      <Position>4</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="12" parent="6" name="discoverable">
+      <Position>5</Position>
+      <DataType>int|0s</DataType>
+    </column>
+    <index id="13" parent="6" name="links_short_link_uindex">
+      <ColNames>short_link</ColNames>
+      <ColumnCollations></ColumnCollations>
+      <Unique>1</Unique>
+    </index>
+    <column id="14" parent="7" name="type">
+      <Position>1</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="15" parent="7" name="name">
+      <Position>2</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="16" parent="7" name="tbl_name">
+      <Position>3</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="17" parent="7" name="rootpage">
+      <Position>4</Position>
+      <DataType>int|0s</DataType>
+    </column>
+    <column id="18" parent="7" name="sql">
+      <Position>5</Position>
+      <DataType>text|0s</DataType>
+    </column>
+  </database-model>
+</dataSource>

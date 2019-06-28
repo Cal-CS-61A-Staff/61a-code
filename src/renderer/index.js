@@ -53,7 +53,6 @@ function injectDiv(id) {
 function render(Component) {
     const rawUrl = document.location.toString();
     const parsedUrl = new URL(rawUrl);
-    console.log(parsedUrl.searchParams);
     const initialPath = parsedUrl.searchParams.get("initialPath");
     ReactDOM.render(
         <Component path={initialPath} />,
