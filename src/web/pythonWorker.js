@@ -50,7 +50,7 @@ function initialize() {
 }
 
 function initializePython() {
-    console.log(__BRYTHON__.python_to_js(code)); // TODO: DISABLE!!!
+    // console.log(__BRYTHON__.python_to_js(code)); // TODO: DISABLE!!!
     __BRYTHON__.run_script(code, "__main__", true);
 }
 
