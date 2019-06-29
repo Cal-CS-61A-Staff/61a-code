@@ -5,8 +5,9 @@ import {
     OPEN_FILE, OUT, SAVE_FILE, SHOW_ERROR_DIALOG,
     SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG,
 } from "../common/communicationEnums.js";
-import { PYTHON } from "../common/languages.js";
+import { PYTHON, SCHEME } from "../common/languages.js";
 import python from "../languages/python/web/communication.js";
+import scheme from "../languages/scheme/web/communication.js";
 import { interactProcess, killProcess } from "../main/processes.js";
 import { assignMenuKey } from "./webMenuHandler.js";
 import {
@@ -55,8 +56,8 @@ function receive(arg) {
         }
     } else if (arg.handler === PYTHON) {
         python(arg);
-    // } else if (arg.handler === SCHEME) {
-    //     scheme(arg);
+    } else if (arg.handler === SCHEME) {
+        scheme(arg);
     } else {
         console.error(`Unknown handler: ${arg.handler}`);
     }

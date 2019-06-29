@@ -78,6 +78,7 @@ module.exports = {
         new CopyWebpackPlugin([{
             from: "static",
             to: "static",
+            ignore: "IGNORE*",
         },
         {
             from: "src/web-server",

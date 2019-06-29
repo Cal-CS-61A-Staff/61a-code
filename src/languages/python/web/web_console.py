@@ -348,5 +348,4 @@ def handleInput(line):
     else:
         write('... ')
 
-
 browser.self.stdin.on(handleInput)

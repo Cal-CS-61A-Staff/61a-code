@@ -10,7 +10,7 @@ import runPyScript from "../../../web/runPython.js";
 
 export default async function receive(arg) {
     if (arg.type === RUN_PY_CODE) {
-        runPyCode(arg.key, arg.code);
+        await runPyCode(arg.key, arg.code);
     } else if (arg.type === GEN_PY_TRACE) {
         const ret = await $.post("./api/pytutor", {
             code: arg.data.setup_code + arg.data.code,
@@ -29,7 +29,7 @@ export default async function receive(arg) {
     }
 }
 
-function runPyCode(key, code) {
-    runPyScript(key, webConsole, []);
+async function runPyCode(key, code) {
+    await runPyScript(key, webConsole, []);
     interactProcess(key, code);
 }

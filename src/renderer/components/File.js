@@ -246,8 +246,6 @@ export default class File extends React.Component {
     };
 
     identifyLanguage = () => {
-        return PYTHON;
-        // eslint-disable-next-line no-unreachable
         const name = this.state.name.toLowerCase();
         if (name.endsWith(".py")) {
             return PYTHON;
@@ -261,7 +259,7 @@ export default class File extends React.Component {
                 return SQL;
             } else if (code.split("def ") > 1) {
                 return PYTHON;
-            } else if (code.trim()[0] === "(" || code.split(";") > 1) {
+            } else if (code.trim()[0] === "(" || code.split(";").length > 1) {
                 return SCHEME;
             } else {
                 return PYTHON;

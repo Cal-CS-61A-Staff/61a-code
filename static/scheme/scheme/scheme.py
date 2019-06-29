@@ -1,5 +1,5 @@
-from interpreter import *
-from interpreter import __version__
+from .interpreter import *
+from .interpreter import __version__
 buffer_input = iH5vN2j02
 scheme_eval = o_Mv_g08D
 read_eval_print_loop = Tl106
