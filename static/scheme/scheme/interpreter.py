@@ -9,6 +9,7 @@ import itertools
 import string
 import sys
 import tokenize
+import scheme
 'o_81pkm6_FCJd33M2HqNrj'
 
 def CK0_s(Y__t):
