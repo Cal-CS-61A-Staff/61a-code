@@ -246,11 +246,11 @@ editor_ns = {'credits': credits,
              'editor': editor,
              '__name__': '__main__'}
 
-first = True
+firstLine = True
 
 
 def handleInput(line):
-    global src, _status, first
+    global src, _status, firstLine
 
     if first:
         if line.strip():

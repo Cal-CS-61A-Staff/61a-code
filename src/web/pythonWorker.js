@@ -3,8 +3,6 @@ import { join } from "path";
 
 self.window = self;
 
-console.log(self.indexedDB);
-
 importScripts(join(__static, "brython/brython.js"));
 importScripts(join(__static, "brython/brython_stdlib.js"));
 
@@ -50,7 +48,7 @@ function initialize() {
 }
 
 function initializePython() {
-    // console.log(__BRYTHON__.python_to_js(code)); // TODO: DISABLE!!!
+    console.log(__BRYTHON__.python_to_js(code)); // TODO: DISABLE!!!
     __BRYTHON__.run_script(code, "__main__", true);
 }
 

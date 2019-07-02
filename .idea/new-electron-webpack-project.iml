@@ -4,6 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/static/scheme/schemeDebugger" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/static/scheme/scheme" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/languages/scheme/web" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/src/languages/python/black" />
       <excludeFolder url="file://$MODULE_DIR$/src/languages/python/pytutor" />
       <excludeFolder url="file://$MODULE_DIR$/static/brython" />

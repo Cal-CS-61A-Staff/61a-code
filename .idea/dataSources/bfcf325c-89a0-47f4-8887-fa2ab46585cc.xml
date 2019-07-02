@@ -37,7 +37,6 @@
     </column>
     <index id="13" parent="6" name="links_short_link_uindex">
       <ColNames>short_link</ColNames>
-      <ColumnCollations></ColumnCollations>
       <Unique>1</Unique>
     </index>
     <column id="14" parent="7" name="type">
