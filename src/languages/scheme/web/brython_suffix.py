@@ -9,11 +9,11 @@ if False:
 _launchtext = """CS61A Scheme Web Interpreter
 --------------------------------------------------------------------------------
 Welcome to the 61A Scheme web interpreter! 
-Source for this interpreter is restricted.
+The source for this interpreter is restricted, but you'll build it yourself as your Scheme Project!
 
-[in the future] To visualize a list, call (draw <list>).
-[in the future] To draw list visualizations automatically, call (autodraw).
-[in the future] To view an environment diagram of your entire program, call (visualize).
+To visualize a list, call (draw <list>).
+To draw list visualizations automatically, call (autodraw).
+To view an environment diagram of your entire program, call (visualize).
 To launch an editor associated with your console, call (editor).
 """
 
@@ -44,9 +44,15 @@ src = ""
 firstLine = True
 
 
-@builtin("editor")
-def editor():
-    print("EDITOR: ")
+def record_exec(code, wrap):
+    if wrap:
+        out = "(ignore-error\n"
+        for line in code.split("\n"):
+            out += "             " + line + "\n"
+        out += ")\n"
+        record_exec(out, False)
+    else:
+        print("EXEC: " + code)
 
 
 frame = create_global_frame()
@@ -94,8 +100,10 @@ def run_expr(expr):
         ret = scheme_eval(expr, frame)
         if ret is not None:
             print(ret)
+        record_exec(str(expr), False)
     except Exception as err:
         handle_error(frame)
+        record_exec(str(expr), True)
         if isinstance(err, RuntimeError):
             print('Error: maximum recursion depth exceeded')
         else:

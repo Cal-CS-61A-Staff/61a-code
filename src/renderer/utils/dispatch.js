@@ -7,6 +7,8 @@ import { runPyCode, runPyFile } from "../../languages/python/utils/run.js";
 import { runScmCode, runScmFile } from "../../languages/scheme/utils/run.js";
 import SchemeDebugger from "../../languages/scheme/components/SchemeDebugger.js";
 import PythonTutorDebug from "../../languages/python/components/PythonTutorDebug.js";
+import pyDebugPrefix from "../../languages/python/utils/debugPrefix.js";
+import scmDebugPrefix from "../../languages/scheme/utils/debugPrefix.js";
 
 export function format(language) {
     const options = {
@@ -44,6 +46,14 @@ export function Debugger(language) {
     const options = {
         [PYTHON]: PythonTutorDebug,
         [SCHEME]: SchemeDebugger,
+    };
+    return options[language];
+}
+
+export function debugPrefix(language) {
+    const options = {
+        [PYTHON]: pyDebugPrefix,
+        [SCHEME]: scmDebugPrefix,
     };
     return options[language];
 }

@@ -5,7 +5,7 @@ import { send, sendNoInteract } from "../utils/communication.js";
 import { SAVE_FILE, SHOW_ERROR_DIALOG, SHOW_SAVE_DIALOG } from "../../common/communicationEnums.js";
 import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import {
-    Debugger,
+    Debugger, debugPrefix,
     format, generateDebugTrace, runCode, runFile,
 } from "../utils/dispatch.js";
 
@@ -125,16 +125,8 @@ export default class File extends React.Component {
         }
     };
 
-    // TODO: Make language agnostic! Probably move to lang/web folder at some point
     debugExecutedCode = async () => {
-        // language=Python
-        const TEMPLATE_CODE = "# these lines stub out the debugging functions you have available\n"
-            + "def draw(something): pass\n"
-            + "def autodraw(): pass\n"
-            + "def disableAutodraw(): pass\n"
-            + "def visualize(): pass\n"
-            + "def editor(): pass\n\n"
-            + "# your code is below\n";
+        const TEMPLATE_CODE = debugPrefix(this.identifyLanguage());
         const code = TEMPLATE_CODE + this.state.executedCode.join("\n");
         const debugData = await generateDebugTrace(this.identifyLanguage())(code);
         if (debugData.success) {
