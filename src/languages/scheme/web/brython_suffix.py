@@ -61,7 +61,7 @@ def handle_input(line):
             print(_launchtext)
         try:
             buff = Buffer(tokenize_lines(line.split("\n")))
-            while buff.more_on_line:
+            while buff.current():
                 callback(scheme_read(buff))
         except Exception as err:
             print("ParseError:", err)

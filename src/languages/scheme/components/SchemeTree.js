@@ -3,6 +3,11 @@ import $ from "jquery";
 import svgPanZoom from "svg-pan-zoom/dist/svg-pan-zoom.min.js";
 import SVG from "svg.js";
 
+const UNEVALUATED = "0";
+const EVALUATING = "1";
+const APPLYING = "2";
+const EVALUATED = "3";
+
 function getDims() {
     const parentElement = document.body;
     const div = document.createElement("div");
@@ -96,16 +101,16 @@ export default class SchemeTree extends React.PureComponent {
     displayTreeWorker(data, container, x, y, level, starts) {
         let color;
         switch (data.transition_type) {
-        case "UNEVALUATED":
+        case UNEVALUATED:
             color = "#536dff";
             break;
-        case "EVALUATING":
+        case EVALUATING:
             color = "#ff0f00";
             break;
-        case "EVALUATED":
+        case EVALUATED:
             color = "#44ff51";
             break;
-        case "APPLYING":
+        case APPLYING:
             color = "#ffa500";
             break;
         default:

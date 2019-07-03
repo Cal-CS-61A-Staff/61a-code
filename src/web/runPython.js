@@ -1,4 +1,4 @@
-import { exit, out } from "./webBackend.js";
+import { err, exit, out } from "./webBackend.js";
 import { registerProcess } from "../main/processes.js";
 
 // eslint-disable-next-line no-unused-vars
@@ -8,7 +8,13 @@ export default function runPyScript(key, script, args) {
         worker.postMessage({ code: script, transpiled: args.transpiled });
         worker.onmessage = () => {
             worker.onmessage = (e) => {
-                out(key, e.data);
+                if (e.data.out) {
+                    out(key, e.data.val);
+                } else if (e.data.error) {
+                    err(key, e.data.val);
+                } else if (e.data.exit) {
+                    exit(key, e.data.val);
+                }
             };
             registerProcess(key, {
                 stdin: {

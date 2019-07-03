@@ -40,8 +40,9 @@ function initialize() {
             postMessage("ready!");
         },
     };
-    self.stdout = { write: val => postMessage(val) };
-    self.stderr = { write: val => postMessage(val) };
+    self.stdout = { write: val => postMessage({ out: true, val }) };
+    self.stderr = { write: val => postMessage({ err: true, val }) };
+    self.exit = { write: val => postMessage({ exit: true, val }) };
     __BRYTHON__.brython();
     __BRYTHON__.idb_open();
     __BRYTHON__.brython_path = "./static/brython/";

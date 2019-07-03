@@ -252,7 +252,7 @@ firstLine = True
 def handleInput(line):
     global src, _status, firstLine
 
-    if first:
+    if firstLine:
         if line.strip():
             try:
                 exec(line, editor_ns)
@@ -265,7 +265,7 @@ def handleInput(line):
             write(_launchtext)
             write("\n>>> ")
             # doc['code'].value += 'Type "copyright", "credits" or "license" for more information.'
-        first = False
+            firstLine = False
         return
 
     src += line[:-1]
