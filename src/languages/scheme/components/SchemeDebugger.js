@@ -36,7 +36,7 @@ class SchemeDebugger extends React.PureComponent {
                             treeView = comp;
                         },
                     },
-                    width: 25,
+                    width: 50,
                 }, {
                     type: "component",
                     componentName: "dummyComponent",
@@ -45,7 +45,7 @@ class SchemeDebugger extends React.PureComponent {
                             envView = comp;
                         },
                     },
-                    width: 75,
+                    width: 50,
                 }],
             }],
         };
