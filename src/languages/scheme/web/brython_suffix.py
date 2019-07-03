@@ -30,6 +30,10 @@ def write(data):
     stdout.write(str(data))
 
 
+def exit(data):
+    browser.self.exit.write(data)
+
+
 sys.stdout.write = sys.stderr.write = write
 sys.stdout.__len__ = sys.stderr.__len__ = lambda: 0
 
@@ -65,7 +69,11 @@ def handle_input(line):
                 callback(scheme_read(buff))
         except Exception as err:
             print("ParseError:", err)
-        write("scm> ")
+        if debugging:
+            write("scm> ")
+            exit("")
+        else:
+            write("scm> ")
     else:
         src += line
         try:

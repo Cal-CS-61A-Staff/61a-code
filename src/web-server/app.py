@@ -3,6 +3,7 @@ import sqlite3
 from collections import namedtuple
 from contextlib import contextmanager
 from csv import reader
+from IGNORE_scheme_debug import Buffer, tokenize_lines, debug_eval, scheme_read
 
 import black
 import requests
@@ -98,6 +99,22 @@ def refresh():
         db("INSERT INTO links VALUES (?, ?, ?, ?, ?)", all_files)
 
     return jsonify(all_files)
+
+
+@app.route('/api/scm_debug', methods=['POST'])
+def scm_debug():
+    code = request.form["code"]
+    try:
+        buff = Buffer(tokenize_lines(code.split("\n")))
+        exprs = []
+        while buff.current():
+            exprs.append(scheme_read(buff))
+        out = debug_eval(exprs)
+    except Exception as err:
+        print("ParseError:", err)
+        raise
+
+    return jsonify(out)
 
 
 if __name__ == "__main__":
