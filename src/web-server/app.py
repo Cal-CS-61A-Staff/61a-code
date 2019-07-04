@@ -3,6 +3,8 @@ import sqlite3
 from collections import namedtuple
 from contextlib import contextmanager
 from csv import reader
+from multiprocessing import Process, Queue
+
 from IGNORE_scheme_debug import Buffer, tokenize_lines, debug_eval, scheme_read
 
 import black
@@ -104,6 +106,15 @@ def refresh():
 @app.route('/api/scm_debug', methods=['POST'])
 def scm_debug():
     code = request.form["code"]
+    q = Queue()
+    p = Process(target=scm_worker, args=(code, q))
+    p.start()
+    p.join(10)
+    if not q.empty():
+        return jsonify(q.get())
+
+
+def scm_worker(code, queue):
     try:
         buff = Buffer(tokenize_lines(code.split("\n")))
         exprs = []
@@ -114,7 +125,7 @@ def scm_debug():
         print("ParseError:", err)
         raise
 
-    return jsonify(out)
+    queue.put(out)
 
 
 if __name__ == "__main__":
