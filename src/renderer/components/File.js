@@ -2,7 +2,12 @@ import React from "react";
 import Editor from "./Editor";
 import Output from "./Output";
 import { send, sendNoInteract } from "../utils/communication.js";
-import { SAVE_FILE, SHOW_ERROR_DIALOG, SHOW_SAVE_DIALOG } from "../../common/communicationEnums.js";
+import {
+    SAVE_FILE,
+    SHOW_ERROR_DIALOG,
+    SHOW_SAVE_DIALOG,
+    SHOW_SHARE_DIALOG,
+} from "../../common/communicationEnums.js";
 import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import {
     Debugger, debugPrefix,
@@ -176,6 +181,22 @@ export default class File extends React.Component {
         const savedText = this.state.editorText;
         const ret = await sendNoInteract({
             type: SHOW_SAVE_DIALOG,
+            contents: savedText,
+            hint: this.state.name,
+        });
+        if (ret.success) {
+            this.setState({
+                name: ret.name,
+                savedText,
+                location: ret.location,
+            });
+        }
+    };
+
+    share = async () => {
+        const savedText = this.state.editorText;
+        const ret = await sendNoInteract({
+            type: SHOW_SHARE_DIALOG,
             contents: savedText,
             hint: this.state.name,
         });

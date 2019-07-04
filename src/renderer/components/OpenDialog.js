@@ -1,29 +1,18 @@
 import * as React from "react";
 import UploadFileSelector from "./UploadFileSelector.js";
 import RecentFileSelector from "./RecentFileSelector.js";
+import { dialogWrap } from "../utils/dialogWrap.js";
 
-export default class OpenDialog extends React.Component {
-    handleClick = (e) => {
-        if (e.target === e.currentTarget) {
-            this.props.onClose();
-        }
-    };
-
-    render() {
-        return (
-            <div className="modal" onClick={this.handleClick}>
-                <div className="modalBody">
-                    <span className="close" onClick={this.props.onClose}>&times;</span>
-                    <div className="modalHeader">Open</div>
-                    <div className="modalContent">
-                        <UploadFileSelector onFileSelect={this.props.onFileSelect} />
-                        <RecentFileSelector
-                            files={this.props.recents}
-                            onFileSelect={this.props.onFileSelect}
-                        />
-                    </div>
-                </div>
-            </div>
-        );
-    }
+function OpenDialog(props) {
+    return (
+        <>
+            <UploadFileSelector onFileSelect={props.onFileSelect} />
+            <RecentFileSelector
+                files={props.recents}
+                onFileSelect={props.onFileSelect}
+            />
+        </>
+    );
 }
+
+export default dialogWrap("Open", OpenDialog, "row");

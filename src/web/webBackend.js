@@ -3,7 +3,7 @@ import {
     INTERACT_PROCESS,
     KILL_PROCESS,
     OPEN_FILE, OUT, SAVE_FILE, SHOW_ERROR_DIALOG,
-    SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG,
+    SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, SHOW_SHARE_DIALOG,
 } from "../common/communicationEnums.js";
 import { PYTHON, SCHEME } from "../common/languages.js";
 import python from "../languages/python/web/communication.js";
@@ -15,6 +15,7 @@ import {
     open, save, showOpenDialog, showSaveDialog,
 } from "./filesystem.js";
 import showErrorDialog from "./errorDialog.js";
+import showShareDialog from "./filesharing.js";
 
 let handler;
 
@@ -51,6 +52,8 @@ function receive(arg) {
             assignMenuKey(arg.key);
         } else if (arg.type === SHOW_ERROR_DIALOG) {
             showErrorDialog(arg.title, arg.message);
+        } else if (arg.type === SHOW_SHARE_DIALOG) {
+            showShareDialog(arg.key);
         } else {
             console.error(`Unknown (or missing) type: ${arg.type}`);
         }

@@ -7,16 +7,22 @@ export const OUT = "OUT";
 export const ERR = "ERR";
 export const EXIT = "EXIT";
 
-export const SHOW_OPEN_DIALOG = "SHOW_OPEN_DIALOG";
-export const SHOW_SAVE_DIALOG = "SHOW_SAVE_DIALOG";
-export const SHOW_ERROR_DIALOG = "SHOW_ERROR_DIALOG";
-
 export const CLAIM_MENU = "CLAIM_MENU";
+
 export const MENU_NEW = "MENU_NEW";
 export const MENU_OPEN = "MENU_OPEN";
+export const SHOW_OPEN_DIALOG = "SHOW_OPEN_DIALOG";
+
 export const MENU_SAVE = "MENU_SAVE";
 export const MENU_SAVE_AS = "MENU_SAVE_AS";
+export const SHOW_SAVE_DIALOG = "SHOW_SAVE_DIALOG";
+
+export const SHOW_ERROR_DIALOG = "SHOW_ERROR_DIALOG";
+
 export const MENU_CLOSE_TAB = "MENU_CLOSE_TAB";
+
+export const MENU_SHARE = "MENU_SHARE";
+export const SHOW_SHARE_DIALOG = "SHOW_SHARE_DIALOG";
 
 export const SAVE_FILE = "SAVE_FILE";
 export const OPEN_FILE = "OPEN_FILE";

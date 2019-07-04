@@ -1,7 +1,7 @@
 import React from "react";
 import {
     MENU_CLOSE_TAB,
-    MENU_NEW, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS, SHOW_OPEN_DIALOG,
+    MENU_NEW, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE, SHOW_OPEN_DIALOG,
 } from "../../common/communicationEnums.js";
 import NavBar from "./NavBar";
 import OKResults from "./OKResults";
@@ -32,6 +32,7 @@ export default class MainScreen extends React.Component {
                     [MENU_SAVE]: this.save,
                     [MENU_SAVE_AS]: this.saveAs,
                     [MENU_CLOSE_TAB]: this.closeTab,
+                    [MENU_SHARE]: this.share,
                 }),
         };
 
@@ -101,6 +102,10 @@ export default class MainScreen extends React.Component {
 
     closeTab = () => {
         console.error("close-tab shortcut not yet implemented!");
+    };
+
+    share = () => {
+        this.state.files[this.state.activeFileKey].ref.current.share();
     };
 
     handleOKPyUpdate = (okResults, cachedOKModules, okPath) => {
