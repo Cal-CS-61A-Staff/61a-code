@@ -49,17 +49,8 @@ function curvedArrow(container, x1, y1, x2, y2) {
 
 function displayElem(x, y, id, allData, container, depth, cache, index, x1 = false, y1 = false) {
     if (id[0] === "ref") {
-        let data = allData[id[1]];
+        const data = allData[id[1]];
 
-        if (data[0] === "promise") {
-            // console.log(index);
-            // console.log(data[1][0]);
-            if (index >= data[1][0]) {
-                data = [data[1][1]];
-            } else {
-                data = [[false, "···"]];
-            }
-        }
         if (!x1) {
             // eslint-disable-next-line no-param-reassign
             x1 = x + minWidth / 2;

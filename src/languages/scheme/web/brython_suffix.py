@@ -59,6 +59,7 @@ frame = create_global_frame()
 
 DEBUG_HOOK = "DEBUG: "
 
+
 def handle_input(line):
     global src, firstLine
     if firstLine:
@@ -101,6 +102,8 @@ def run_expr(expr):
         if ret is not None:
             print(ret)
         record_exec(str(expr), False)
+        if isinstance(ret, Pair) and autodraw_active:
+            draw(ret)
     except Exception as err:
         handle_error(frame)
         record_exec(str(expr), True)
