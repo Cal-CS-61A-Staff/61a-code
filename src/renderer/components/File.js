@@ -96,7 +96,7 @@ export default class File extends React.Component {
 
         this.setState(state => ({
             // eslint-disable-next-line react/no-access-state-in-setstate
-            executedCode: [this.state.editorText],
+            executedCode: [],
             interactCallback,
             killCallback,
             detachCallback,
@@ -268,9 +268,10 @@ export default class File extends React.Component {
             return SQL;
         } else {
             const code = this.state.editorText.toLowerCase();
-            if (code.split("select").length > 1) {
-                return SQL;
-            } else if (code.split("def ") > 1) {
+            // if (code.split("select").length > 1) {
+            //     return SQL;
+            // } else
+            if (code.split("def ").length > 1) {
                 return PYTHON;
             } else if (code.trim()[0] === "(" || code.split(";").length > 1) {
                 return SCHEME;
