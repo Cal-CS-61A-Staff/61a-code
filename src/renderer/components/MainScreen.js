@@ -1,7 +1,7 @@
 import React from "react";
 import {
     MENU_CLOSE_TAB,
-    MENU_NEW, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE, SHOW_OPEN_DIALOG,
+    MENU_NEW, MENU_NEW_CONSOLE, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE, SHOW_OPEN_DIALOG,
 } from "../../common/communicationEnums.js";
 import NavBar from "./NavBar";
 import OKResults from "./OKResults";
@@ -11,6 +11,7 @@ import claimMenu from "../utils/menuHandler";
 import File from "./File";
 import generateDebugTrace from "../../languages/python/utils/generateDebugTrace.js";
 import { sendNoInteract } from "../utils/communication.js";
+import Console from "./Console.js";
 
 export default class MainScreen extends React.Component {
     constructor(props) {
@@ -18,6 +19,8 @@ export default class MainScreen extends React.Component {
         this.state = {
             files: {},
             activeFileKey: null,
+
+            consoles: [],
 
             okResults: null,
             cachedOKModules: {},
@@ -33,6 +36,7 @@ export default class MainScreen extends React.Component {
                     [MENU_SAVE_AS]: this.saveAs,
                     [MENU_CLOSE_TAB]: this.closeTab,
                     [MENU_SHARE]: this.share,
+                    [MENU_NEW_CONSOLE]: this.newConsole,
                 }),
         };
 
@@ -108,6 +112,11 @@ export default class MainScreen extends React.Component {
         this.state.files[this.state.activeFileKey].ref.current.share();
     };
 
+    newConsole = () => {
+        this.setState(state => ({ consoles: state.consoles.concat([0]) }));
+    };
+
+
     handleOKPyUpdate = (okResults, cachedOKModules, okPath) => {
         this.setState({ okResults, cachedOKModules, okPath });
         this.okResultsRef.current.forceOpen();
@@ -179,6 +188,9 @@ export default class MainScreen extends React.Component {
             }
         }
 
+        // eslint-disable-next-line react/no-array-index-key
+        const consoleElems = this.state.consoles.map((_, i) => <Console key={i} i={i} />);
+
         return (
             <>
                 <NavBar
@@ -186,10 +198,11 @@ export default class MainScreen extends React.Component {
                     onActionClick={this.handleActionClick}
                 />
                 {fileElems}
+                {consoleElems}
                 <div id="tabRoot" />
                 <OKResults
                     ref={this.okResultsRef}
-                    title="(OKPy Results)"
+                    title="OKPy Results"
                     onDebug={this.handleOKPyDebug}
                     data={this.state.okResults}
                 />

@@ -9,6 +9,7 @@ verify_ssl = true
 black = "*"
 flask = "*"
 requests = "*"
+rauth = "*"
 
 [requires]
 python_version = "3.6"

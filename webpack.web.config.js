@@ -8,6 +8,7 @@ module.exports = {
     entry: {
         main: "./src/renderer/index.js",
         pythonWorker: "./src/web/pythonWorker.js",
+        webConsoleWorker: "./src/web/webConsole/webConsoleWorker.js",
     },
     output: {
         filename: "[name].js",
@@ -61,7 +62,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            excludeChunks: ["pythonWorker"],
+            excludeChunks: ["pythonWorker", "webConsoleWorker"],
         }),
         new webpack.DefinePlugin({
             ELECTRON: false,

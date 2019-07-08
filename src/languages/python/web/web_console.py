@@ -257,15 +257,16 @@ def handleInput(line):
             try:
                 exec(line, editor_ns)
                 record_exec(line, False)
-            except:
-                record_exec(line, True)
+            except Exception as e:
+                if not isinstance(e, SyntaxError):
+                    record_exec(line, True)
                 print_tb()
             write(">>> ")
         else:
             write(_launchtext)
             write("\n>>> ")
             # doc['code'].value += 'Type "copyright", "credits" or "license" for more information.'
-            firstLine = False
+        firstLine = False
         return
 
     src += line[:-1]
@@ -308,9 +309,10 @@ def handleInput(line):
                 try:
                     exec(current_line, editor_ns)
                     record_exec(current_line, False)
-                except:
+                except Exception as e:
                     print_tb()
-                    record_exec(current_line, True)
+                    if not isinstance(e, SyntaxError):
+                        record_exec(current_line, True)
                 flush()
                 write('>>> ')
                 _status = "main"
@@ -321,11 +323,12 @@ def handleInput(line):
                 syntax_error(msg.args)
                 write('>>> ')
                 _status = "main"
-        except:
+        except Exception as e:
             # the full traceback includes the call to eval(); to
             # remove it, it is stored in a buffer and the 2nd and 3rd
             # lines are removed
-            record_exec(current_line, True)
+            if not isinstance(e, SyntaxError):
+                record_exec(current_line, True)
             print_tb()
             write('>>> ')
             _status = "main"
@@ -340,8 +343,9 @@ def handleInput(line):
             record_exec(block_src, False)
             if _ is not None:
                 print(repr(_))
-        except:
-            record_exec(block_src, True)
+        except Exception as e:
+            if not isinstance(e, SyntaxError):
+                record_exec(block_src, True)
             print_tb()
         flush()
         write('>>> ')

@@ -14,7 +14,7 @@ export function dialogWrap(name, Contents, flexDirection) {
                 <div className="modal" onClick={this.handleClick}>
                     <div className="modalBody">
                         <span className="close" onClick={this.props.onClose}>&times;</span>
-                        <div className="modalHeader">{name}</div>
+                        <div className="modalHeader">{this.props.title || name}</div>
                         <div className="modalContent" style={{ flexDirection }}>
                             <Contents {...this.props} />
                         </div>

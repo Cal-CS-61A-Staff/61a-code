@@ -7,5 +7,7 @@ export default function showShareDialog(key) {
         onClose: () => {
             sendAndExit(key, { success: false });
         },
+        publicLink: "repl.cs61a.org/CorrectHorseBatteryStaple",
+        privateLink: "private.cs61a.org/TopSecretYourEyesOnly",
     });
 }

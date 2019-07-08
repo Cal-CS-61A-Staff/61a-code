@@ -5,6 +5,8 @@ from contextlib import contextmanager
 from csv import reader
 from multiprocessing import Process, Queue
 
+from rauth import OAuth2Service, OAuth1Service
+
 from IGNORE_scheme_debug import Buffer, tokenize_lines, debug_eval, scheme_read
 
 import black
@@ -126,6 +128,11 @@ def scm_worker(code, queue):
         raise
 
     queue.put(out)
+
+
+@app.route('/redirect/ok_auth')
+def ok_auth():
+    okpy = OAuth2Service()
 
 
 if __name__ == "__main__":
