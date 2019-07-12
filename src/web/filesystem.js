@@ -6,7 +6,7 @@ import { closeDialog, loadDialog } from "../renderer/utils/dialogWrap.js";
 
 const DATABASE = "FileStorage";
 const OBJECT_STORE = "Files";
-const VERSION = 1;
+const VERSION = 2;
 
 export async function showOpenDialog(key) {
     function handleClose() {
@@ -25,12 +25,6 @@ export async function showOpenDialog(key) {
         onClose: handleClose,
         onFileSelect: handleFileSelect,
     });
-}
-
-export async function open(key, location) {
-    const db = await getDB();
-    const file = await db.get(OBJECT_STORE, location);
-    sendAndExit(key, { success: true, file });
 }
 
 export function showSaveDialog(key, contents, hint) {
@@ -68,10 +62,16 @@ export function showSaveDialog(key, contents, hint) {
 async function getDB() {
     return openDB(DATABASE, VERSION, {
         upgrade(db) {
-            db.createObjectStore(OBJECT_STORE, { keyPath: "location" });
+            db.createObjectStore(OBJECT_STORE, { keyPath: "location", autoIncrement: true });
             // who needs to preserve files anyway
         },
     });
+}
+
+export async function open(key, location) {
+    const db = await getDB();
+    const file = await db.get(OBJECT_STORE, location);
+    sendAndExit(key, { success: true, file });
 }
 
 export async function save(key, content, location) {
