@@ -1,11 +1,31 @@
 import { err, exit, out } from "./webBackend.js";
 import { registerProcess } from "../main/processes.js";
 
+const strBuffLen = 1024;
+
+// https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
+function str2ab(strBuff, str) {
+    const bufView = new Uint16Array(strBuff);
+    for (let i = 0; i !== strBuffLen; ++i) {
+        bufView[i] = 0;
+    }
+    for (let i = 0, strLen = str.length; i < strLen - 1 && i < strBuffLen / 2; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+}
+
+
 // eslint-disable-next-line no-unused-vars
 export default function runPyScript(key, script, args) {
     return new Promise((resolve) => {
         const worker = new Worker("pythonWorker.js");
-        worker.postMessage({ code: script, transpiled: args.transpiled });
+        // eslint-disable-next-line no-undef
+        const commBuff = new SharedArrayBuffer(4);
+        // eslint-disable-next-line no-undef
+        const strBuff = new SharedArrayBuffer(strBuffLen);
+        worker.postMessage({
+            code: script, transpiled: args.transpiled, commBuff, strBuff,
+        });
         worker.onmessage = () => {
             worker.onmessage = (e) => {
                 if (e.data.out) {
@@ -18,7 +38,14 @@ export default function runPyScript(key, script, args) {
             };
             registerProcess(key, {
                 stdin: {
-                    write: line => worker.postMessage({ input: line }),
+                    write: (line) => {
+                        str2ab(strBuff, line);
+                        const arr = (new Int32Array(commBuff));
+                        arr[0] = 1;
+                        // eslint-disable-next-line no-undef
+                        Atomics.notify(arr, 0, 1);
+                        worker.postMessage({ input: line });
+                    },
                 },
                 kill: () => {
                     try {

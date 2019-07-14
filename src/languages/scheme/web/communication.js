@@ -4,8 +4,8 @@ import { err, exit, sendAndExit } from "../../../web/webBackend.js";
 import { interactProcess } from "../../../main/processes.js";
 
 // import webConsole from "./web_console.py";
-// import interpreter from "./IGNORE_needed.py";
-import transpiledInterpreter from "!!raw-loader!./IGNORE_scheme_transpiled.js";
+import interpreter from "./IGNORE_needed.py";
+// import transpiledInterpreter from "!!raw-loader!./IGNORE_scheme_transpiled.js";
 import runPyScript from "../../../web/runPython.js";
 
 export default async function receive(arg) {
@@ -29,7 +29,7 @@ export default async function receive(arg) {
 }
 
 async function runScmCode(key, code) {
-    // await runPyScript(key, interpreter, []);
-    await runPyScript(key, transpiledInterpreter, { transpiled: true });
+    await runPyScript(key, interpreter, []);
+    // await runPyScript(key, transpiledInterpreter, { transpiled: true });
     interactProcess(key, code);
 }

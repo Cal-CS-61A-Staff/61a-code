@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 from collections import namedtuple
 from contextlib import contextmanager
@@ -45,7 +46,9 @@ def root():
 @app.route('/<path>')
 def load_file(path):
     raw = get_raw(path, True)
-    print(raw)
+    filename = os.path.basename(path)
+    if filename.startswith("IGNORE"):
+        return None
     if raw is None:
         return app.send_static_file(path)
     data = bytes(json.dumps({"fileName": raw["full_name"], "data": raw["data"]}), "utf-8")

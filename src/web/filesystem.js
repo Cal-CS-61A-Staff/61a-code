@@ -6,7 +6,7 @@ import { closeDialog, loadDialog } from "../renderer/utils/dialogWrap.js";
 
 const DATABASE = "FileStorage";
 const OBJECT_STORE = "Files";
-const VERSION = 2;
+const VERSION = 1;
 
 export async function showOpenDialog(key) {
     function handleClose() {

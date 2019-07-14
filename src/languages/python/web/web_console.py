@@ -205,13 +205,15 @@ def draw(lst):
     def draw_worker(elem):
         if inline(elem):
             return ["inline", repr(elem)]
-        if atomic(elem):
-            val = ["atomic", ["inline", repr(elem)]]
-        elif len(elem) == 0:
-            val = ["atomic", ["inline", "Empty list"]]
-        else:
-            val = ["list", [draw_worker(x) for x in elem]]
-        heap[id(elem)] = val
+        if not id(elem) in heap:
+            heap[id(elem)] = None
+            if atomic(elem):
+                val = ["atomic", ["inline", repr(elem)]]
+            elif len(elem) == 0:
+                val = ["atomic", ["inline", "Empty list"]]
+            else:
+                val = ["list", [draw_worker(x) for x in elem]]
+            heap[id(elem)] = val
         return ["ref", id(elem)]
 
     wrap_debug([draw_worker(lst), heap])
@@ -235,6 +237,12 @@ def record_exec(code, wrap):
     else:
         print("EXEC: " + code)
 
+
+def input(prompt=""):
+    print(prompt, end="")
+    return browser.self.blockingInput.wait()
+
+
 # execution namespace
 editor_ns = {'credits': credits,
              'copyright': copyright,
@@ -244,6 +252,7 @@ editor_ns = {'credits': credits,
              'draw': draw,
              'visualize': visualize,
              'editor': editor,
+             'input': input,
              '__name__': '__main__'}
 
 firstLine = True
@@ -351,5 +360,6 @@ def handleInput(line):
         write('>>> ')
     else:
         write('... ')
+
 
 browser.self.stdin.on(handleInput)
