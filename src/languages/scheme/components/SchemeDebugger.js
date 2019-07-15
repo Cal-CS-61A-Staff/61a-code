@@ -95,7 +95,11 @@ class SchemeDebugger extends React.PureComponent {
                         this.state.treeView.getElement().get(0),
                     )}
                     {ReactDOM.createPortal(
-                        <SchemeEnvs index={this.state.index} />,
+                        <SchemeEnvs
+                            frames={this.props.data.frames}
+                            objects={this.props.data.objects}
+                            index={this.state.index}
+                        />,
                         this.state.envView.getElement().get(0),
                     )}
                 </>

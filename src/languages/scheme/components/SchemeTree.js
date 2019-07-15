@@ -63,10 +63,7 @@ export default class SchemeTree extends React.PureComponent {
                 if (val[0] > i) {
                     break;
                 }
-                // eslint-disable-next-line prefer-destructuring
-                transitionTime[label[1]] = val[0];
-                // eslint-disable-next-line
-                out[label[1]] = val[1];
+                [transitionTime[label[1]], out[label[1]]] = val;
             }
         }
 
@@ -82,18 +79,6 @@ export default class SchemeTree extends React.PureComponent {
         for (const child of data.children[j][1]) {
             out.children.push(this.getDataAtIndex(child, i));
         }
-
-        // data["prev_children"] = [];
-        // if (data["transition_type"] === "APPLYING") {
-        //     for (j = 0; true; ++j) {
-        //         if (all_data[curr]["children"][j][0] >= transitionTime["transition_type"]) {
-        //             break;
-        //         }
-        //     }
-        //     for (let child of all_data[curr]["children"][j - 1][1]) {
-        //         data["prev_children"].push(get_i(all_data, child, i));
-        //     }
-        // }
 
         return out;
     }

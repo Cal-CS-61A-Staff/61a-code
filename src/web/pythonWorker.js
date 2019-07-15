@@ -35,7 +35,15 @@ function doBackgroundTasks() {
 
 // https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
 function ab2str(buf) {
-    return String.fromCharCode.apply(null, new Uint16Array(buf));
+    const out = [];
+    const arr = new Uint16Array(buf);
+    for (let i = 0; i !== 1024; ++i) {
+        if (arr[i] === 0) {
+            break;
+        }
+        out.push(String.fromCharCode(arr[i]));
+    }
+    return out.join("");
 }
 
 function blockingInput() {
