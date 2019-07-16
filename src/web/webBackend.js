@@ -10,13 +10,12 @@ import python from "../languages/python/web/communication.js";
 import scheme from "../languages/scheme/web/communication.js";
 import { interactProcess, killProcess } from "../main/processes.js";
 import { assignMenuKey } from "./webMenuHandler.js";
-import {
-    getRecentFiles,
-    open, save, showOpenDialog, showSaveDialog,
-} from "./filesystem.js";
 import showErrorDialog from "./errorDialog.js";
 import showShareDialog from "./filesharing.js";
 import startConsole from "./webConsole.js";
+import {
+    getRecents, showOpenDialog, showSaveDialog, open, save,
+} from "./fileDialogs.js";
 
 let handler;
 
@@ -48,7 +47,7 @@ function receive(arg) {
         } else if (arg.type === SAVE_FILE) {
             save(arg.key, arg.contents, arg.location);
         } else if (arg.type === GET_RECENT_FILES) {
-            getRecentFiles(arg.key);
+            getRecents(arg.key);
         } else if (arg.type === CLAIM_MENU) {
             assignMenuKey(arg.key);
         } else if (arg.type === SHOW_ERROR_DIALOG) {

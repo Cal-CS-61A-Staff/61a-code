@@ -1,93 +1,72 @@
 import { openDB } from "idb";
-import { sendAndExit } from "./webBackend.js";
-import OpenDialog from "../renderer/components/OpenDialog.js";
-import SaveDialog from "../renderer/components/SaveDialog.js";
-import { closeDialog, loadDialog } from "../renderer/utils/dialogWrap.js";
+import path from "path-browserify";
+import pathParse from "path-parse";
 
 const DATABASE = "FileStorage";
 const OBJECT_STORE = "Files";
-const VERSION = 1;
+const VERSION = 2;
 
-export async function showOpenDialog(key) {
-    function handleClose() {
-        sendAndExit(key, { success: false });
-    }
-
-    function handleFileSelect(file) {
-        closeDialog();
-        sendAndExit(key, { success: true, file });
-    }
-
-    const recents = await getRecentFiles();
-
-    loadDialog(OpenDialog, {
-        recents,
-        onClose: handleClose,
-        onFileSelect: handleFileSelect,
-    });
-}
-
-export function showSaveDialog(key, contents, hint) {
-    function handleClose() {
-        sendAndExit(key, { success: false });
-    }
-
-    function handleNameSelect(name) {
-        closeDialog();
-        return save(key, contents, name);
-    }
-
-    function handleDownloadClick() {
-        // https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
-        const element = document.createElement("a");
-        element.setAttribute("href", `data:text/plain;charset=utf-8,${encodeURIComponent(contents)}`);
-        element.setAttribute("download", hint);
-
-        element.style.display = "none";
-        document.body.appendChild(element);
-
-        element.click();
-
-        document.body.removeChild(element);
-    }
-
-    loadDialog(SaveDialog, {
-        defaultValue: hint,
-        onClose: handleClose,
-        onNameSelect: handleNameSelect,
-        onDownloadClick: handleDownloadClick,
-    });
-}
+export const FILE = "FILE";
+export const DIRECTORY = "DIRECTORY";
 
 async function getDB() {
     return openDB(DATABASE, VERSION, {
-        upgrade(db) {
-            db.createObjectStore(OBJECT_STORE, { keyPath: "location", autoIncrement: true });
+        async upgrade(db, oldVersion) {
+            if (oldVersion < 1) {
+                db.createObjectStore(OBJECT_STORE, { keyPath: "location", autoIncrement: true });
+            } else if (oldVersion === 1) {
+                db.deleteObjectStore(OBJECT_STORE);
+                db.createObjectStore(OBJECT_STORE, { keyPath: "location", autoIncrement: true });
+            }
             // who needs to preserve files anyway
         },
     });
 }
 
-export async function open(key, location) {
-    const db = await getDB();
-    const file = await db.get(OBJECT_STORE, location);
-    sendAndExit(key, { success: true, file });
+export async function storeFile(content, location, type) {
+    return storeFileWorker(getDB(), content, location, type);
 }
 
-export async function save(key, content, location) {
+export async function getFile(location) {
     const db = await getDB();
-    await db.put(OBJECT_STORE, {
-        name: location, location, content, time: new Date().getTime(),
-    });
-    sendAndExit(key, { success: true, name: location, location });
+    return db.get(OBJECT_STORE, normalize(location));
 }
 
-export async function getRecentFiles(key) {
+export async function getRecentFiles() {
     const db = await getDB();
-    const out = await db.getAll(OBJECT_STORE);
-    out.sort((a, b) => b.time - a.time);
-    if (key) {
-        sendAndExit(key, out);
+    const raw = await db.getAll(OBJECT_STORE);
+    return raw.filter(x => x.type === FILE).sort((a, b) => b.time - a.time);
+}
+
+export function normalize(location) {
+    const parsed = pathParse(path.normalize(location));
+    return path.format(parsed);
+}
+
+
+async function fileExists(db, location) {
+    return (await db.get(OBJECT_STORE, location)) !== undefined;
+}
+
+async function addToDirectory(db, location, dirname) {
+    const directory = await db.get(OBJECT_STORE, dirname);
+    if (directory.type !== DIRECTORY) {
+        throw Error("Path does not point to directory.");
     }
-    return out;
+    if (!directory.content.includes(location)) {
+        directory.content.push(location);
+    }
+    await db.put(OBJECT_STORE, directory);
+}
+
+async function storeFileWorker(db, content, location, type) {
+    if (location !== "/") {
+        if (!(await fileExists(db, path.dirname(location)))) {
+            await storeFile(db, [], path.dirname(location), DIRECTORY);
+        }
+        await addToDirectory(db, location, path.dirname(location));
+    }
+    await db.put(OBJECT_STORE, {
+        name: path.basename(location), location, content, type, time: new Date().getTime(),
+    });
 }

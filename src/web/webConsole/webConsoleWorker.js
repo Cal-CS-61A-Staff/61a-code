@@ -1,5 +1,18 @@
 import splitCommand from "./tokenize.js";
 import help from "./help.js";
+import ls from "./ls.js";
+import cd from "./cd.js";
+
+let location = "~";
+
+// eslint-disable-next-line
+export function changeDirectory(newLocation) {
+    if (newLocation.startsWith("/home/")) {
+        location = newLocation.slice(6);
+    } else {
+        location = newLocation;
+    }
+}
 
 function stdout(val) {
     postMessage({ out: true, val });
@@ -17,10 +30,10 @@ function exit(val) {
 stdout(genPrompt());
 
 const COMMANDS = {
-    help,
+    help, ls, cd,
 };
 
-onmessage = (e) => {
+onmessage = async (e) => {
     const { data } = e;
     const { input } = data;
     let commandName;
@@ -34,7 +47,7 @@ onmessage = (e) => {
         const command = COMMANDS[commandName];
         if (command) {
             try {
-                stdout(COMMANDS[commandName](args));
+                await COMMANDS[commandName](args, location, stdout, stderr);
             } catch (err) {
                 stderr(`${err.message}\n`);
             }
@@ -42,9 +55,10 @@ onmessage = (e) => {
             stderr(`Command ${commandName} was not found\n`);
         }
     }
+    stdout("\n");
     stdout(genPrompt());
 };
 
 function genPrompt() {
-    return "rahularya@berkeley.edu ~ $ ";
+    return `rahularya@berkeley.edu ${location} $ `;
 }
