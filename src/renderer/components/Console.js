@@ -1,6 +1,7 @@
 import React from "react";
 import Output from "./Output.js";
 import startConsole from "../utils/console.js";
+import { CONSOLE_EDIT } from "../../common/communicationEnums.js";
 
 export default class Console extends React.Component {
     constructor(props) {
@@ -45,13 +46,19 @@ export default class Console extends React.Component {
     };
 
     handleOutputUpdate = (text, isErr) => {
-        this.setState((state) => {
-            const outputData = state.outputData.concat([{
-                text,
-                isErr,
-            }]);
-            return { outputData };
-        });
+        if (text.cmd) {
+            if (text.cmd === CONSOLE_EDIT) {
+                this.props.onLoadFile(text.data.file, text.data.startInterpreter);
+            }
+        } else {
+            this.setState((state) => {
+                const outputData = state.outputData.concat([{
+                    text,
+                    isErr,
+                }]);
+                return { outputData };
+            });
+        }
     };
 
     handleHalt = (text) => {

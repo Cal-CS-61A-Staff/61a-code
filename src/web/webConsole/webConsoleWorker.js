@@ -2,16 +2,27 @@ import splitCommand from "./tokenize.js";
 import help from "./help.js";
 import ls from "./ls.js";
 import cd from "./cd.js";
+import mkdir from "./mkdir.js";
+import rm from "./rm.js";
+import cat from "./cat.js";
+import edit from "./edit.js";
+import run from "./run.js";
+
+import { normalize } from "../filesystem.js";
 
 let location = "~";
 
-// eslint-disable-next-line
 export function changeDirectory(newLocation) {
-    if (newLocation.startsWith("/home/")) {
-        location = newLocation.slice(6);
+    const normalized = normalize(newLocation);
+    if (normalized.startsWith("/home")) {
+        location = normalize(`~/${normalized.slice(5)}`);
     } else {
-        location = newLocation;
+        location = normalize(normalized);
     }
+}
+
+export function call(cmd, data) {
+    postMessage({ call: true, cmd, data });
 }
 
 function stdout(val) {
@@ -30,7 +41,7 @@ function exit(val) {
 stdout(genPrompt());
 
 const COMMANDS = {
-    help, ls, cd,
+    help, ls, cd, mkdir, rm, cat, edit, run,
 };
 
 onmessage = async (e) => {

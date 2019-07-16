@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import React from "react";
 import {
     MENU_CLOSE_TAB,
@@ -84,16 +85,23 @@ export default class MainScreen extends React.Component {
             type: SHOW_OPEN_DIALOG,
         });
         if (ret.success) {
-            this.setState(state => ({
-                files: {
-                    ...state.files,
-                    [this.keyCnt++]: {
-                        ref: React.createRef(),
-                        initData: ret.file,
-                    },
-                },
-            }));
+            this.loadFile(ret.file);
         }
+    };
+
+    loadFile = (initData, startInterpreter) => {
+        const keyVal = this.keyCnt++;
+        this.setState(state => ({
+            files: {
+                ...state.files,
+                [keyVal]: {
+                    ref: React.createRef(),
+                    initData,
+                    startInterpreter,
+                },
+            },
+        }));
+        return keyVal;
     };
 
     save = () => {
@@ -188,8 +196,13 @@ export default class MainScreen extends React.Component {
             }
         }
 
-        // eslint-disable-next-line react/no-array-index-key
-        const consoleElems = this.state.consoles.map((_, i) => <Console key={i} i={i} />);
+        const consoleElems = this.state.consoles.map((_, i) => (
+            <Console
+                key={i}
+                i={i}
+                onLoadFile={this.loadFile}
+            />
+        ));
 
         return (
             <>

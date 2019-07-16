@@ -24,12 +24,21 @@ async function getDB() {
 }
 
 export async function storeFile(content, location, type) {
-    return storeFileWorker(getDB(), content, location, type);
+    return storeFileWorker(await getDB(), content, location, type);
 }
 
 export async function getFile(location) {
     const db = await getDB();
     return db.get(OBJECT_STORE, normalize(location));
+}
+
+export async function removeFile(location) {
+    const db = await getDB();
+    await db.delete(OBJECT_STORE, location);
+    const parDir = normalize(path.dirname(location));
+    const enclosingDirectory = await db.get(OBJECT_STORE, parDir);
+    enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(enclosingDirectory));
+    await db.put(OBJECT_STORE, enclosingDirectory);
 }
 
 export async function getRecentFiles() {
@@ -44,7 +53,11 @@ export function normalize(location) {
 }
 
 
-async function fileExists(db, location) {
+export async function fileExists(location) {
+    return fileExistsWorker(await getDB(), location);
+}
+
+async function fileExistsWorker(db, location) {
     return (await db.get(OBJECT_STORE, location)) !== undefined;
 }
 
@@ -61,8 +74,8 @@ async function addToDirectory(db, location, dirname) {
 
 async function storeFileWorker(db, content, location, type) {
     if (location !== "/") {
-        if (!(await fileExists(db, path.dirname(location)))) {
-            await storeFile(db, [], path.dirname(location), DIRECTORY);
+        if (!(await fileExistsWorker(db, path.dirname(location)))) {
+            await storeFileWorker(db, [], path.dirname(location), DIRECTORY);
         }
         await addToDirectory(db, location, path.dirname(location));
     }

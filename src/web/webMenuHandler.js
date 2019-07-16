@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { exit, out } from "./webBackend.js";
 
 let menuKey = null;

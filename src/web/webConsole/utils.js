@@ -1,5 +1,7 @@
 import path from "path-browserify";
 
+export const EXTERN_COMMAND = "EXTERN_COMMAND";
+
 export function checkArgs(func, args, low, high) {
     if (low === high) {
         if (args.length !== low) {

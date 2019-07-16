@@ -1,4 +1,6 @@
-import { err, exit, out } from "./webBackend.js";
+import {
+    err, exit, out,
+} from "./webBackend.js";
 import { registerProcess } from "../main/processes.js";
 
 export default function startConsole(key) {
@@ -10,6 +12,8 @@ export default function startConsole(key) {
             err(key, e.data.val);
         } else if (e.data.exit) {
             exit(key, e.data.val);
+        } else if (e.data.call) {
+            out(key, { cmd: e.data.cmd, data: e.data.data });
         }
     };
     registerProcess(key, {
