@@ -37,7 +37,7 @@ export async function removeFile(location) {
     await db.delete(OBJECT_STORE, location);
     const parDir = normalize(path.dirname(location));
     const enclosingDirectory = await db.get(OBJECT_STORE, parDir);
-    enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(enclosingDirectory));
+    enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(location));
     await db.put(OBJECT_STORE, enclosingDirectory);
 }
 

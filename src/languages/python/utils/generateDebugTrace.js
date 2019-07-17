@@ -1,6 +1,7 @@
 import { sendNoInteract } from "../../../renderer/utils/communication";
 import { GEN_PY_TRACE } from "../constants/communicationEnums";
 import { PYTHON } from "../../../common/languages.js";
+import debugPrefix from "./debugPrefix.js";
 
 const MAX_GLOBALS = 10;
 
@@ -14,6 +15,25 @@ export default async function generateDebugTrace(code, modules = {}, setup_code 
         type: GEN_PY_TRACE,
         data: params,
     }));
+
+    // filter debug code
+    if (data.code.main_code.startsWith(debugPrefix)) {
+        data.code.main_code = data.code.main_code.substr(debugPrefix.length);
+        const numDebugLines = debugPrefix.split("\n").length;
+        const newTrace = [];
+        for (const point of data.trace) {
+            if (point.line === undefined) {
+                newTrace.push(point);
+            } else if (point.line >= numDebugLines) {
+                point.line -= numDebugLines - 1;
+                newTrace.push(point);
+            }
+        }
+        data.trace = newTrace;
+    }
+
+
+    // filter for excessive globals
 
     if (data.trace.length === 1 && data.trace[0].event === "uncaught_exception") {
         return { success: false, error: data.trace[0].exception_msg };

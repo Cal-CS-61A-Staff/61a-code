@@ -64,6 +64,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: "61A Code",
             excludeChunks: ["pythonWorker", "webConsoleWorker"],
+            favicon: "./static/favicon.ico",
         }),
         new webpack.DefinePlugin({
             ELECTRON: false,
