@@ -62,6 +62,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
+            title: "61A Code",
             excludeChunks: ["pythonWorker", "webConsoleWorker"],
         }),
         new webpack.DefinePlugin({

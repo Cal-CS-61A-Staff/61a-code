@@ -71,5 +71,5 @@ onmessage = async (e) => {
 };
 
 function genPrompt() {
-    return `rahularya@berkeley.edu ${location} $ `;
+    return `anonymous ${location} $ `;
 }
