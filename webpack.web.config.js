@@ -1,6 +1,7 @@
 const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const HtmlWebpackTagsPlugin = require("html-webpack-tags-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
@@ -66,6 +67,7 @@ module.exports = {
             excludeChunks: ["pythonWorker", "webConsoleWorker"],
             favicon: "./static/favicon.ico",
         }),
+        new HtmlWebpackTagsPlugin({ tags: ["static/pace/pace.min.js", "static/pace/pace.css"], append: false }),
         new webpack.DefinePlugin({
             ELECTRON: false,
             __static: JSON.stringify("./static"),
