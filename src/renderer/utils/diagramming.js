@@ -79,10 +79,13 @@ export default function displayElem(
         let content;
         if (data[0] === "list") {
             [, content] = data;
-            straightArrow(container, x1, y1, x2, y2, color);
         } else {
             content = [data[1]];
+        }
+        if (data[0] === "atomic") {
             straightArrow(container, x1, y1, x, y + minWidth / 2, color);
+        } else {
+            straightArrow(container, x1, y1, x2, y2, color);
         }
         cache.set(id[1], [x, y + minWidth / 2]);
 

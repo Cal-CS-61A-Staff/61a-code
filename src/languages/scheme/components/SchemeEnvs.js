@@ -48,7 +48,7 @@ function displayEnvPointers(frames, heap, container) {
 
             if (val[0] === "ref") {
                 const isNewObj = !cache.has(val[1]);
-                const isBox = heap[val[1]][0] === "list";
+                const isBox = heap[val[1]][0] !== "atomic";
                 h = Math.max(h, currY - 5);
                 const depth = displayElem(
                     maxLen * charWidth + 45,
