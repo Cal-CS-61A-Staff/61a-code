@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/static/scheme/scheme" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/languages/scheme/web" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/web-server" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/web-server/formatter" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/src/languages/python/black" />
       <excludeFolder url="file://$MODULE_DIR$/src/languages/python/pytutor" />
       <excludeFolder url="file://$MODULE_DIR$/static/brython" />

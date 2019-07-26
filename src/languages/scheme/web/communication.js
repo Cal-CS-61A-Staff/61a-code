@@ -18,9 +18,9 @@ export default async function receive(arg) {
         const parsed = JSON.parse(ret);
         sendAndExit(arg.key, JSON.stringify(parsed));
     } else if (arg.type === FORMAT) {
-        const ret = await $.post("./api/scmFormat", { code: arg.code });
+        const ret = await $.post("./api/scm_format", { code: arg.code });
         if (ret.success) {
-            sendAndExit(arg.key, ret.code);
+            sendAndExit(arg.key, ret);
         } else {
             err(arg.key, ret.error);
             exit(arg.key);

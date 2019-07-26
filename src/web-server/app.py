@@ -14,6 +14,8 @@ import black
 import requests
 from flask import Flask, jsonify, make_response, redirect, request
 
+from formatter import scm_reformat
+
 CSV = "https://docs.google.com/spreadsheets/u/1/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0"
 
 app = Flask(__name__, static_url_path='', static_folder="")
@@ -117,6 +119,14 @@ def scm_debug():
     p.join(10)
     if not q.empty():
         return jsonify(q.get())
+
+
+@app.route('/api/scm_format', methods=['POST'])
+def scm_format():
+    try:
+        return jsonify({"success": True, "code": scm_reformat(request.form["code"])})
+    except Exception as e:
+        return jsonify({"success": False, "error": repr(e)})
 
 
 def scm_worker(code, queue):
