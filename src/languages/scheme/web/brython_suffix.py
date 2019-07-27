@@ -105,7 +105,7 @@ def run_expr(expr):
     try:
         ret = scheme_eval(expr, frame)
         if ret is not None:
-            print(ret)
+            print(repl_str(ret))
         record_exec(str(expr), False)
         if isinstance(ret, Pair) and autodraw_active:
             draw(ret)
