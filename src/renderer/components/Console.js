@@ -81,6 +81,7 @@ export default class Console extends React.Component {
                 ref={this.outputRef}
                 title={`Console (${this.props.i + 1})`}
                 data={this.state.outputData}
+                lang="bash"
                 outputActive={this.state.outputActive}
                 onStop={this.handleStop}
                 onRestart={this.run}

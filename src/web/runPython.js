@@ -30,7 +30,7 @@ export default function runPyScript(key, script, args) {
             worker.onmessage = (e) => {
                 if (e.data.out) {
                     out(key, e.data.val);
-                } else if (e.data.error) {
+                } else if (e.data.err) {
                     err(key, e.data.val);
                 } else if (e.data.exit) {
                     exit(key, e.data.val);

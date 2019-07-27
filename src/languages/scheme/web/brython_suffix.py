@@ -30,11 +30,16 @@ def write(data):
     stdout.write(str(data))
 
 
+def err(data):
+    stderr.write(str(data))
+
+
 def exit(data):
     browser.self.exit.write(data)
 
 
-sys.stdout.write = sys.stderr.write = write
+sys.stdout.write = write
+sys.stderr.write = err
 sys.stdout.__len__ = sys.stderr.__len__ = lambda: 0
 
 stdout = Stream(browser.self.stdout)
@@ -74,26 +79,26 @@ def handle_input(line):
             buff = Buffer(tokenize_lines(line.split("\n")))
             while buff.current():
                 callback(scheme_read(buff))
-        except Exception as err:
-            print("ParseError:", err)
+        except Exception as e:
+            err("ParseError: " + str(e) + "\n")
         if debugging:
-            write("scm> ")
+            err("scm> ")
             exit("")
         else:
-            write("scm> ")
+            err("scm> ")
     else:
         src += line
         try:
             buff = Buffer(tokenize_lines(src.split("\n")))
             while buff.more_on_line:
                 run_expr(scheme_read(buff))
-        except Exception as err:
-            if isinstance(err, EOFError) or "unexpected end" in repr(err):
-                write("...> ")
+        except Exception as e:
+            if isinstance(e, EOFError) or "unexpected end" in repr(e):
+                err("...> ")
                 return
-            print("ParseError:", err)
+            err("ParseError: " + str(e) + "\n")
         src = ""
-        write("scm> ")
+        err("scm> ")
 
 
 def run_expr(expr):
@@ -104,13 +109,13 @@ def run_expr(expr):
         record_exec(str(expr), False)
         if isinstance(ret, Pair) and autodraw_active:
             draw(ret)
-    except Exception as err:
+    except Exception as e:
         handle_error(frame)
         record_exec(str(expr), True)
-        if isinstance(err, RuntimeError):
-            print('Error: maximum recursion depth exceeded')
+        if isinstance(e, RuntimeError):
+            err('Error: maximum recursion depth exceeded' + "\n")
         else:
-            print('Error:', err)
+            err('Error: ' + str(e) + "\n")
 
 
 browser.self.stdin.on(handle_input)

@@ -18,6 +18,10 @@ const DEBUG_MARKER = "DEBUG: ";
 const EDITOR_MARKER = "EDITOR: ";
 const EXEC_MARKER = "EXEC: ";
 
+export const INPUT = "INPUT";
+export const OUTPUT = "OUT";
+export const ERROR = "ERROR";
+
 export default class File extends React.Component {
     constructor(props) {
         super(props);
@@ -225,7 +229,7 @@ export default class File extends React.Component {
             this.setState((state) => {
                 const outputData = state.outputData.concat([{
                     text,
-                    isErr,
+                    type: isErr ? ERROR : OUTPUT,
                 }]);
                 return { outputData };
             });
@@ -247,7 +251,13 @@ export default class File extends React.Component {
 
     handleInput = (line) => {
         this.state.interactCallback(line);
-        this.handleOutputUpdate(line, false);
+        this.setState((state) => {
+            const outputData = state.outputData.concat([{
+                text: line,
+                type: INPUT,
+            }]);
+            return { outputData };
+        });
     };
 
     handleEditorChange = (editorText) => {
@@ -303,6 +313,7 @@ export default class File extends React.Component {
                     ref={this.outputRef}
                     title={`${this.state.name} (Output)`}
                     data={this.state.outputData}
+                    lang={language}
                     outputActive={this.state.outputActive}
                     onStop={this.handleStop}
                     onRestart={this.run}

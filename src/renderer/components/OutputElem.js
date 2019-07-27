@@ -12,5 +12,5 @@ export default function OutputElem(props) {
             throw e;
         }
     }
-    return <StdoutElem text={props.text} />;
+    return <StdoutElem text={props.text} lang={props.lang} type={props.type} />;
 }
