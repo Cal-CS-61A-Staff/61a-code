@@ -15,14 +15,11 @@ function str2ab(strBuff, str) {
 }
 
 
-// eslint-disable-next-line no-unused-vars
 export default function runPyScript(key, script, args) {
     return new Promise((resolve) => {
         const worker = new Worker("pythonWorker.js");
-        // eslint-disable-next-line no-undef
-        const commBuff = new SharedArrayBuffer(4);
-        // eslint-disable-next-line no-undef
-        const strBuff = new SharedArrayBuffer(strBuffLen);
+        const commBuff = window.Atomics ? new window.SharedArrayBuffer(4) : null;
+        const strBuff = window.Atomics ? new window.SharedArrayBuffer(strBuffLen) : null;
         worker.postMessage({
             code: script, transpiled: args.transpiled, commBuff, strBuff,
         });
@@ -42,8 +39,9 @@ export default function runPyScript(key, script, args) {
                         str2ab(strBuff, line);
                         const arr = (new Int32Array(commBuff));
                         arr[0] = 1;
-                        // eslint-disable-next-line no-undef
-                        Atomics.notify(arr, 0, 1);
+                        if (window.Atomics) {
+                            window.Atomics.notify(arr, 0, 1);
+                        }
                         worker.postMessage({ input: line });
                     },
                 },

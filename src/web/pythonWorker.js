@@ -47,11 +47,14 @@ function ab2str(buf) {
 }
 
 function blockingInput() {
-    const arr = new Int32Array(commBuff);
-    // eslint-disable-next-line no-undef
-    Atomics.wait(arr, 0, 0);
-    arr[0] = 0;
-    return ab2str(strBuff);
+    if (self.Atomics) {
+        const arr = new Int32Array(commBuff);
+        self.Atomics.wait(arr, 0, 0);
+        arr[0] = 0;
+        return ab2str(strBuff);
+    } else {
+        throw Error("input() is not supported in your browser. Try using Chrome instead!");
+    }
 }
 
 let handler;
@@ -83,9 +86,13 @@ function initializeTranspiledJS() {
 }
 
 function handleInput(data) {
-    const arr = new Int32Array(commBuff);
-    if (arr[0] !== 0) {
-        arr[0] = 0;
+    if (self.Atomics) {
+        const arr = new Int32Array(commBuff);
+        if (arr[0] !== 0) {
+            arr[0] = 0;
+            handler(data);
+        }
+    } else {
         handler(data);
     }
 }
