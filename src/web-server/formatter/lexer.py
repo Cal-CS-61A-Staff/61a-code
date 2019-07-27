@@ -1,6 +1,6 @@
 from typing import List
 
-from scheme_exceptions import ParseError
+from formatter.scheme_exceptions import ParseError
 
 SPECIALS = ["(", ")", "[", "]", "'", "`", ",", "@", "\"", ";"]
 

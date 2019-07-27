@@ -2,8 +2,8 @@ from abc import ABC
 from functools import lru_cache
 from typing import List, Tuple, Type, Union
 
-import lexer as lexer
-from format_parser import FormatAtom, FormatComment, FormatList, Formatted, get_expression
+import formatter.lexer as lexer
+from formatter.format_parser import FormatAtom, FormatComment, FormatList, Formatted, get_expression
 
 LINE_LENGTH = 50
 MAX_EXPR_COUNT = 10

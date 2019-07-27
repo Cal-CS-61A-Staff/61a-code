@@ -1,7 +1,7 @@
 from typing import Union, List
 
-from lexer import TokenBuffer, SPECIALS, Comment
-from scheme_exceptions import ParseError
+from formatter.lexer import TokenBuffer, SPECIALS, Comment
+from formatter.scheme_exceptions import ParseError
 
 
 class FormatList:
