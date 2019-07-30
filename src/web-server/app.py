@@ -18,14 +18,17 @@ from formatter import scm_reformat
 
 CSV = "https://docs.google.com/spreadsheets/u/1/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0"
 
-app = Flask(__name__, static_url_path='', static_folder="")
-ServerFile = namedtuple("ServerFile", ["short_link", "full_name", "url", "data", "discoverable"])
+app = Flask(__name__, static_url_path="", static_folder="")
+ServerFile = namedtuple(
+    "ServerFile", ["short_link", "full_name", "url", "data", "discoverable"]
+)
 
 
 @contextmanager
 def connect_db():
     conn = sqlite3.connect("shortlinks.db")
     try:
+
         def db(*args):
             try:
                 if isinstance(args[1][0], str):
@@ -34,18 +37,19 @@ def connect_db():
                 return conn.cursor().execute(*args)
             else:
                 return conn.cursor().executemany(*args)
+
         yield db
     finally:
         conn.commit()
         conn.close()
 
 
-@app.route('/')
+@app.route("/")
 def root():
-    return app.send_static_file('./index.html')
+    return app.send_static_file("./index.html")
 
 
-@app.route('/<path>')
+@app.route("/<path>")
 def load_file(path):
     raw = get_raw(path, True)
     filename = os.path.basename(path)
@@ -53,14 +57,16 @@ def load_file(path):
         return None
     if raw is None:
         return app.send_static_file(path)
-    data = bytes(json.dumps({"fileName": raw["full_name"], "data": raw["data"]}), "utf-8")
+    data = bytes(
+        json.dumps({"fileName": raw["full_name"], "data": raw["data"]}), "utf-8"
+    )
 
     response = make_response(redirect("/", code=302))
     response.set_cookie("load", value=data)
     return response
 
 
-@app.route('/<path>/raw')
+@app.route("/<path>/raw")
 def get_raw(path, internal=False):
     with connect_db() as db:
         ret = db("SELECT * FROM links WHERE short_link=?;", [path]).fetchone()
@@ -74,18 +80,28 @@ def get_raw(path, internal=False):
             return jsonify(out)
 
 
-@app.route('/api/pytutor', methods=['POST'])
+@app.route("/api/pytutor", methods=["POST"])
 def pytutor_proxy():
-    response = requests.post("http://pythontutor.com/web_exec_py3.py", data={
-        "user_script": request.form["code"],
-    })
+    response = requests.post(
+        "http://pythontutor.com/web_exec_py3.py",
+        data={
+            "user_script": request.form["code"],
+            # "options_json": r'{"cumulative_mode":true,"heap_primitives":false}',
+        },
+    )
     return response.text
 
 
 @app.route("/api/black", methods=["POST"])
 def black_proxy():
     try:
-        return jsonify({"success": True, "code": black.format_str(request.form["code"], mode=black.FileMode()) + "\n"})
+        return jsonify(
+            {
+                "success": True,
+                "code": black.format_str(request.form["code"], mode=black.FileMode())
+                + "\n",
+            }
+        )
     except Exception as e:
         return jsonify({"success": False, "error": repr(e)})
 
@@ -110,7 +126,7 @@ def refresh():
     return jsonify(all_files)
 
 
-@app.route('/api/scm_debug', methods=['POST'])
+@app.route("/api/scm_debug", methods=["POST"])
 def scm_debug():
     code = request.form["code"]
     q = Queue()
@@ -121,7 +137,7 @@ def scm_debug():
         return jsonify(q.get())
 
 
-@app.route('/api/scm_format', methods=['POST'])
+@app.route("/api/scm_format", methods=["POST"])
 def scm_format():
     try:
         return jsonify({"success": True, "code": scm_reformat(request.form["code"])})
@@ -143,7 +159,7 @@ def scm_worker(code, queue):
     queue.put(out)
 
 
-@app.route('/redirect/ok_auth')
+@app.route("/redirect/ok_auth")
 def ok_auth():
     okpy = OAuth2Service()
 
