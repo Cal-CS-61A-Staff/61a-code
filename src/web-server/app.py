@@ -6,7 +6,6 @@ import sqlite3
 import urllib.parse
 from collections import namedtuple
 from contextlib import contextmanager
-import csv
 from multiprocessing import Process, Queue
 
 import black
@@ -18,6 +17,7 @@ from werkzeug import security
 
 from IGNORE_scheme_debug import Buffer, debug_eval, scheme_read, tokenize_lines
 from IGNORE_secrets import SECRET
+from formatter import scm_reformat
 
 CSV = (
     "https://docs.google.com/spreadsheets/u/1/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI/export?format=csv&id=1"
@@ -44,10 +44,6 @@ ServerFile = namedtuple(
 NOT_FOUND = "NOT_FOUND"
 NOT_AUTHORIZED = "NOT_AUTHORIZED"
 NOT_LOGGED_IN = "NOT_LOGGED_IN"
-from formatter import scm_reformat
-
-CSV = "https://docs.google.com/spreadsheets/u/1/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0"
-
 
 COOKIE_FILE_LOAD = "load"
 COOKIE_SHORTLINK_REDIRECT = "shortlink"

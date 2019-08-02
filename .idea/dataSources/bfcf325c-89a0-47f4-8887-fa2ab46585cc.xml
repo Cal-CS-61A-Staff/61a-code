@@ -15,30 +15,22 @@
     <table id="7" parent="2" name="sqlite_master">
       <System>1</System>
     </table>
-    <column id="8" parent="6" name="short_link">
+    <table id="8" parent="2" name="studentLinks"/>
+    <column id="9" parent="6" name="short_link">
       <Position>1</Position>
-      <DataType>text|0s</DataType>
     </column>
-    <column id="9" parent="6" name="url">
+    <column id="10" parent="6" name="url">
       <Position>2</Position>
-      <DataType>text|0s</DataType>
     </column>
-    <column id="10" parent="6" name="data">
+    <column id="11" parent="6" name="data">
       <Position>3</Position>
-      <DataType>text|0s</DataType>
     </column>
-    <column id="11" parent="6" name="full_name">
+    <column id="12" parent="6" name="full_name">
       <Position>4</Position>
-      <DataType>text|0s</DataType>
     </column>
-    <column id="12" parent="6" name="discoverable">
+    <column id="13" parent="6" name="discoverable">
       <Position>5</Position>
-      <DataType>int|0s</DataType>
     </column>
-    <index id="13" parent="6" name="links_short_link_uindex">
-      <ColNames>short_link</ColNames>
-      <Unique>1</Unique>
-    </index>
     <column id="14" parent="7" name="type">
       <Position>1</Position>
       <DataType>text|0s</DataType>
@@ -58,6 +50,15 @@
     <column id="18" parent="7" name="sql">
       <Position>5</Position>
       <DataType>text|0s</DataType>
+    </column>
+    <column id="19" parent="8" name="short_link">
+      <Position>1</Position>
+    </column>
+    <column id="20" parent="8" name="file_name">
+      <Position>2</Position>
+    </column>
+    <column id="21" parent="8" name="file_content">
+      <Position>3</Position>
     </column>
   </database-model>
 </dataSource>
