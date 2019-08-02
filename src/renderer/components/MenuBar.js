@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-    MENU_NEW, MENU_OPEN, MENU_NEW_CONSOLE, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE
+    MENU_NEW, MENU_OPEN, MENU_NEW_CONSOLE, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE,
 } from "../../common/communicationEnums.js";
 import MenuElem from "./MenuElem.js";
 
