@@ -10,17 +10,18 @@ import {
 } from "../../common/communicationEnums.js";
 import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import {
-    Debugger, debugPrefix,
-    format, generateDebugTrace, runCode, runFile,
+    Debugger,
+    debugPrefix,
+    format,
+    generateDebugTrace,
+    runCode,
+    runFile,
 } from "../utils/dispatch.js";
+import { ERROR, INPUT, OUTPUT } from "../../common/outputTypes.js";
 
 const DEBUG_MARKER = "DEBUG: ";
 const EDITOR_MARKER = "EDITOR: ";
 const EXEC_MARKER = "EXEC: ";
-
-export const INPUT = "INPUT";
-export const OUTPUT = "OUT";
-export const ERROR = "ERROR";
 
 export default class File extends React.Component {
     constructor(props) {
@@ -278,11 +279,10 @@ export default class File extends React.Component {
             return SQL;
         } else {
             const code = this.state.editorText.toLowerCase();
-            // if (code.split("select").length > 1) {
-            //     return SQL;
-            // } else
             if (code.split("def ").length > 1) {
                 return PYTHON;
+            } else if (code.split("select").length > 1) {
+                return SQL;
             } else if (code.trim()[0] === "(" || code.split(";").length > 1) {
                 return SCHEME;
             } else {

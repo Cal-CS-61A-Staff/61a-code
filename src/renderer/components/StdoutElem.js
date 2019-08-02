@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as hljs from "highlight.js";
-import { ERROR, INPUT } from "./File.js";
+import { INPUT, ERROR } from "../../common/outputTypes.js";
 
 export default class StdoutElem extends React.Component {
     constructor(props) {

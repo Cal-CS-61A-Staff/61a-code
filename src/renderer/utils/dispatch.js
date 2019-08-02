@@ -1,4 +1,4 @@
-import { PYTHON, SCHEME } from "../../common/languages.js";
+import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import pyFormat from "../../languages/python/utils/format.js";
 import scmFormat from "../../languages/scheme/utils/format.js";
 import pyGenerateDebugTrace from "../../languages/python/utils/generateDebugTrace.js";
@@ -9,6 +9,7 @@ import SchemeDebugger from "../../languages/scheme/components/SchemeDebugger.js"
 import PythonTutorDebug from "../../languages/python/components/PythonTutorDebug.js";
 import pyDebugPrefix from "../../languages/python/utils/debugPrefix.js";
 import scmDebugPrefix from "../../languages/scheme/utils/debugPrefix.js";
+import { runSQLCode } from "../../languages/sql/utils/run.js";
 
 export function format(language) {
     const options = {
@@ -30,6 +31,7 @@ export function runCode(language) {
     const options = {
         [PYTHON]: runPyCode,
         [SCHEME]: runScmCode,
+        [SQL]: runSQLCode,
     };
     return options[language];
 }
@@ -46,6 +48,7 @@ export function Debugger(language) {
     const options = {
         [PYTHON]: PythonTutorDebug,
         [SCHEME]: SchemeDebugger,
+        [SQL]: SchemeDebugger, // temp!
     };
     return options[language];
 }

@@ -2,6 +2,8 @@ import React from "react";
 import Output from "./Output.js";
 import startConsole from "../utils/console.js";
 import { CONSOLE_EDIT } from "../../common/communicationEnums.js";
+import { INPUT, ERROR, OUTPUT } from "../../common/outputTypes.js";
+
 
 export default class Console extends React.Component {
     constructor(props) {
@@ -54,7 +56,7 @@ export default class Console extends React.Component {
             this.setState((state) => {
                 const outputData = state.outputData.concat([{
                     text,
-                    isErr,
+                    type: isErr ? ERROR : OUTPUT,
                 }]);
                 return { outputData };
             });
@@ -72,7 +74,13 @@ export default class Console extends React.Component {
 
     handleInput = (line) => {
         this.state.interactCallback(line);
-        this.handleOutputUpdate(line, false);
+        this.setState((state) => {
+            const outputData = state.outputData.concat([{
+                text: line,
+                type: INPUT,
+            }]);
+            return { outputData };
+        });
     };
 
     render() {

@@ -12,5 +12,10 @@ export default function OutputElem(props) {
             throw e;
         }
     }
+    // eslint-disable-next-line no-underscore-dangle
+    if (props.text.__html) {
+        // eslint-disable-next-line react/no-danger
+        return <div dangerouslySetInnerHTML={props.text} />;
+    }
     return <StdoutElem text={props.text} lang={props.lang} type={props.type} />;
 }

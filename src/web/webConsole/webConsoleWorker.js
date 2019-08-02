@@ -38,7 +38,7 @@ function exit(val) {
     postMessage({ exit: true, val });
 }
 
-stdout(genPrompt());
+stderr(genPrompt());
 
 const COMMANDS = {
     help, ls, cd, mkdir, rm, cat, edit, run,
@@ -67,7 +67,7 @@ onmessage = async (e) => {
         }
     }
     stdout("\n");
-    stdout(genPrompt());
+    stderr(genPrompt());
 };
 
 function genPrompt() {
