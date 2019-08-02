@@ -12,17 +12,19 @@ from multiprocessing import Process, Queue
 import black
 import requests
 from english_words import english_words_set as words  # list of words to generate links
-from flask import (Flask, jsonify, make_response, redirect, request, session, url_for)
+from flask import Flask, jsonify, make_response, redirect, request, session, url_for
 from flask_oauthlib.client import OAuth
 from werkzeug import security
 
 from IGNORE_scheme_debug import Buffer, debug_eval, scheme_read, tokenize_lines
+from IGNORE_secrets import SECRET
 
-CSV = "https://docs.google.com/spreadsheets/u/1/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI/export?format=csv&id=1" \
-      "-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0 "
+CSV = (
+    "https://docs.google.com/spreadsheets/u/1/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI/export?format=csv&id=1"
+    "-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0 "
+)
 
 CONSUMER_KEY = "61a-web-repl"
-SECRET = "IXhpDkYltGjxcLDPSSrXEoyPjLppwjZ"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STAFF_EMAIL_PATH = os.path.join(BASE_DIR, "staff_emails.csv")
@@ -42,6 +44,10 @@ ServerFile = namedtuple(
 NOT_FOUND = "NOT_FOUND"
 NOT_AUTHORIZED = "NOT_AUTHORIZED"
 NOT_LOGGED_IN = "NOT_LOGGED_IN"
+
+
+COOKIE_FILE_LOAD = "load"
+COOKIE_SHORTLINK_REDIRECT = "shortlink"
 
 
 @contextmanager
@@ -78,24 +84,26 @@ def load_file(path):
     raw = load_shortlink_file(path)
 
     if raw is NOT_LOGGED_IN:
-        return redirect(url_for("login"))
+        response = redirect(url_for("login"))
+        response.set_cookie(COOKIE_SHORTLINK_REDIRECT, value=path)
+        return response
     elif raw is NOT_FOUND:
         return app.send_static_file(path)
     elif raw is NOT_AUTHORIZED:
-        return "not authorized to access this file"
+        return "This file is only visible to staff."
 
     data = bytes(
         json.dumps({"fileName": raw["full_name"], "data": raw["data"]}), "utf-8"
     )
 
     response = make_response(redirect("/", code=302))
-    response.set_cookie("load", value=data)
+    response.set_cookie(COOKIE_FILE_LOAD, value=data)
     return response
 
 
 @app.route("/<path>/raw")
 def get_raw(path):
-        return jsonify(load_shortlink_file(path))
+    return jsonify(load_shortlink_file(path))
 
 
 def load_shortlink_file(path):
@@ -199,15 +207,7 @@ def check_auth():
 def share():
     file_name, file_content = request.form["fileName"], request.form["fileContent"]
     with connect_db() as db:
-        # Generate three random words from the set
-        a, b, c = (
-            random.sample(words, 1)[0],
-            random.sample(words, 1)[0],
-            random.sample(words, 1)[0],
-        )
-        # Capitalize first letter to increase readability
-        a, b, c = a[0].upper() + a[1:], b[0].upper() + b[1:], c[0].upper() + c[1:]
-        link = a + b + c
+        link = "".join(random.sample(words, 1)[0].title() for _ in range(3))
         db("INSERT INTO studentLinks VALUES (?, ?, ?)", [link, file_name, file_content])
     return "code.cs61a.org/home/" + link
 
@@ -243,7 +243,6 @@ def create_oauth_client(app):
 
     @app.route("/login")
     def login():
-        print(url_for("authorized", _external=True))
         return remote.authorize(callback=url_for("authorized", _external=True))
 
     @app.route("/authorized")
@@ -253,14 +252,16 @@ def create_oauth_client(app):
             return "Access denied: error=%s" % (request.args["error"])
         if isinstance(resp, dict) and "access_token" in resp:
             session["dev_token"] = (resp["access_token"], "")
-        return redirect("/")
+
+        if COOKIE_SHORTLINK_REDIRECT in request.cookies:
+            return load_file(request.cookies[COOKIE_SHORTLINK_REDIRECT])
+        else:
+            return redirect("/")
 
     @app.route("/user")
     def client_method():
         token = session["dev_token"][0]
-        r = requests.get(
-            "http://localhost:5000/api/v3/user/?access_token={}".format(token)
-        )
+        r = requests.get("https://okpy.org/api/v3/user/?access_token={}".format(token))
         r.raise_for_status()
         return jsonify(r.json())
 
