@@ -9,6 +9,7 @@ export default function IntroBox(props) {
             <IntroButton name="Open existing file" onClick={props.onOpenClick} />
             <IntroButton name="Start Python interpreter" onClick={() => props.onCreateClick(".py")} />
             <IntroButton name="Start Scheme interpreter" onClick={() => props.onCreateClick(".scm")} />
+            <IntroButton name="Start SQL interpreter" onClick={() => props.onCreateClick(".sql")} />
         </div>
     );
 }

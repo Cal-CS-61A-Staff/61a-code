@@ -44,6 +44,9 @@ ServerFile = namedtuple(
 NOT_FOUND = "NOT_FOUND"
 NOT_AUTHORIZED = "NOT_AUTHORIZED"
 NOT_LOGGED_IN = "NOT_LOGGED_IN"
+from formatter import scm_reformat
+
+CSV = "https://docs.google.com/spreadsheets/u/1/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0"
 
 
 COOKIE_FILE_LOAD = "load"
@@ -133,7 +136,10 @@ def load_shortlink_file(path):
 def pytutor_proxy():
     response = requests.post(
         "http://pythontutor.com/web_exec_py3.py",
-        data={"user_script": request.form["code"]},
+        data={
+            "user_script": request.form["code"],
+            # "options_json": r'{"cumulative_mode":true,"heap_primitives":false}',
+        },
     )
     return response.text
 
@@ -181,6 +187,14 @@ def scm_debug():
     p.join(10)
     if not q.empty():
         return jsonify(q.get())
+
+
+@app.route("/api/scm_format", methods=["POST"])
+def scm_format():
+    try:
+        return jsonify({"success": True, "code": scm_reformat(request.form["code"])})
+    except Exception as e:
+        return jsonify({"success": False, "error": repr(e)})
 
 
 def scm_worker(code, queue):

@@ -11,6 +11,7 @@ english-words = "*"
 flask = "*"
 requests = "*"
 rauth = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.6"

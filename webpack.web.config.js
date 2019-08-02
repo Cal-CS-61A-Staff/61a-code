@@ -9,6 +9,7 @@ module.exports = {
     entry: {
         main: "./src/renderer/index.js",
         pythonWorker: "./src/web/pythonWorker.js",
+        sqlWorker: "./src/languages/sql/web/sqlWorker.js",
         webConsoleWorker: "./src/web/webConsole/webConsoleWorker.js",
     },
     output: {
@@ -55,7 +56,7 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             title: "61A Code",
-            excludeChunks: ["pythonWorker", "webConsoleWorker"],
+            excludeChunks: ["pythonWorker", "webConsoleWorker", "sqlWorker"],
             favicon: "./static/favicon.ico",
         }),
         new HtmlWebpackTagsPlugin({ tags: ["static/pace/pace.min.js", "static/pace/pace.css"], append: false }),

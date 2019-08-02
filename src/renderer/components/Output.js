@@ -1,8 +1,11 @@
+/* eslint-disable react/no-array-index-key */
 import * as React from "react";
 import RunStopButton from "./RunStopButton";
 import StdinElem from "./StdinElem";
 import OutputElem from "./OutputElem";
 import glWrap from "../utils/glWrap";
+
+import "highlight.js/styles/vs2015.css";
 
 class Output extends React.Component {
     constructor(props) {
@@ -91,10 +94,21 @@ class Output extends React.Component {
                     onKeyDown={this.handleKeyDown}
                 >
                     <div className="output">
-                        {/* eslint-disable-next-line react/no-array-index-key */}
-                        {this.props.data.map((elem, index) => <OutputElem key={index} {...elem} />)}
+                        {this.props.data.map((elem, index) => (
+                            <OutputElem
+                                key={index}
+                                lang={this.props.lang}
+                                {...elem}
+                            />
+                        ))}
                         {this.props.outputActive
-                        && <StdinElem ref={this.inputRef} onInput={this.handleInput} />}
+                        && (
+                            <StdinElem
+                                ref={this.inputRef}
+                                onInput={this.handleInput}
+                                lang={this.props.lang}
+                            />
+                        )}
                         <div className="outputScrollAnchor" />
                     </div>
                 </div>

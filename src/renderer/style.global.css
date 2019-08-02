@@ -9,6 +9,12 @@ html {
     box-sizing: inherit;
 }
 
+.hljs {
+    display: inline !important;
+    padding: 0 !important;
+    background: inherit !important;
+}
+
 #app {
     width: 100%;
     height: 100%;

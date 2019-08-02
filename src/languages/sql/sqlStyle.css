@@ -1,0 +1,24 @@
+.visualize-pane {
+    border: #ee7813;
+    border-style: dashed;
+}
+
+.container {
+    margin: 0;
+    width: 100%;
+}
+
+.out-table > th, tr {
+    border: 1px solid white;
+    border-collapse: collapse;
+    color: white;
+}
+
+.out-table > thead {
+    font-weight: bold;
+    background-color: purple;
+}
+
+.visButtons {
+    margin-right:15px;
+}

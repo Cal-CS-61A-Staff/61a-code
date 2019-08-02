@@ -10,9 +10,14 @@ import {
 } from "../../common/communicationEnums.js";
 import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import {
-    Debugger, debugPrefix,
-    format, generateDebugTrace, runCode, runFile,
+    Debugger,
+    debugPrefix,
+    format,
+    generateDebugTrace,
+    runCode,
+    runFile,
 } from "../utils/dispatch.js";
+import { ERROR, INPUT, OUTPUT } from "../../common/outputTypes.js";
 
 const DEBUG_MARKER = "DEBUG: ";
 const EDITOR_MARKER = "EDITOR: ";
@@ -225,7 +230,7 @@ export default class File extends React.Component {
             this.setState((state) => {
                 const outputData = state.outputData.concat([{
                     text,
-                    isErr,
+                    type: isErr ? ERROR : OUTPUT,
                 }]);
                 return { outputData };
             });
@@ -247,7 +252,13 @@ export default class File extends React.Component {
 
     handleInput = (line) => {
         this.state.interactCallback(line);
-        this.handleOutputUpdate(line, false);
+        this.setState((state) => {
+            const outputData = state.outputData.concat([{
+                text: line,
+                type: INPUT,
+            }]);
+            return { outputData };
+        });
     };
 
     handleEditorChange = (editorText) => {
@@ -268,11 +279,10 @@ export default class File extends React.Component {
             return SQL;
         } else {
             const code = this.state.editorText.toLowerCase();
-            // if (code.split("select").length > 1) {
-            //     return SQL;
-            // } else
             if (code.split("def ").length > 1) {
                 return PYTHON;
+            } else if (code.split("select").length > 1) {
+                return SQL;
             } else if (code.trim()[0] === "(" || code.split(";").length > 1) {
                 return SCHEME;
             } else {
@@ -303,6 +313,7 @@ export default class File extends React.Component {
                     ref={this.outputRef}
                     title={`${this.state.name} (Output)`}
                     data={this.state.outputData}
+                    lang={language}
                     outputActive={this.state.outputActive}
                     onStop={this.handleStop}
                     onRestart={this.run}

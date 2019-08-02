@@ -114,7 +114,7 @@ class Trace:
 def print_tb():
     trace = Trace()
     traceback.print_exc(file=trace)
-    write(trace.format())
+    err(trace.format())
 
 
 def syntax_error(args):
@@ -143,7 +143,14 @@ def flush():
     OUT_BUFFER = ''
 
 
-sys.stdout.write = sys.stderr.write = write
+def err(data):
+    global src
+    src += data
+    stderr.write(data)
+
+
+sys.stdout.write = write
+sys.stderr.write = err
 sys.stdout.__len__ = sys.stderr.__len__ = lambda: len(OUT_BUFFER)
 
 history = []
@@ -270,10 +277,10 @@ def handleInput(line):
                 if not isinstance(e, SyntaxError):
                     record_exec(line, True)
                 print_tb()
-            write(">>> ")
+            err(">>> ")
         else:
             write(_launchtext)
-            write("\n>>> ")
+            err("\n>>> ")
             # doc['code'].value += 'Type "copyright", "credits" or "license" for more information.'
         firstLine = False
         return
@@ -282,8 +289,10 @@ def handleInput(line):
 
     if _status == "main":
         current_line = src[src.rfind('>>>') + 4:]
+        src = ">>> " + current_line
     elif _status == "3string":
         current_line = src[src.rfind('>>>') + 4:]
+        src = ">>> " + current_line
         current_line = current_line.replace('\n... ', '\n')
     else:
         current_line = src[src.rfind('...') + 4:]
@@ -291,7 +300,7 @@ def handleInput(line):
     src += "\n"
 
     if _status == 'main' and not current_line.strip():
-        write('>>> ')
+        err('>>> ')
         return
 
     if _status == "main" or _status == "3string":
@@ -304,15 +313,15 @@ def handleInput(line):
                 if not atomic(_) and autodraw_active:
                     draw(_)
             flush()
-            write('>>> ')
+            err('>>> ')
             _status = "main"
         except IndentationError:
-            write('... ')
+            err('... ')
             _status = "block"
         except SyntaxError as msg:
             if str(msg) == 'invalid syntax : triple string end not found' or \
                     str(msg).startswith('Unbalanced bracket'):
-                write('... ')
+                err('... ')
                 _status = "3string"
             elif str(msg) == 'eval() argument must be an expression':
                 try:
@@ -323,14 +332,14 @@ def handleInput(line):
                     if not isinstance(e, SyntaxError):
                         record_exec(current_line, True)
                 flush()
-                write('>>> ')
+                err('>>> ')
                 _status = "main"
             elif str(msg) == 'decorator expects function':
-                write('... ')
+                err('... ')
                 _status = "block"
             else:
                 syntax_error(msg.args)
-                write('>>> ')
+                err('>>> ')
                 _status = "main"
         except Exception as e:
             # the full traceback includes the call to eval(); to
@@ -339,10 +348,12 @@ def handleInput(line):
             if not isinstance(e, SyntaxError):
                 record_exec(current_line, True)
             print_tb()
-            write('>>> ')
+            err('>>> ')
             _status = "main"
     elif current_line == "":  # end of block
-        block = src[src.rfind('>>>') + 4:].splitlines()
+        block = src[src.rfind('>>>') + 4:]
+        src = ">>> " + block
+        block = block.splitlines()
         block = [block[0]] + [b[4:] for b in block[1:]]
         block_src = '\n'.join(block)
         # status must be set before executing code in globals()
@@ -357,9 +368,9 @@ def handleInput(line):
                 record_exec(block_src, True)
             print_tb()
         flush()
-        write('>>> ')
+        err('>>> ')
     else:
-        write('... ')
+        err('... ')
 
 
 browser.self.stdin.on(handleInput)

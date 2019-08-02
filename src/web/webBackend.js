@@ -5,9 +5,10 @@ import {
     OPEN_FILE, OUT, SAVE_FILE, SHOW_ERROR_DIALOG,
     SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, SHOW_SHARE_DIALOG, START_CONSOLE,
 } from "../common/communicationEnums.js";
-import { PYTHON, SCHEME } from "../common/languages.js";
+import { PYTHON, SCHEME, SQL } from "../common/languages.js";
 import python from "../languages/python/web/communication.js";
 import scheme from "../languages/scheme/web/communication.js";
+import sql from "../languages/sql/web/communication.js";
 import { interactProcess, killProcess } from "../main/processes.js";
 import { assignMenuKey } from "./webMenuHandler.js";
 import showErrorDialog from "./errorDialog.js";
@@ -63,6 +64,8 @@ function receive(arg) {
         python(arg);
     } else if (arg.handler === SCHEME) {
         scheme(arg);
+    } else if (arg.handler === SQL) {
+        sql(arg);
     } else {
         console.error(`Unknown handler: ${arg.handler}`);
     }

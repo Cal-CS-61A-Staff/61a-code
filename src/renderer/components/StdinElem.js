@@ -1,4 +1,6 @@
 import * as React from "react";
+import * as hljs from "highlight.js";
+import { getCurrentCursorPosition, setCurrentCursorPosition } from "../utils/cursorPositioning.js";
 
 export default class StdinElem extends React.Component {
     constructor(props) {
@@ -6,9 +8,17 @@ export default class StdinElem extends React.Component {
         this.inputRef = React.createRef();
     }
 
+    componentDidMount() {
+        this.postRender();
+    }
+
+    componentDidUpdate() {
+        this.postRender();
+    }
+
     setText(text) {
         this.inputRef.current.innerText = text;
-        this.goToEnd();
+        setCurrentCursorPosition(this.inputRef.current, this.inputRef.current.innerText.length);
     }
 
     handleKeyDown = (e) => {
@@ -35,28 +45,29 @@ export default class StdinElem extends React.Component {
         if (lines.length > 1) {
             this.setText(text);
         }
+        this.postRender();
     };
 
-    // https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity/3866442#3866442
-    goToEnd() {
-        const range = document.createRange();
-        range.selectNodeContents(this.inputRef.current);
-        range.collapse(false);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
+    postRender() {
+        const node = this.inputRef.current;
+        const cursorPos = getCurrentCursorPosition(node);
+        this.inputRef.current.innerText = node.innerText;
+        hljs.highlightBlock(node);
+        if (cursorPos !== -1) {
+            setCurrentCursorPosition(node, cursorPos);
+        }
     }
-
 
     focus() {
         this.inputRef.current.focus();
+        setCurrentCursorPosition(this.inputRef.current, this.inputRef.current.innerText.length);
     }
 
     render() {
         return (
             <span
                 ref={this.inputRef}
-                className="consoleInput"
+                className={`consoleInput lang-${this.props.lang.toLowerCase()}`}
                 onInput={this.handleInput}
                 onKeyDown={this.handleKeyDown}
                 spellCheck={false}
