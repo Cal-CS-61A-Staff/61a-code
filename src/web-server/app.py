@@ -223,7 +223,7 @@ def share():
     with connect_db() as db:
         link = "".join(random.sample(words, 1)[0].title() for _ in range(3))
         db("INSERT INTO studentLinks VALUES (?, ?, ?)", [link, file_name, file_content])
-    return "code.cs61a.org/home/" + link
+    return "code.cs61a.org/" + link
 
 
 def create_oauth_client(app):
