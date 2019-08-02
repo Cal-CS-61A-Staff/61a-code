@@ -5,12 +5,12 @@ function ShareDialog(props) {
     return (
         <div className="modalCol">
             <p> Share the following link with course staff to let us access your code. </p>
-            <p> It is always safe to post this link on Piazza publicly. </p>
+            {/* <p> It is always safe to post this link on Piazza publicly. </p> */}
             <input className="fileNameField" value={props.publicLink} />
             <button className="fileNameSubmitBtn" type="button"> Copy </button>
 
             <p />
-            <br />
+            {/*<br />
             <p>
                 Share the following link to let
                 {" "}
@@ -26,7 +26,7 @@ function ShareDialog(props) {
                 share this link with other students.
             </p>
             <input className="fileNameField" value={props.privateLink} />
-            <button className="fileNameSubmitBtn" type="button"> Copy </button>
+            <button className="fileNameSubmitBtn" type="button"> Copy </button> */}
         </div>
     );
 }

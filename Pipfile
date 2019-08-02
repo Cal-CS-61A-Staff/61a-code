@@ -7,6 +7,7 @@ verify_ssl = true
 
 [packages]
 black = "*"
+english-words = "*"
 flask = "*"
 requests = "*"
 rauth = "*"
