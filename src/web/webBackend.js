@@ -54,7 +54,7 @@ function receive(arg) {
         } else if (arg.type === SHOW_ERROR_DIALOG) {
             showErrorDialog(arg.title, arg.message);
         } else if (arg.type === SHOW_SHARE_DIALOG) {
-            showShareDialog(arg.key);
+            showShareDialog(arg.key, arg.name, arg.contents);
         } else if (arg.type === START_CONSOLE) {
             startConsole(arg.key);
         } else {

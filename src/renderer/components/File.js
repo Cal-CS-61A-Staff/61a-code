@@ -203,7 +203,7 @@ export default class File extends React.Component {
         const ret = await sendNoInteract({
             type: SHOW_SHARE_DIALOG,
             contents: savedText,
-            hint: this.state.name,
+            name: this.state.name,
         });
         if (ret.success) {
             this.setState({
