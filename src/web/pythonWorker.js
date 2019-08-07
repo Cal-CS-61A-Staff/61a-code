@@ -72,7 +72,7 @@ function initialize() {
     self.blockingInput = { wait: blockingInput };
     __BRYTHON__.brython();
     __BRYTHON__.idb_open();
-    __BRYTHON__.brython_path = "./static/brython/";
+    __BRYTHON__.brython_path = "/static/brython/";
 }
 
 function initializePython() {

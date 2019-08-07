@@ -71,7 +71,7 @@ module.exports = {
         new HtmlWebpackTagsPlugin({ tags: ["static/pace/pace.min.js", "static/pace/pace.css"], append: false }),
         new webpack.DefinePlugin({
             ELECTRON: false,
-            __static: JSON.stringify("./static"),
+            __static: JSON.stringify("/static"),
         }),
         new MonacoWebpackPlugin({
             languages: ["python", "scheme", "sql"],
