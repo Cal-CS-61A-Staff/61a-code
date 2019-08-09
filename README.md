@@ -1,5 +1,7 @@
 # 61A Editor
 
+Try the production version at https://code.cs61a.org, and the development version at https://editor.pythonanywhere.com!
+
 ## Web Editor
 In the releases, download the latest `web.zip` file, activate the pipenv, and run `app.py` to start a Flask server. Alternatively, run
 ```
