@@ -36,7 +36,7 @@ function injectScript(src) {
         if (ELECTRON) {
             script.src = uriFromPath(path.join(__static, src));
         } else {
-            script.src = `./${path.join(__static, src)}`;
+            script.src = path.join(__static, src);
         }
         script.async = false;
         document.body.appendChild(script);
