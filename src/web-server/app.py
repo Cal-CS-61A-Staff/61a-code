@@ -87,7 +87,7 @@ def load_file(path):
         response.set_cookie(COOKIE_SHORTLINK_REDIRECT, value=path)
         return response
     elif raw is NOT_FOUND:
-        return app.send_static_file(path)
+        return app.send_static_file(path.replace("//", "/"))
     elif raw is NOT_AUTHORIZED:
         return "This file is only visible to staff."
 
