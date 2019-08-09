@@ -1,6 +1,5 @@
 .visualize-pane {
-    border: #ee7813;
-    border-style: dashed;
+    border: dashed #ee7813;
 }
 
 .container {
@@ -8,7 +7,7 @@
     width: 100%;
 }
 
-.out-table > th, tr {
+.out-table > th, .out-table > tr {
     border: 1px solid white;
     border-collapse: collapse;
     color: white;
