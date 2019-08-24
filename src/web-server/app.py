@@ -11,7 +11,16 @@ from multiprocessing import Process, Queue
 import black
 import requests
 from english_words import english_words_set as words  # list of words to generate links
-from flask import Flask, jsonify, make_response, redirect, request, session, url_for
+from flask import (
+    Flask,
+    jsonify,
+    make_response,
+    redirect,
+    request,
+    session,
+    url_for,
+    send_from_directory,
+)
 from flask_oauthlib.client import OAuth
 from werkzeug import security
 
@@ -29,7 +38,7 @@ CSV_AUTHORIZED_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84Nd
 
 CONSUMER_KEY = "61a-web-repl"
 
-app = Flask(__name__, static_url_path="", static_folder="")
+app = Flask(__name__, static_url_path="/static/", static_folder="static")
 app.secret_key = SECRET
 
 ServerFile = namedtuple(
@@ -71,10 +80,6 @@ def root():
 
 @app.route("/<path>/")
 def load_file(path):
-    filename = os.path.basename(path)
-    if filename.startswith("IGNORE"):
-        return None
-
     raw = load_shortlink_file(path)
 
     if raw is NOT_LOGGED_IN:
@@ -82,7 +87,7 @@ def load_file(path):
         response.set_cookie(COOKIE_SHORTLINK_REDIRECT, value=path)
         return response
     elif raw is NOT_FOUND:
-        return app.send_static_file(path.replace("//", "/"))
+        return send_from_directory("static", path.replace("//", "/"))
     elif raw is NOT_AUTHORIZED:
         return "This file is only visible to staff."
 

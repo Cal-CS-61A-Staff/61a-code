@@ -13,8 +13,8 @@ module.exports = {
         webConsoleWorker: "./src/web/webConsole/webConsoleWorker.js",
     },
     output: {
-        filename: "[name].js",
-        path: path.resolve(__dirname, "dist/web"),
+        filename: "static/[name].js",
+        path: path.resolve(__dirname, "dist/web/"),
         globalObject: "this", // workaround for HMR, https://github.com/webpack/webpack/issues/6642
         publicPath: "/",
     },
@@ -67,6 +67,7 @@ module.exports = {
             title: "61A Code",
             excludeChunks: ["pythonWorker", "webConsoleWorker", "sqlWorker"],
             favicon: "./static/favicon.ico",
+            filename: "./static/index.html",
         }),
         new HtmlWebpackTagsPlugin({ tags: ["static/pace/pace.min.js", "static/pace/pace.css"], append: false }),
         new webpack.DefinePlugin({
@@ -74,6 +75,7 @@ module.exports = {
             __static: JSON.stringify("/static"),
         }),
         new MonacoWebpackPlugin({
+            output: "./static",
             languages: ["python", "scheme", "sql"],
         }),
         new webpack.ProvidePlugin({
