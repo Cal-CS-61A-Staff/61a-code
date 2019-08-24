@@ -11,53 +11,57 @@
     <collation id="3" parent="1" name="BINARY"/>
     <collation id="4" parent="1" name="NOCASE"/>
     <collation id="5" parent="1" name="RTRIM"/>
-    <table id="6" parent="2" name="links"/>
-    <table id="7" parent="2" name="sqlite_master">
+    <table id="6" parent="2" name="authorized"/>
+    <table id="7" parent="2" name="links"/>
+    <table id="8" parent="2" name="sqlite_master">
       <System>1</System>
     </table>
-    <table id="8" parent="2" name="studentLinks"/>
-    <column id="9" parent="6" name="short_link">
+    <table id="9" parent="2" name="studentLinks"/>
+    <column id="10" parent="6" name="email">
       <Position>1</Position>
     </column>
-    <column id="10" parent="6" name="url">
+    <column id="11" parent="7" name="short_link">
+      <Position>1</Position>
+    </column>
+    <column id="12" parent="7" name="url">
       <Position>2</Position>
     </column>
-    <column id="11" parent="6" name="data">
+    <column id="13" parent="7" name="data">
       <Position>3</Position>
     </column>
-    <column id="12" parent="6" name="full_name">
+    <column id="14" parent="7" name="full_name">
       <Position>4</Position>
     </column>
-    <column id="13" parent="6" name="discoverable">
+    <column id="15" parent="7" name="discoverable">
       <Position>5</Position>
     </column>
-    <column id="14" parent="7" name="type">
+    <column id="16" parent="8" name="type">
       <Position>1</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="15" parent="7" name="name">
+    <column id="17" parent="8" name="name">
       <Position>2</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="16" parent="7" name="tbl_name">
+    <column id="18" parent="8" name="tbl_name">
       <Position>3</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="17" parent="7" name="rootpage">
+    <column id="19" parent="8" name="rootpage">
       <Position>4</Position>
       <DataType>int|0s</DataType>
     </column>
-    <column id="18" parent="7" name="sql">
+    <column id="20" parent="8" name="sql">
       <Position>5</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="19" parent="8" name="short_link">
+    <column id="21" parent="9" name="short_link">
       <Position>1</Position>
     </column>
-    <column id="20" parent="8" name="file_name">
+    <column id="22" parent="9" name="file_name">
       <Position>2</Position>
     </column>
-    <column id="21" parent="8" name="file_content">
+    <column id="23" parent="9" name="file_content">
       <Position>3</Position>
     </column>
   </database-model>

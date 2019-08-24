@@ -19,10 +19,13 @@ from IGNORE_scheme_debug import Buffer, debug_eval, scheme_read, tokenize_lines
 from IGNORE_secrets import SECRET
 from formatter import scm_reformat
 
-CSV = (
-    "https://docs.google.com/spreadsheets/u/1/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI/export?format=csv&id=1"
-    "-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0 "
+CSV_ROOT = "https://docs.google.com/spreadsheets/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI"
+
+CSV_SHORTLINKS_SUFFIX = (
+    "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0"
 )
+
+CSV_AUTHORIZED_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=1240767129"
 
 CONSUMER_KEY = "61a-web-repl"
 
@@ -124,7 +127,8 @@ def load_shortlink_file(path):
                 else:
                     return NOT_AUTHORIZED
 
-            except Exception:
+            except Exception as e:
+                print(e)
                 return NOT_LOGGED_IN
 
 
@@ -156,8 +160,9 @@ def black_proxy():
 
 @app.route("/api/_refresh")
 def refresh():
-    response = requests.get(CSV)
-    parsed = reader(response.text.split("\n"))
+    # refresh shortlinks
+    response = requests.get(CSV_ROOT + CSV_SHORTLINKS_SUFFIX)
+    parsed = csv.reader(response.text.split("\n"))
     next(parsed)  # discard headers
     all_files = []
     for line in parsed:
@@ -171,7 +176,26 @@ def refresh():
         db("CREATE TABLE links (short_link, url, data, full_name, discoverable)")
         db("INSERT INTO links VALUES (?, ?, ?, ?, ?)", all_files)
 
-    return jsonify(all_files)
+    # refresh authorized staff
+    response = requests.get(CSV_ROOT + CSV_AUTHORIZED_SUFFIX)
+    parsed = csv.reader(response.text.split("\n"))
+    next(parsed)  # discard headers
+    authorized = []
+    for line in parsed:
+        email, *_ = line
+        authorized.append([email])
+
+    with connect_db() as db:
+        db("DROP TABLE IF EXISTS authorized")
+        db("CREATE TABLE authorized (email)")
+        db("INSERT INTO authorized VALUES (?)", authorized)
+
+    return jsonify({"files": all_files, "authorized": authorized})
+
+
+@app.route("/api/_registry")
+def registry():
+    return redirect(CSV_ROOT)
 
 
 @app.route("/api/scm_debug", methods=["POST"])
@@ -210,7 +234,12 @@ def scm_worker(code, queue):
 def check_auth():
     ret = remote.get("user", token=session["dev_token"])
     email = ret.data["data"]["email"]
-    return email in STAFF_EMAILS
+    with connect_db() as db:
+        authorized = [
+            prefix + "@berkeley.edu"
+            for (prefix, *_) in db("SELECT * FROM authorized").fetchall()
+        ]
+    return email in authorized
 
 
 @app.route("/api/share", methods=["POST"])
