@@ -29,14 +29,6 @@ CSV_AUTHORIZED_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84Nd
 
 CONSUMER_KEY = "61a-web-repl"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STAFF_EMAIL_PATH = os.path.join(BASE_DIR, "staff_emails.csv")
-
-with open(STAFF_EMAIL_PATH) as f:
-    reader = csv.reader(f)
-    next(reader)
-    STAFF_EMAILS = set(x[0] for x in reader)
-
 app = Flask(__name__, static_url_path="", static_folder="")
 app.secret_key = SECRET
 
