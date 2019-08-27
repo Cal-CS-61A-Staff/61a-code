@@ -18,7 +18,7 @@
       <excludeFolder url="file://$MODULE_DIR$/static/python/pytutor" />
       <excludeFolder url="file://$MODULE_DIR$/static/scheme/formatter" />
     </content>
-    <orderEntry type="jdk" jdkName="Pipenv (new-electron-webpack-project)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.6" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">

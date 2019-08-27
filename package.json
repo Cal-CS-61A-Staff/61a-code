@@ -17,7 +17,7 @@
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
     "web-dev": "webpack-dev-server --hot --open --config webpack.web.config.js --mode development",
     "web-dist": "webpack --config webpack.web.config.js --mode production",
-    "web-deploy": "rsync -avz -e 'ssh' dist/web editor@ssh.pythonanywhere.com:/home/editor/61a-editor/",
+    "web-deploy": "cd dist/web/ && rm -rf .git && git init && git add -A && git commit -m \"init\" && git remote add dokku dokku@apps.cs61a.org:code && git push --force dokku master",
     "size-profile": "webpack --config webpack.size.config.js --mode production"
   },
   "dependencies": {

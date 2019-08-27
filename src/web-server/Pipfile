@@ -10,8 +10,10 @@ black = "*"
 english-words = "*"
 flask = "*"
 requests = "*"
-rauth = "*"
 gunicorn = "*"
+flask-oauthlib = "*"
+
+requests-oauthlib = "<1.2.0"
 
 [requires]
 python_version = "3.6"

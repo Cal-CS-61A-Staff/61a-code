@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e0b94b39-2e24-4bb0-905d-3ba007c337d6" name="Default Changelist" comment="">
+    <list default="true" id="e0b94b39-2e24-4bb0-905d-3ba007c337d6" name="Default Changelist" comment="build: updated the deployment process">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/new-electron-webpack-project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/new-electron-webpack-project.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web-server/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/src/web-server/Pipfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web-server/Pipfile.lock" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/web-server/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/web-server/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/web-server/shortlinks.db" beforeDir="false" afterPath="$PROJECT_DIR$/src/web-server/shortlinks.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webpack.web.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.web.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web-server/staff_emails.csv" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/dist/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,7 +23,7 @@
     <SUITE FILE_PATH="coverage/new_electron_webpack_project$Doctests_in_scheme_debug.coverage" NAME="Doctests in scheme_debug Coverage Results" MODIFIED="1562144185533" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/web-server" />
     <SUITE FILE_PATH="coverage/new_electron_webpack_project$scheme_debug.coverage" NAME="scheme_debug Coverage Results" MODIFIED="1562144210280" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/web-server" />
     <SUITE FILE_PATH="coverage/new_electron_webpack_project$debugging.coverage" NAME="debugging Coverage Results" MODIFIED="1560731676482" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/static/scheme/schemeDebugger" />
-    <SUITE FILE_PATH="coverage/new_electron_webpack_project$app__1_.coverage" NAME="app (1) Coverage Results" MODIFIED="1566622350340" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/dist/web" />
+    <SUITE FILE_PATH="coverage/new_electron_webpack_project$app__1_.coverage" NAME="app (1) Coverage Results" MODIFIED="1566646566102" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/dist/web" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -40,17 +44,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/webpack.web.config.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
+            <state relative-caret-position="1207">
               <caret line="71" column="60" selection-start-line="71" selection-start-column="60" selection-end-line="71" selection-end-column="60" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dist/web/app.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="209">
-              <caret line="77" column="24" selection-end-line="315" />
             </state>
           </provider>
         </entry>
@@ -58,7 +53,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/renderer/components/Editor.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-600">
+            <state>
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
               </folding>
@@ -69,8 +64,38 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="641">
-              <caret line="105" column="27" lean-forward="true" selection-start-line="105" selection-start-column="27" selection-end-line="105" selection-end-column="27" />
+            <state relative-caret-position="332">
+              <caret line="19" column="181" selection-start-line="19" selection-start-column="181" selection-end-line="19" selection-end-column="181" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/web-server/Pipfile">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/anaconda3/lib/python3.6/site-packages/pipenv/utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="493">
+              <caret line="479" selection-start-line="479" selection-end-line="479" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/web-server/app.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="206">
+              <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="96" selection-end-column="53" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -78,7 +103,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/renderer/components/ShareDialog.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
+            <state relative-caret-position="34">
               <caret line="3" column="29" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
@@ -90,29 +115,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/renderer/style.global.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
+            <state relative-caret-position="2176">
               <caret line="128" column="18" selection-start-line="128" selection-start-column="1" selection-end-line="128" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/web-server/app.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="80">
-              <caret line="288" column="61" lean-forward="true" selection-start-line="288" selection-start-column="61" selection-end-line="288" selection-end-column="61" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/renderer/index.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="714">
-              <caret line="48" column="17" selection-start-line="48" selection-start-column="17" selection-end-line="48" selection-end-column="17" />
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -196,7 +200,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/renderer/style.global.css" />
         <option value="$PROJECT_DIR$/src/renderer/components/Output.js" />
         <option value="$PROJECT_DIR$/src/renderer/components/StdinElem.js" />
         <option value="$PROJECT_DIR$/src/languages/python/web/web_console.py" />
@@ -241,20 +244,20 @@
         <option value="$PROJECT_DIR$/src/languages/sql/web/sqlWorker.js" />
         <option value="$PROJECT_DIR$/src/languages/sql/sqlStyle.css" />
         <option value="$PROJECT_DIR$/src/web/pythonWorker.js" />
-        <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/src/renderer/index.js" />
         <option value="$PROJECT_DIR$/src/renderer/components/ShareDialog.js" />
         <option value="$PROJECT_DIR$/webpack.web.config.js" />
         <option value="$PROJECT_DIR$/dist/web/app.py" />
         <option value="$PROJECT_DIR$/src/web-server/app.py" />
+        <option value="$PROJECT_DIR$/package.json" />
+        <option value="$PROJECT_DIR$/src/web-server/Pipfile" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1720" />
     <option name="y" value="23" />
     <option name="width" value="1720" />
-    <option name="height" value="1345" />
+    <option name="height" value="1346" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -391,10 +394,6 @@
               <item name="new-electron-webpack-project" type="462c0819:PsiDirectoryNode" />
               <item name="static" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="new-electron-webpack-project" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -434,7 +433,7 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="settings.editor.selected.configurable" value="web.server" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
   </component>
   <component name="RecentsManager">
@@ -521,6 +520,9 @@
       <module name="new-electron-webpack-project" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/web-server" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -608,14 +610,8 @@
       <workItem from="1565747864715" duration="538000" />
       <workItem from="1565953034586" duration="89000" />
       <workItem from="1566013589887" duration="14000" />
-      <workItem from="1566618589515" duration="3822000" />
-    </task>
-    <task id="LOCAL-00045" summary="chore: Incremented version number.">
-      <created>1561510237636</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1561510237636</updated>
+      <workItem from="1566618589515" duration="8356000" />
+      <workItem from="1566865595334" duration="4157000" />
     </task>
     <task id="LOCAL-00046" summary="chore: messing with the release config">
       <created>1561510715191</created>
@@ -953,7 +949,14 @@
       <option name="project" value="LOCAL" />
       <updated>1566620953108</updated>
     </task>
-    <option name="localTasksCounter" value="94" />
+    <task id="LOCAL-00094" summary="build: updated the deployment process">
+      <created>1566622551876</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1566622551876</updated>
+    </task>
+    <option name="localTasksCounter" value="95" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -962,7 +965,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="471769000" />
+    <option name="totallyTimeSpent" value="480460000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -974,17 +977,17 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1720" y="23" width="1720" height="1345" extended-state="0" />
+    <frame x="0" y="23" width="1720" height="1346" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24164678" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.50477326" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Database Console" order="0" weight="0.32933652" />
       <window_info anchor="bottom" id="File Transfer" order="1" sideWeight="0.49164677" weight="0.22665602" />
       <window_info anchor="bottom" id="Message" order="2" />
       <window_info anchor="bottom" id="Find" order="3" sideWeight="0.49940333" weight="0.32933652" />
-      <window_info anchor="bottom" id="Run" order="4" sideWeight="0.4868735" visible="true" weight="0.5051876" />
+      <window_info anchor="bottom" id="Run" order="4" sideWeight="0.4868735" weight="0.7326389" />
       <window_info anchor="bottom" id="Debug" order="5" weight="0.3988809" />
       <window_info anchor="bottom" id="Cvs" order="6" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="7" weight="0.4" />
@@ -994,7 +997,7 @@
       <window_info anchor="bottom" id="TypeScript" order="11" weight="0.32933652" />
       <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.50358" side_tool="true" weight="0.22426178" />
       <window_info anchor="bottom" id="Version Control" order="13" sideWeight="0.49761337" weight="0.32801276" />
-      <window_info anchor="bottom" id="Terminal" order="14" sideWeight="0.48448688" weight="0.28810853" />
+      <window_info anchor="bottom" id="Terminal" order="14" sideWeight="0.48448688" visible="true" weight="0.6275917" />
       <window_info anchor="bottom" id="Python Console" order="15" sideWeight="0.49642006" weight="0.37110934" />
       <window_info anchor="bottom" id="Messages" order="16" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -1060,7 +1063,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix: small UI tweaks" />
     <MESSAGE value="fix: hide debug info in py env diagrams" />
     <MESSAGE value="feat: add loading indicator" />
     <MESSAGE value="fix: fixed small glitches in visualizing promises" />
@@ -1085,37 +1087,10 @@
     <MESSAGE value="build: made it work on MacOS to make local testing easier" />
     <MESSAGE value="feat: load authorized users from the csv" />
     <MESSAGE value="feat: made shortlink &quot;copy&quot; button work" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: made shortlink &quot;copy&quot; button work" />
+    <MESSAGE value="build: updated the deployment process" />
+    <option name="LAST_COMMIT_MESSAGE" value="build: updated the deployment process" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/languages/sql/web/execution.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1031">
-          <caret line="88" column="43" selection-start-line="88" selection-start-column="35" selection-end-line="88" selection-end-column="43" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-            <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderer/components/File.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-825">
-          <caret line="16" column="12" lean-forward="true" selection-start-line="16" selection-start-column="12" selection-end-line="16" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderer/components/OutputElem.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="19" column="19" selection-start-line="19" selection-start-column="19" selection-end-line="19" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/renderer/components/StdoutElem.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
@@ -1264,13 +1239,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/web-server/staff_emails.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="22" selection-start-line="2" selection-start-column="22" selection-end-line="2" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/web-server/staff_emails.csv" />
     <entry file="das://bfcf325c-89a0-47f4-8887-fa2ab46585cc/schema/main/table/studentLinks" />
     <entry file="das://11d0e3b9-f7c1-4102-9385-d22d36ba1263/schema/main/table/studentLinks" />
     <entry file="file://$PROJECT_DIR$/src/languages/scheme/web/communication.js">
@@ -1301,13 +1270,6 @@
           <folding>
             <element signature="e#0#28#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dist/web/staff_emails.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="25" selection-start-line="1" selection-start-column="25" selection-end-line="1" selection-end-column="25" />
         </state>
       </provider>
     </entry>
@@ -1356,10 +1318,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dist/web/main.js">
+    <entry file="file://$PROJECT_DIR$/dist/web/main.js" />
+    <entry file="file://$PROJECT_DIR$/dist/web/Procfile">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dist/web/IGNORE_scheme_debug.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dist/web/IGNORE_secrets.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dist/web/staff_emails.csv" />
+    <entry file="file://$PROJECT_DIR$/dist/web/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64141">
-          <caret line="85" column="16275" selection-start-line="85" selection-start-column="16266" selection-end-line="85" selection-end-column="16275" />
+        <state relative-caret-position="170">
+          <caret line="38" column="29" lean-forward="true" selection-start-line="38" selection-start-column="29" selection-end-line="38" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webpack.web.config.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1207">
+          <caret line="71" column="60" selection-start-line="71" selection-start-column="60" selection-end-line="71" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/renderer/components/Editor.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/renderer/components/ShareDialog.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="3" column="29" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/renderer/style.global.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2176">
+          <caret line="128" column="18" selection-start-line="128" selection-start-column="1" selection-end-line="128" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/web-server/IGNORE_secrets.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="6" selection-start-column="6" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -1370,76 +1383,40 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderer/style.global.css">
+    <entry file="file://$PROJECT_DIR$/package.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="128" column="18" selection-start-line="128" selection-start-column="1" selection-end-line="128" selection-end-column="18" />
+        <state relative-caret-position="332">
+          <caret line="19" column="181" selection-start-line="19" selection-start-column="181" selection-end-line="19" selection-end-column="181" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderer/components/ShareDialog.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="29" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dist/web/Procfile">
+    <entry file="file://$PROJECT_DIR$/src/web-server/Procfile">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/dist/web/Pipfile">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/dist/web/IGNORE_scheme_debug.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dist/web/IGNORE_secrets.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/web-server/IGNORE_secrets.py">
+    <entry file="file://$PROJECT_DIR$/src/web-server/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="6" selection-start-column="6" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="641">
-          <caret line="105" column="27" lean-forward="true" selection-start-line="105" selection-start-column="27" selection-end-line="105" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderer/components/Editor.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-600">
+        <state relative-caret-position="206">
+          <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="96" selection-end-column="53" />
           <folding>
-            <element signature="e#0#26#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/webpack.web.config.js">
+    <entry file="file://$USER_HOME$/anaconda3/lib/python3.6/site-packages/pipenv/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="71" column="60" selection-start-line="71" selection-start-column="60" selection-end-line="71" selection-end-column="60" />
+        <state relative-caret-position="493">
+          <caret line="479" selection-start-line="479" selection-end-line="479" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dist/web/app.py">
+    <entry file="file://$PROJECT_DIR$/src/web-server/Pipfile">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="77" column="24" selection-end-line="315" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/web-server/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="80">
-          <caret line="288" column="61" lean-forward="true" selection-start-line="288" selection-start-column="61" selection-end-line="288" selection-end-column="61" />
+        <state relative-caret-position="255">
+          <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
         </state>
       </provider>
     </entry>

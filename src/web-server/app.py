@@ -1,6 +1,5 @@
 import csv
 import json
-import os
 import random
 import sqlite3
 import urllib.parse
