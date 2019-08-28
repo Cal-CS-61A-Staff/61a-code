@@ -20,7 +20,7 @@ module.exports = {
     },
     devtool: "source-map",
     devServer: {
-        contentBase: ".",
+        contentBase: path.resolve(__dirname, "dist/web/static/"),
         proxy: {
             "/api": {
                 target: "http://localhost:5000",
