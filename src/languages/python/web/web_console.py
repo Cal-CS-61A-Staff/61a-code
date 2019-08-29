@@ -107,7 +107,7 @@ class Trace:
         for i in range(1, len(lines), 2):
             if __file__ in lines[i]:
                 continue
-            stripped += lines[i: i + 2]
+            stripped += lines[i : i + 2]
         return "\n".join(stripped)
 
 
@@ -126,7 +126,7 @@ def syntax_error(args):
     flush()
 
 
-OUT_BUFFER = ''
+OUT_BUFFER = ""
 src = ""
 
 
@@ -140,7 +140,7 @@ def flush():
     global OUT_BUFFER, src
     stdout.write(OUT_BUFFER)
     src += OUT_BUFFER
-    OUT_BUFFER = ''
+    OUT_BUFFER = ""
 
 
 def err(data):
@@ -167,7 +167,9 @@ def json_repr(elem):
     elif isinstance(elem, str):
         return '"' + repr(elem)[1:-1] + '"'
     elif isinstance(elem, dict):
-        key_val_reprs = [json_repr(key) + ": " + json_repr(val) for key, val in elem.items()]
+        key_val_reprs = [
+            json_repr(key) + ": " + json_repr(val) for key, val in elem.items()
+        ]
         return "{" + ", ".join(key_val_reprs) + "}"
     elif isinstance(elem, bool):
         if elem:
@@ -250,17 +252,28 @@ def input(prompt=""):
     return browser.self.blockingInput.wait()
 
 
+old_open = open
+
+
+def open(file, *args, **kwargs):
+    file = "/api/load_file/" + file
+    return old_open(file, *args, **kwargs)
+
+
 # execution namespace
-editor_ns = {'credits': credits,
-             'copyright': copyright,
-             'license': license,
-             'autodraw': autodraw,
-             'disable_autodraw': disable_autodraw,
-             'draw': draw,
-             'visualize': visualize,
-             'editor': editor,
-             'input': input,
-             '__name__': '__main__'}
+editor_ns = {
+    "credits": credits,
+    "copyright": copyright,
+    "license": license,
+    "autodraw": autodraw,
+    "disable_autodraw": disable_autodraw,
+    "draw": draw,
+    "visualize": visualize,
+    "editor": editor,
+    "input": input,
+    "open": open,
+    "__name__": "__main__",
+}
 
 firstLine = True
 
@@ -288,42 +301,43 @@ def handleInput(line):
     src += line[:-1]
 
     if _status == "main":
-        current_line = src[src.rfind('>>>') + 4:]
+        current_line = src[src.rfind(">>>") + 4 :]
         src = ">>> " + current_line
     elif _status == "3string":
-        current_line = src[src.rfind('>>>') + 4:]
+        current_line = src[src.rfind(">>>") + 4 :]
         src = ">>> " + current_line
-        current_line = current_line.replace('\n... ', '\n')
+        current_line = current_line.replace("\n... ", "\n")
     else:
-        current_line = src[src.rfind('...') + 4:]
+        current_line = src[src.rfind("...") + 4 :]
 
     src += "\n"
 
-    if _status == 'main' and not current_line.strip():
-        err('>>> ')
+    if _status == "main" and not current_line.strip():
+        err(">>> ")
         return
 
     if _status == "main" or _status == "3string":
         try:
-            _ = editor_ns['_'] = eval(current_line, editor_ns)
+            _ = editor_ns["_"] = eval(current_line, editor_ns)
             record_exec(current_line, False)
             flush()
             if _ is not None:
-                write(repr(_) + '\n')
+                write(repr(_) + "\n")
                 if not atomic(_) and autodraw_active:
                     draw(_)
             flush()
-            err('>>> ')
+            err(">>> ")
             _status = "main"
         except IndentationError:
-            err('... ')
+            err("... ")
             _status = "block"
         except SyntaxError as msg:
-            if str(msg) == 'invalid syntax : triple string end not found' or \
-                    str(msg).startswith('Unbalanced bracket'):
-                err('... ')
+            if str(msg) == "invalid syntax : triple string end not found" or str(
+                msg
+            ).startswith("Unbalanced bracket"):
+                err("... ")
                 _status = "3string"
-            elif str(msg) == 'eval() argument must be an expression':
+            elif str(msg) == "eval() argument must be an expression":
                 try:
                     exec(current_line, editor_ns)
                     record_exec(current_line, False)
@@ -332,14 +346,14 @@ def handleInput(line):
                     if not isinstance(e, SyntaxError):
                         record_exec(current_line, True)
                 flush()
-                err('>>> ')
+                err(">>> ")
                 _status = "main"
-            elif str(msg) == 'decorator expects function':
-                err('... ')
+            elif str(msg) == "decorator expects function":
+                err("... ")
                 _status = "block"
             else:
                 syntax_error(msg.args)
-                err('>>> ')
+                err(">>> ")
                 _status = "main"
         except Exception as e:
             # the full traceback includes the call to eval(); to
@@ -348,14 +362,14 @@ def handleInput(line):
             if not isinstance(e, SyntaxError):
                 record_exec(current_line, True)
             print_tb()
-            err('>>> ')
+            err(">>> ")
             _status = "main"
     elif current_line == "":  # end of block
-        block = src[src.rfind('>>>') + 4:]
+        block = src[src.rfind(">>>") + 4 :]
         src = ">>> " + block
         block = block.splitlines()
         block = [block[0]] + [b[4:] for b in block[1:]]
-        block_src = '\n'.join(block)
+        block_src = "\n".join(block)
         # status must be set before executing code in globals()
         _status = "main"
         try:
@@ -368,9 +382,9 @@ def handleInput(line):
                 record_exec(block_src, True)
             print_tb()
         flush()
-        err('>>> ')
+        err(">>> ")
     else:
-        err('... ')
+        err("... ")
 
 
 browser.self.stdin.on(handleInput)

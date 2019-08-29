@@ -19,6 +19,7 @@ from flask import (
     session,
     url_for,
     send_from_directory,
+    abort,
 )
 from flask_oauthlib.client import OAuth
 from werkzeug import security
@@ -35,6 +36,12 @@ CSV_SHORTLINKS_SUFFIX = (
 
 CSV_AUTHORIZED_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=1240767129"
 
+
+CSV_STORED_FILES_SUFFIX = (
+    "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=169284641"
+)
+
+
 CONSUMER_KEY = "61a-web-repl"
 
 app = Flask(__name__, static_url_path="/static/", static_folder="static")
@@ -43,6 +50,8 @@ app.secret_key = SECRET
 ServerFile = namedtuple(
     "ServerFile", ["short_link", "full_name", "url", "data", "discoverable"]
 )
+
+RETURN_RAW = "RETURN_RAW"
 
 NOT_FOUND = "NOT_FOUND"
 NOT_AUTHORIZED = "NOT_AUTHORIZED"
@@ -85,10 +94,11 @@ def load_file(path):
         response = redirect(url_for("login"))
         response.set_cookie(COOKIE_SHORTLINK_REDIRECT, value=path)
         return response
-    elif raw is NOT_FOUND:
-        return send_from_directory("static", path.replace("//", "/"))
     elif raw is NOT_AUTHORIZED:
         return "This file is only visible to staff."
+
+    if raw is NOT_FOUND:
+        return send_from_directory("static", path.replace("//", "/"))
 
     data = bytes(
         json.dumps({"fileName": raw["full_name"], "data": raw["data"]}), "utf-8"
@@ -109,23 +119,33 @@ def load_shortlink_file(path):
         ret = db("SELECT * FROM links WHERE short_link=?;", [path]).fetchone()
         if ret is not None:
             return ServerFile(*ret)._asdict()
-        else:
-            try:
-                ret = db(
-                    "SELECT * FROM studentLinks WHERE short_link=?;", [path]
-                ).fetchone()
 
-                if ret is None:
-                    return NOT_FOUND
+        try:
+            ret = db(
+                "SELECT * FROM studentLinks WHERE short_link=?;", [path]
+            ).fetchone()
 
-                if check_auth():
-                    return ServerFile(ret[0], ret[1], "", ret[2], False)._asdict()
-                else:
-                    return NOT_AUTHORIZED
+            if ret is None:
+                return NOT_FOUND
 
-            except Exception as e:
-                print(e)
-                return NOT_LOGGED_IN
+            if check_auth():
+                return ServerFile(ret[0], ret[1], "", ret[2], False)._asdict()
+            else:
+                return NOT_AUTHORIZED
+
+        except Exception:
+            return NOT_LOGGED_IN
+
+
+@app.route("/api/load_file/<file_name>/")
+def load_stored_file(file_name):
+    with connect_db() as db:
+        out = db(
+            "SELECT * FROM stored_files WHERE file_name=?;", [file_name]
+        ).fetchone()
+        if out:
+            return out[1]
+    abort(404)
 
 
 @app.route("/api/pytutor", methods=["POST"])
@@ -186,7 +206,23 @@ def refresh():
         db("CREATE TABLE authorized (email)")
         db("INSERT INTO authorized VALUES (?)", authorized)
 
-    return jsonify({"files": all_files, "authorized": authorized})
+    # refresh stored files
+    with connect_db() as db:
+        response = requests.get(CSV_ROOT + CSV_STORED_FILES_SUFFIX)
+        parsed = csv.reader(response.text.split("\n"))
+        next(parsed)  # discard headers
+        stored_files = []
+        for line in parsed:
+            file_name, url, *_ = line
+            data = requests.get(url).text
+            stored_files.append([file_name, data])
+        db("DROP TABLE IF EXISTS stored_files")
+        db("CREATE TABLE stored_files (file_name, file_contents)")
+        db("INSERT INTO stored_files VALUES (?, ?)", stored_files)
+
+    return jsonify(
+        {"files": all_files, "authorized": authorized, "storedFiles": stored_files}
+    )
 
 
 @app.route("/api/_registry")
