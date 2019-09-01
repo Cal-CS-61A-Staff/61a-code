@@ -216,6 +216,7 @@ html {
     flex-shrink: 0;
     flex-grow: 0;
     margin: 2px;
+    padding: 0 10px 0 10px;
     color: white;
     text-align: center;
     font-family: "Source Sans Pro", sans-serif;

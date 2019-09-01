@@ -35,3 +35,5 @@ export const START_CONSOLE = "START_CONSOLE";
 
 export const CONSOLE_EDIT = "CONSOLE_EDIT";
 export const CONSOLE_RUN = "CONSOLE_RUN";
+
+export const MENU_HELP = "MENU_HELP";

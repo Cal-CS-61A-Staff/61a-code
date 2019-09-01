@@ -19,7 +19,7 @@ export default class MenuElem extends Component {
 
     render() {
         return (
-            <div onClick={this.handleClick} style={{ flexBasis: this.props.flexBasis }} className="menuElem">
+            <div onClick={this.handleClick} className="menuElem">
                 {this.props.name}
             </div>
         );

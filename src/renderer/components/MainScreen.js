@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import React from "react";
 import {
-    MENU_CLOSE_TAB,
+    MENU_CLOSE_TAB, MENU_HELP,
     MENU_NEW, MENU_NEW_CONSOLE, MENU_OPEN, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE, SHOW_OPEN_DIALOG,
 } from "../../common/communicationEnums.js";
 import NavBar from "./NavBar";
@@ -13,6 +13,7 @@ import File from "./File";
 import generateDebugTrace from "../../languages/python/utils/generateDebugTrace.js";
 import { sendNoInteract } from "../utils/communication.js";
 import Console from "./Console.js";
+import { openHelp } from "../utils/help.js";
 
 export default class MainScreen extends React.Component {
     constructor(props) {
@@ -38,6 +39,7 @@ export default class MainScreen extends React.Component {
                     [MENU_CLOSE_TAB]: this.closeTab,
                     [MENU_SHARE]: this.share,
                     [MENU_NEW_CONSOLE]: this.newConsole,
+                    [MENU_HELP]: openHelp,
                 }),
         };
 

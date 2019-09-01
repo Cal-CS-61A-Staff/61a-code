@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-    MENU_NEW, MENU_OPEN, MENU_NEW_CONSOLE, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE,
+    MENU_NEW, MENU_OPEN, MENU_NEW_CONSOLE, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE, MENU_HELP,
 } from "../../common/communicationEnums.js";
 import MenuElem from "./MenuElem.js";
 
@@ -12,10 +12,11 @@ export default function MenuBar() {
         { code: MENU_SAVE, name: "Save", shortcut: "mod+s" },
         { code: MENU_SAVE_AS, name: "Save As", shortcut: "mod+shift+s" },
         { code: MENU_SHARE, name: "Share", shortcut: "mod+shift+option+s" },
+        { code: MENU_HELP, name: "Help", shortcut: "f1" },
     ];
     const menuElems = menuOptions.map(
         // eslint-disable-next-line react/no-array-index-key
-        (elem, index) => <MenuElem key={index} flexBasis={60} {...elem} />,
+        (elem, index) => <MenuElem key={index} {...elem} />,
     );
     return (
         <div className="menuBar">
