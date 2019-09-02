@@ -220,9 +220,10 @@ def refresh():
         db("CREATE TABLE stored_files (file_name, file_contents)")
         db("INSERT INTO stored_files VALUES (?, ?)", stored_files)
 
-    return jsonify(
-        {"files": all_files, "authorized": authorized, "storedFiles": stored_files}
-    )
+    return "", 204
+    # return jsonify(
+    # {"files": all_files, "authorized": authorized, "storedFiles": stored_files}
+    # )
 
 
 @app.route("/api/_registry")
