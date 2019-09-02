@@ -12,8 +12,8 @@ flask = "*"
 requests = "*"
 gunicorn = "*"
 flask-oauthlib = "*"
-
 requests-oauthlib = "<1.2.0"
+mysql-connector-python = "*"
 
 [requires]
 python_version = "3.6"

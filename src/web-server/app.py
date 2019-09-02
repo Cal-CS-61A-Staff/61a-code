@@ -24,8 +24,10 @@ from flask import (
 from flask_oauthlib.client import OAuth
 from werkzeug import security
 
+import mysql.connector
+
 from IGNORE_scheme_debug import Buffer, debug_eval, scheme_read, tokenize_lines
-from IGNORE_secrets import SECRET
+from IGNORE_secrets import SECRET, USER, PASSWORD
 from formatter import scm_reformat
 
 CSV_ROOT = "https://docs.google.com/spreadsheets/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI"
@@ -44,6 +46,18 @@ CSV_STORED_FILES_SUFFIX = (
 
 CONSUMER_KEY = "61a-web-repl"
 
+NOT_FOUND = "NOT_FOUND"
+NOT_AUTHORIZED = "NOT_AUTHORIZED"
+NOT_LOGGED_IN = "NOT_LOGGED_IN"
+RETURN_RAW = "RETURN_RAW"
+
+COOKIE_FILE_LOAD = "load"
+COOKIE_SHORTLINK_REDIRECT = "shortlink"
+
+
+DATABASE = "61aCode"
+
+
 app = Flask(__name__, static_url_path="/static/", static_folder="static")
 app.secret_key = SECRET
 
@@ -51,19 +65,15 @@ ServerFile = namedtuple(
     "ServerFile", ["short_link", "full_name", "url", "data", "discoverable"]
 )
 
-RETURN_RAW = "RETURN_RAW"
-
-NOT_FOUND = "NOT_FOUND"
-NOT_AUTHORIZED = "NOT_AUTHORIZED"
-NOT_LOGGED_IN = "NOT_LOGGED_IN"
-
-COOKIE_FILE_LOAD = "load"
-COOKIE_SHORTLINK_REDIRECT = "shortlink"
-
 
 @contextmanager
 def connect_db():
-    conn = sqlite3.connect("shortlinks.db")
+    conn = mysql.connector.connect(
+        database=DATABASE,
+        user=USER,
+        passwd=PASSWORD,
+        auth_plugin="mysql_native_password",
+    )
     try:
 
         def db(*args):
@@ -116,13 +126,13 @@ def get_raw(path):
 
 def load_shortlink_file(path):
     with connect_db() as db:
-        ret = db("SELECT * FROM links WHERE short_link=?;", [path]).fetchone()
+        ret = db("SELECT * FROM links WHERE short_link=%s;", [path]).fetchone()
         if ret is not None:
             return ServerFile(*ret)._asdict()
 
         try:
             ret = db(
-                "SELECT * FROM studentLinks WHERE short_link=?;", [path]
+                "SELECT * FROM studentLinks WHERE short_link=%s;", [path]
             ).fetchone()
 
             if ret is None:
@@ -141,7 +151,7 @@ def load_shortlink_file(path):
 def load_stored_file(file_name):
     with connect_db() as db:
         out = db(
-            "SELECT * FROM stored_files WHERE file_name=?;", [file_name]
+            "SELECT * FROM stored_files WHERE file_name=%s;", [file_name]
         ).fetchone()
         if out:
             return out[1]
@@ -189,8 +199,8 @@ def refresh():
 
     with connect_db() as db:
         db("DROP TABLE IF EXISTS links")
-        db("CREATE TABLE links (short_link, url, data, full_name, discoverable)")
-        db("INSERT INTO links VALUES (?, ?, ?, ?, ?)", all_files)
+        db("CREATE TABLE links (short_link , url, data, full_name, discoverable)")
+        db("INSERT INTO links VALUES (%s, %s, %s, %s, %s)", all_files)
 
     # refresh authorized staff
     response = requests.get(CSV_ROOT + CSV_AUTHORIZED_SUFFIX)
@@ -204,7 +214,7 @@ def refresh():
     with connect_db() as db:
         db("DROP TABLE IF EXISTS authorized")
         db("CREATE TABLE authorized (email)")
-        db("INSERT INTO authorized VALUES (?)", authorized)
+        db("INSERT INTO authorized VALUES (%s)", authorized)
 
     # refresh stored files
     with connect_db() as db:
@@ -218,7 +228,7 @@ def refresh():
             stored_files.append([file_name, data])
         db("DROP TABLE IF EXISTS stored_files")
         db("CREATE TABLE stored_files (file_name, file_contents)")
-        db("INSERT INTO stored_files VALUES (?, ?)", stored_files)
+        db("INSERT INTO stored_files VALUES (%s, %s)", stored_files)
 
     return jsonify(
         {"files": all_files, "authorized": authorized, "storedFiles": stored_files}
