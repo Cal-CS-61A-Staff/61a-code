@@ -5,7 +5,7 @@ import sqlite3
 import urllib.parse
 from collections import namedtuple
 from contextlib import contextmanager
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, active_children
 
 import black
 import requests
@@ -36,11 +36,9 @@ CSV_SHORTLINKS_SUFFIX = (
 
 CSV_AUTHORIZED_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=1240767129"
 
-
 CSV_STORED_FILES_SUFFIX = (
     "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=169284641"
 )
-
 
 CONSUMER_KEY = "61a-web-repl"
 
@@ -175,6 +173,19 @@ def black_proxy():
 
 
 @app.route("/api/_refresh")
+def sync_refresh():
+    refresh()
+    return "", 204
+
+
+@app.route("/api/_async_refresh", methods=["POST"])
+def async_refresh():
+    active_children()  # kills zombies
+    p = Process(target=refresh)
+    p.start()
+    return "", 204
+
+
 def refresh():
     # refresh shortlinks
     response = requests.get(CSV_ROOT + CSV_SHORTLINKS_SUFFIX)
@@ -219,11 +230,6 @@ def refresh():
         db("DROP TABLE IF EXISTS stored_files")
         db("CREATE TABLE stored_files (file_name, file_contents)")
         db("INSERT INTO stored_files VALUES (?, ?)", stored_files)
-
-    return "", 204
-    # return jsonify(
-    # {"files": all_files, "authorized": authorized, "storedFiles": stored_files}
-    # )
 
 
 @app.route("/api/_registry")
@@ -345,7 +351,6 @@ def create_oauth_client(app):
 
 
 remote = create_oauth_client(app)
-
 
 if __name__ == "__main__":
     app.run()
