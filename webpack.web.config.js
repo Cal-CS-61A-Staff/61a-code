@@ -68,6 +68,7 @@ module.exports = {
             excludeChunks: ["pythonWorker", "webConsoleWorker", "sqlWorker"],
             favicon: "./static/favicon.ico",
             filename: "./static/index.html",
+            template: "./build/index.html",
         }),
         new HtmlWebpackTagsPlugin({ tags: ["static/pace/pace.min.js", "static/pace/pace.css"], append: false }),
         new webpack.DefinePlugin({

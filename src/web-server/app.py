@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 import random
 import sqlite3
 import urllib.parse
@@ -13,13 +14,13 @@ from english_words import english_words_set as words  # list of words to generat
 from flask import (
     Flask,
     jsonify,
-    make_response,
     redirect,
     request,
     session,
     url_for,
     send_from_directory,
     abort,
+    render_template,
 )
 from flask_oauthlib.client import OAuth
 from werkzeug import security
@@ -42,7 +43,10 @@ CSV_STORED_FILES_SUFFIX = (
 
 CONSUMER_KEY = "61a-web-repl"
 
-app = Flask(__name__, static_url_path="/static/", static_folder="static")
+STATIC_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+
+app = Flask(__name__, template_folder=STATIC_FOLDER)
+
 app.secret_key = SECRET
 
 ServerFile = namedtuple(
@@ -55,7 +59,6 @@ NOT_FOUND = "NOT_FOUND"
 NOT_AUTHORIZED = "NOT_AUTHORIZED"
 NOT_LOGGED_IN = "NOT_LOGGED_IN"
 
-COOKIE_FILE_LOAD = "load"
 COOKIE_SHORTLINK_REDIRECT = "shortlink"
 
 
@@ -81,11 +84,12 @@ def connect_db():
 
 @app.route("/")
 def root():
-    return app.send_static_file("./index.html")
+    return render_template("index.html", initData={})
 
 
 @app.route("/<path>/")
 def load_file(path):
+    print(path)
     raw = load_shortlink_file(path)
 
     if raw is NOT_LOGGED_IN:
@@ -96,15 +100,11 @@ def load_file(path):
         return "This file is only visible to staff."
 
     if raw is NOT_FOUND:
-        return send_from_directory("static", path.replace("//", "/"))
+        return send_from_directory(STATIC_FOLDER, path.replace("//", "/"))
 
-    data = bytes(
-        json.dumps({"fileName": raw["full_name"], "data": raw["data"]}), "utf-8"
-    )
+    data = {"fileName": raw["full_name"], "data": raw["data"]}
 
-    response = make_response(redirect("/", code=302))
-    response.set_cookie(COOKIE_FILE_LOAD, value=data)
-    return response
+    return render_template("index.html", initData={"loadFile": data})
 
 
 @app.route("/<path>/raw")
@@ -175,7 +175,10 @@ def black_proxy():
 @app.route("/api/_refresh")
 def sync_refresh():
     refresh()
-    return "", 204
+    return (
+        "Success! All public shortlinks, members of staff, and stored files successfully updated!",
+        200,
+    )
 
 
 @app.route("/api/_async_refresh", methods=["POST"])

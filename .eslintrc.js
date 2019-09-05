@@ -17,6 +17,7 @@ module.exports = {
         __BRYTHON__: true,
         importScripts: true,
         SQL: true,
+        initData: true,
     },
     rules: {
         'import/no-unresolved': false,

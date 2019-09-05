@@ -4,7 +4,6 @@ if (!ELECTRON) {
     ({ hot } = require("react-hot-loader/root"));
 }
 import * as React from "react";
-import Cookies from "js-cookie";
 
 import LaunchScreen from "./LaunchScreen.js";
 import MainScreen from "./MainScreen.js";
@@ -15,16 +14,6 @@ if (!ELECTRON) {
 }
 import { sendNoInteract } from "../utils/communication.js";
 import { OPEN_FILE } from "../../common/communicationEnums.js";
-
-// https://stackoverflow.com/questions/22259779/flask-setting-json-in-a-cookie-and-decoding-it-on-the-client-in-javascript?lq=1
-function decodeFlaskCookie(val) {
-    if (val.indexOf("\\") === -1) {
-        return val; // not encoded
-    }
-    let out = val.replace(/\\"/g, "\"");
-    out = out.replace(/\\(\d{3})/g, (match, octal) => String.fromCharCode(parseInt(octal, 8)));
-    return out.replace(/\\\\/g, "\\");
-}
 
 class App extends React.Component {
     constructor(props) {
@@ -48,17 +37,15 @@ class App extends React.Component {
             });
         }
 
-        const shortFileLoad = Cookies.get("load");
-        Cookies.remove("load");
+        window.history.replaceState(false, "", "/");
 
-        if (shortFileLoad) {
-            console.log(decodeFlaskCookie(shortFileLoad));
-            const parsed = JSON.parse(decodeFlaskCookie(shortFileLoad));
+        const { loadFile } = initData;
+
+        if (loadFile) {
             this.handleFileCreate({
-                name: parsed.fileName,
+                name: loadFile.fileName,
                 location: null,
-                content: parsed.data,
-
+                content: loadFile.data,
             });
         }
     }
