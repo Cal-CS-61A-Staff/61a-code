@@ -29,7 +29,7 @@ class App extends React.Component {
         if (this.props.path) {
             sendNoInteract({
                 type: OPEN_FILE,
-                location: this.path,
+                location: this.props.path,
             }).then((value) => {
                 if (value.success) {
                     this.handleFileCreate(value.file);
@@ -39,14 +39,16 @@ class App extends React.Component {
 
         window.history.replaceState(false, "", "/");
 
-        const { loadFile } = initData;
+        if (!ELECTRON) {
+            const { loadFile } = initData;
 
-        if (loadFile) {
-            this.handleFileCreate({
-                name: loadFile.fileName,
-                location: null,
-                content: loadFile.data,
-            });
+            if (loadFile) {
+                this.handleFileCreate({
+                    name: loadFile.fileName,
+                    location: null,
+                    content: loadFile.data,
+                });
+            }
         }
     }
 
