@@ -39,7 +39,7 @@ class App extends React.Component {
 
         window.history.replaceState(false, "", "/");
 
-        if (!ELECTRON) {
+        if (!ELECTRON && window.initData) {
             const { loadFile } = initData;
 
             if (loadFile) {
