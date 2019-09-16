@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8"/>
     <title><%= htmlWebpackPlugin.options.title %></title>
-	  <script> const initData = {{ initData|tojson|safe }} </script>
+	  <script> var initData = {{ initData|tojson|safe }} </script>
   </head>
   <body>
   </body>
