@@ -59,6 +59,16 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
+class Tree:
+    def __init__(self, label, branches=[]):
+        assert all([isinstance(b, Tree) for b in branches])
+        self.label = label
+        self.branches = branches
+    
+    def __repr__(self):
+        if not self.branches:
+            return "Tree(" + str(self.label)+")"
+        return "Tree(" + str(self.label) + ", " + str(self.branches)+")"
 
 class Stream:
     def __init__(self, obj):
@@ -160,6 +170,7 @@ _status = "main"  # or "block" if typing inside a block
 autodraw_active = False
 
 
+# Converts whatever we want to draw into a json string
 def json_repr(elem):
     if isinstance(elem, list):
         elem_reprs = [json_repr(x) for x in elem]
@@ -182,6 +193,12 @@ def json_repr(elem):
         raise Exception("Unable to serialize object of type " + str(type(elem)))
 
 
+# !!!!!! THIS IS AN IMPORTANT FUNCTION !!!!!!!
+# basically, it writes an command to std.out, 
+# which is picked up by communications processes
+# (magic), and eventually given to OutputDrawElem.js in the renderer components.
+# Basically, we want this string to correspond to what we want to draw in the 
+# Output. 
 def wrap_debug(out):
     print("DRAW: " + json_repr(out))
 
@@ -207,7 +224,9 @@ def inline(elem):
     inline = int, bool, float, str, type(None)
     return isinstance(elem, inline)
 
-
+# this is the draw function that we need to worry about basically.
+# it adds appropriate annotations that we need for the front end 
+# svg library to display whatever we need to draw
 def draw(lst):
     heap = {}
 
@@ -261,6 +280,9 @@ def open(file, *args, **kwargs):
 
 
 # execution namespace
+# basically, this is a dictionary that python automatically checks
+# when calling eval(). If there is a corresponding command, in this
+# case, Tree, then it will default here. 
 editor_ns = {
     "credits": credits,
     "copyright": copyright,
@@ -270,6 +292,7 @@ editor_ns = {
     "draw": draw,
     "visualize": visualize,
     "editor": editor,
+    "Tree": Tree,
     "input": input,
     "open": open,
     "__name__": "__main__",
@@ -323,7 +346,11 @@ def handleInput(line):
             flush()
             if _ is not None:
                 write(repr(_) + "\n")
+                # This line is basically saying, if the the evaluated element is not
+                # a atomic element (int, str, bool, etc), and if autodraw is active,
+                # display a visual representation of the object.
                 if not atomic(_) and autodraw_active:
+                    # Draw this object.
                     draw(_)
             flush()
             err(">>> ")

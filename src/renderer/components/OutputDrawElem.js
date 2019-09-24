@@ -15,6 +15,7 @@ export default class OutputDrawElem extends React.PureComponent {
     draw(rawSVG) {
         const svg = SVG(rawSVG);
         svg.clear();
+        console.log(this.props);
 
         displayElem(0, 10, this.props.data[0], this.props.data[1], svg, 0, new Map(), "white");
 
