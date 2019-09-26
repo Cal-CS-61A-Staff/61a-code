@@ -48,32 +48,42 @@ function curvedArrow(container, x1, y1, x2, y2, color) {
 export function displayTree(data, container) {
 
     let indent_level = [0];
-    const fixed_depth_height = 60;
+    const fixed_depth_height = 100;
 
     function displayTreeWorker(tr, depth) {
         const label = tr[0]
         const branches = (tr.length > 1) ? tr[1] : [];
-
+        const x1 = indent_level[depth];
+        const y1 = depth * fixed_depth_height;
+        // circle
         container
             .circle(50)
-            .dx(indent_level[depth])
-            .dy(depth * fixed_depth_height)
+            .dx(x1)
+            .dy(y1)
             .stroke({ color: "white" , width: 2 })
             .fill("transparent")
             .back();
-
+        // label
+        container
+            .text(label)
+            .dx(x1 + 20)
+            .dy(y1 + 12)
+            .fill({ color: "white" })
+            .font("family", "Monaco, monospace").font("size", 14)
 
         indent_level[depth] += 60;
-
+        // if there are branches, recurse.
         if (branches.length > 0) {
             indent_level.push(0);
             for (let i = 0; i < branches.length; i++) {
+                const x2 = indent_level[depth+1] + 20;
+                const y2 = (depth+1)*fixed_depth_height + 12;
+                straightArrow(container, x1+25, y1+20, x2, y2, "white")
                 displayTreeWorker(branches[i], depth+1);
             }
         }
 
     }
-    console.log(data);
 
     displayTreeWorker(data[1], 0);
 }

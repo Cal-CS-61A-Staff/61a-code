@@ -265,6 +265,8 @@ def visualize():
 def editor():
     print("EDITOR: ")
 
+def is_leaf(t):
+    return t.is_leaf();
 
 def record_exec(code, wrap):
     if wrap:
@@ -304,6 +306,8 @@ editor_ns = {
     "visualize": visualize,
     "editor": editor,
     "Tree": Tree,
+    "tree": Tree,
+    "is_leaf": is_leaf,
     "input": input,
     "open": open,
     "__name__": "__main__",
