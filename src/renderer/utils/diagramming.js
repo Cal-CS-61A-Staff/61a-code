@@ -41,6 +41,18 @@ function straightArrow(container, x1, y1, x2, y2, color) {
         .stroke({ width: 2, color });
 }
 
+function branchArrow(container, x1, y1, x2, y2, color) {
+    container
+        .polygon("0,0 -10,5 -10,-5")
+        .fill(color)
+        .dx(x2).dy(y2)
+        .rotate(180 / Math.PI * Math.atan2(y2 - y1, x2 - x1), x2, y2);
+    const length = Math.hypot(x2 - x1, y2 - y1);
+    container
+        .line(x1, y1, x2 + (x1 - x2) / length * 5, y2 + (y1 - y2) / length * 5)
+        .stroke({ width: 2, color });
+}
+
 function curvedArrow(container, x1, y1, x2, y2, color) {
     straightArrow(container, x1, y1, x2, y2, color);
 }
@@ -48,7 +60,7 @@ function curvedArrow(container, x1, y1, x2, y2, color) {
 export function displayTree(data, container) {
 
     let indent_level = [0];
-    const fixed_depth_height = 100;
+    const fixed_depth_height = 80;
 
     function displayTreeWorker(tr, depth) {
         const label = tr[0]
@@ -71,14 +83,14 @@ export function displayTree(data, container) {
             .fill({ color: "white" })
             .font("family", "Monaco, monospace").font("size", 14)
 
-        indent_level[depth] += 60;
+        indent_level[depth] += 80;
         // if there are branches, recurse.
         if (branches.length > 0) {
             indent_level.push(0);
             for (let i = 0; i < branches.length; i++) {
-                const x2 = indent_level[depth+1] + 20;
-                const y2 = (depth+1)*fixed_depth_height + 12;
-                straightArrow(container, x1+25, y1+20, x2, y2, "white")
+                const x2 = indent_level[depth+1] + 25;
+                const y2 = (depth+1)*fixed_depth_height;
+                branchArrow(container, x1+25, y1+50, x2, y2, "white")
                 displayTreeWorker(branches[i], depth+1);
             }
         }
