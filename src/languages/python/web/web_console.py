@@ -60,10 +60,14 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 class Tree:
+
     def __init__(self, label, branches=[]):
         assert all([isinstance(b, Tree) for b in branches])
         self.label = label
         self.branches = branches
+
+    def is_leaf(self):
+        return not self.branches
     
     def __repr__(self):
         if not self.branches:
@@ -216,7 +220,7 @@ def disable_autodraw():
 
 
 def atomic(elem):
-    listlike = list, tuple
+    listlike = list, tuple, Tree
     return not isinstance(elem, listlike)
 
 
@@ -237,12 +241,19 @@ def draw(lst):
             heap[id(elem)] = None
             if atomic(elem):
                 val = ["atomic", ["inline", repr(elem)]]
+            elif isinstance(elem, Tree):
+                val = ["Tree", draw_tree(elem)]
             elif len(elem) == 0:
                 val = ["atomic", ["inline", "Empty list"]]
             else:
                 val = ["list", [draw_worker(x) for x in elem]]
             heap[id(elem)] = val
         return ["ref", id(elem)]
+
+    def draw_tree(tree):
+        if tree.is_leaf():
+            return [tree.label]
+        return [tree.label, [draw_tree(branch) for branch in tree.branches]]
 
     wrap_debug([draw_worker(lst), heap])
 

@@ -45,7 +45,40 @@ function curvedArrow(container, x1, y1, x2, y2, color) {
     straightArrow(container, x1, y1, x2, y2, color);
 }
 
-export default function displayElem(
+export function displayTree(data, container) {
+
+    let indent_level = [0];
+    const fixed_depth_height = 60;
+
+    function displayTreeWorker(tr, depth) {
+        const label = tr[0]
+        const branches = (tr.length > 1) ? tr[1] : [];
+
+        container
+            .circle(50)
+            .dx(indent_level[depth])
+            .dy(depth * fixed_depth_height)
+            .stroke({ color: "white" , width: 2 })
+            .fill("transparent")
+            .back();
+
+
+        indent_level[depth] += 60;
+
+        if (branches.length > 0) {
+            indent_level.push(0);
+            for (let i = 0; i < branches.length; i++) {
+                displayTreeWorker(branches[i], depth+1);
+            }
+        }
+
+    }
+    console.log(data);
+
+    displayTreeWorker(data[1], 0);
+}
+
+export function displayElem(
     x, y, id, allData, container, depth, cache, color, x1 = false, y1 = false,
 ) {
     if (id[0] === "ref") {

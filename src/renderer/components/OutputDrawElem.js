@@ -1,6 +1,6 @@
 import * as React from "react";
 import SVG from "svg.js";
-import displayElem from "../utils/diagramming.js";
+import { displayElem, displayTree } from "../utils/diagramming.js";
 
 export default class OutputDrawElem extends React.PureComponent {
     constructor(props) {
@@ -16,8 +16,16 @@ export default class OutputDrawElem extends React.PureComponent {
         const svg = SVG(rawSVG);
         svg.clear();
         console.log(this.props);
-
-        displayElem(0, 10, this.props.data[0], this.props.data[1], svg, 0, new Map(), "white");
+        const id = this.props.data[0]; const allData = this.props.data[1];
+        if (id[0] === "ref") {
+            const data = allData[id[1]];
+            if (data[0] === "Tree") {
+                displayTree(allData[id[1]], svg);
+            }
+            else {
+                displayElem(0, 10, id, allData, svg, 0, new Map(), "white");
+            }
+        }    
 
         rawSVG.setAttribute("height", svg.bbox().h + 20);
     }
