@@ -41,11 +41,68 @@ function straightArrow(container, x1, y1, x2, y2, color) {
         .stroke({ width: 2, color });
 }
 
+function branchArrow(container, x1, y1, x2, y2, color) {
+    container
+        .polygon("0,0 -10,5 -10,-5")
+        .fill(color)
+        .dx(x2).dy(y2)
+        .rotate(180 / Math.PI * Math.atan2(y2 - y1, x2 - x1), x2, y2);
+    const length = Math.hypot(x2 - x1, y2 - y1);
+    container
+        .line(x1, y1, x2 + (x1 - x2) / length * 5, y2 + (y1 - y2) / length * 5)
+        .stroke({ width: 2, color });
+}
+
 function curvedArrow(container, x1, y1, x2, y2, color) {
     straightArrow(container, x1, y1, x2, y2, color);
 }
 
-export default function displayElem(
+export function displayTree(data, container) {
+    const indents = [10];
+    const levelHeight = 80;
+
+    function displayTreeWorker(tr, depth, prevX, prevY) {
+        const label = tr[0];
+        const branches = (tr.length > 1) ? tr[1] : [];
+        const x1 = indents[depth];
+        const y1 = 10 + depth * levelHeight;
+
+        const elemWidth = Math.max(50, charWidth * label.toString().length + 40);
+
+        branchArrow(container, prevX, prevY, x1 + elemWidth / 2, y1, "white");
+
+        // circle
+        container
+            .rect(elemWidth, 50)
+            .radius(50)
+            .dx(x1)
+            .dy(y1)
+            .stroke({ color: "white", width: 2 })
+            .fill("transparent")
+            .back();
+        // label
+        container
+            .text(label)
+            .dx(x1 + 20)
+            .dy(y1 + 12)
+            .fill({ color: "white" })
+            .font("family", "Monaco, monospace")
+            .font("size", 14);
+
+        indents[depth] += elemWidth + 30;
+        // if there are branches, recurse.
+        if (branches.length > 0) {
+            indents.push(10);
+            for (let i = 0; i < branches.length; i++) {
+                displayTreeWorker(branches[i], depth + 1, x1 + elemWidth / 2, y1 + 50);
+            }
+        }
+    }
+
+    displayTreeWorker(data, 0);
+}
+
+export function displayElem(
     x, y, id, allData, container, depth, cache, color, x1 = false, y1 = false,
 ) {
     if (id[0] === "ref") {

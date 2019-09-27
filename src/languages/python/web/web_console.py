@@ -179,7 +179,7 @@ def json_repr(elem):
     elif isinstance(elem, int):
         return '"' + repr(elem) + '"'
     else:
-        raise Exception("Unable to serialize object of type " + str(type(elem)))
+        raise Exception("Unable to serialize object of type " + str(old_type(elem)))
 
 
 def wrap_debug(out):
@@ -200,12 +200,33 @@ def disable_autodraw():
 
 def atomic(elem):
     listlike = list, tuple
-    return not isinstance(elem, listlike)
+    return not isinstance(elem, listlike) and not is_tree(elem)
+
+
+def is_tree(elem):
+    return old_type(elem).__name__ == "Tree" or hasattr(elem, "__is_debug_tree")
 
 
 def inline(elem):
-    inline = int, bool, float, str, type(None)
+    inline = int, bool, float, str, old_type(None)
     return isinstance(elem, inline)
+
+
+def is_leaf(tree):
+    return (
+        isinstance(tree, list)
+        and len(tree) == 1
+        or hasattr(tree, "branches")
+        and not tree.branches
+    )
+
+
+def label(tree):
+    return tree[0] if isinstance(tree, list) else tree.label
+
+
+def branches(tree):
+    return tree[1:] if isinstance(tree, list) else tree.branches
 
 
 def draw(lst):
@@ -225,7 +246,17 @@ def draw(lst):
             heap[id(elem)] = val
         return ["ref", id(elem)]
 
-    wrap_debug([draw_worker(lst), heap])
+    def draw_tree(tree):
+        if is_leaf(tree):
+            return [repr(label(tree))]
+        return [repr(label(tree)), [draw_tree(branch) for branch in branches(tree)]]
+
+    if is_tree(lst):
+        data = ["Tree", draw_tree(lst)]
+    else:
+        data = [draw_worker(lst), heap]
+
+    wrap_debug(data)
 
 
 def visualize():
@@ -252,6 +283,31 @@ def input(prompt=""):
     return browser.self.blockingInput.wait()
 
 
+class TreeList(list):
+    pass
+
+
+old_type = type
+
+
+def type(arg):
+    if isinstance(arg, TreeList):
+        return list
+    return old_type(arg)
+
+
+def replace_trees(namespace):
+    if "tree" in namespace:
+        func = namespace["tree"]
+
+        def tree_debug(*args, **kwargs):
+            out = TreeList(func(*args, **kwargs))
+            out.__is_debug_tree = True
+            return out
+
+        namespace["tree"] = tree_debug
+
+
 old_open = open
 
 
@@ -260,7 +316,6 @@ def open(file, *args, **kwargs):
     return old_open(file, *args, **kwargs)
 
 
-# execution namespace
 editor_ns = {
     "credits": credits,
     "copyright": copyright,
@@ -273,6 +328,7 @@ editor_ns = {
     "input": input,
     "open": open,
     "__name__": "__main__",
+    "type": type,
 }
 
 firstLine = True
@@ -285,6 +341,7 @@ def handleInput(line):
         if line.strip():
             try:
                 exec(line, editor_ns)
+                replace_trees(editor_ns)
                 record_exec(line, False)
             except Exception as e:
                 if not isinstance(e, SyntaxError):
@@ -319,6 +376,7 @@ def handleInput(line):
     if _status == "main" or _status == "3string":
         try:
             _ = editor_ns["_"] = eval(current_line, editor_ns)
+            replace_trees(editor_ns)
             record_exec(current_line, False)
             flush()
             if _ is not None:
@@ -340,6 +398,7 @@ def handleInput(line):
             elif str(msg) == "eval() argument must be an expression":
                 try:
                     exec(current_line, editor_ns)
+                    replace_trees(editor_ns)
                     record_exec(current_line, False)
                 except Exception as e:
                     print_tb()
@@ -374,6 +433,7 @@ def handleInput(line):
         _status = "main"
         try:
             _ = exec(block_src, editor_ns)
+            replace_trees(editor_ns)
             record_exec(block_src, False)
             if _ is not None:
                 print(repr(_))
