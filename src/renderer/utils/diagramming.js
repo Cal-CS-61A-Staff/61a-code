@@ -58,21 +58,26 @@ function curvedArrow(container, x1, y1, x2, y2, color) {
 }
 
 export function displayTree(data, container) {
+    const indents = [10];
+    const levelHeight = 80;
 
-    let indent_level = [0];
-    const fixed_depth_height = 80;
-
-    function displayTreeWorker(tr, depth) {
-        const label = tr[0]
+    function displayTreeWorker(tr, depth, prevX, prevY) {
+        const label = tr[0];
         const branches = (tr.length > 1) ? tr[1] : [];
-        const x1 = indent_level[depth];
-        const y1 = depth * fixed_depth_height;
+        const x1 = indents[depth];
+        const y1 = 10 + depth * levelHeight;
+
+        const elemWidth = Math.max(50, charWidth * label.toString().length + 40);
+
+        branchArrow(container, prevX, prevY, x1 + elemWidth / 2, y1, "white");
+
         // circle
         container
-            .circle(50)
+            .rect(elemWidth, 50)
+            .radius(50)
             .dx(x1)
             .dy(y1)
-            .stroke({ color: "white" , width: 2 })
+            .stroke({ color: "white", width: 2 })
             .fill("transparent")
             .back();
         // label
@@ -81,23 +86,20 @@ export function displayTree(data, container) {
             .dx(x1 + 20)
             .dy(y1 + 12)
             .fill({ color: "white" })
-            .font("family", "Monaco, monospace").font("size", 14)
+            .font("family", "Monaco, monospace")
+            .font("size", 14);
 
-        indent_level[depth] += 80;
+        indents[depth] += elemWidth + 30;
         // if there are branches, recurse.
         if (branches.length > 0) {
-            indent_level.push(0);
+            indents.push(10);
             for (let i = 0; i < branches.length; i++) {
-                const x2 = indent_level[depth+1] + 25;
-                const y2 = (depth+1)*fixed_depth_height;
-                branchArrow(container, x1+25, y1+50, x2, y2, "white")
-                displayTreeWorker(branches[i], depth+1);
+                displayTreeWorker(branches[i], depth + 1, x1 + elemWidth / 2, y1 + 50);
             }
         }
-
     }
 
-    displayTreeWorker(data[1], 0);
+    displayTreeWorker(data, 0);
 }
 
 export function displayElem(

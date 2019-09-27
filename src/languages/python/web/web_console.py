@@ -59,20 +59,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-class Tree:
-
-    def __init__(self, label, branches=[]):
-        assert all([isinstance(b, Tree) for b in branches])
-        self.label = label
-        self.branches = branches
-
-    def is_leaf(self):
-        return not self.branches
-    
-    def __repr__(self):
-        if not self.branches:
-            return "Tree(" + str(self.label)+")"
-        return "Tree(" + str(self.label) + ", " + str(self.branches)+")"
 
 class Stream:
     def __init__(self, obj):
@@ -194,15 +180,9 @@ def json_repr(elem):
     elif isinstance(elem, int):
         return '"' + repr(elem) + '"'
     else:
-        raise Exception("Unable to serialize object of type " + str(type(elem)))
+        raise Exception("Unable to serialize object of type " + str(old_type(elem)))
 
 
-# !!!!!! THIS IS AN IMPORTANT FUNCTION !!!!!!!
-# basically, it writes an command to std.out, 
-# which is picked up by communications processes
-# (magic), and eventually given to OutputDrawElem.js in the renderer components.
-# Basically, we want this string to correspond to what we want to draw in the 
-# Output. 
 def wrap_debug(out):
     print("DRAW: " + json_repr(out))
 
@@ -220,17 +200,36 @@ def disable_autodraw():
 
 
 def atomic(elem):
-    listlike = list, tuple, Tree
-    return not isinstance(elem, listlike)
+    listlike = list, tuple
+    return not isinstance(elem, listlike) and not is_tree(elem)
+
+
+def is_tree(elem):
+    return old_type(elem).__name__ == "Tree" or hasattr(elem, "__is_debug_tree")
 
 
 def inline(elem):
-    inline = int, bool, float, str, type(None)
+    inline = int, bool, float, str, old_type(None)
     return isinstance(elem, inline)
 
-# this is the draw function that we need to worry about basically.
-# it adds appropriate annotations that we need for the front end 
-# svg library to display whatever we need to draw
+
+def is_leaf(tree):
+    return (
+        isinstance(tree, list)
+        and len(tree) == 1
+        or hasattr(tree, "branches")
+        and not tree.branches
+    )
+
+
+def label(tree):
+    return tree[0] if isinstance(tree, list) else tree.label
+
+
+def branches(tree):
+    return tree[1:] if isinstance(tree, list) else tree.branches
+
+
 def draw(lst):
     heap = {}
 
@@ -241,8 +240,6 @@ def draw(lst):
             heap[id(elem)] = None
             if atomic(elem):
                 val = ["atomic", ["inline", repr(elem)]]
-            elif isinstance(elem, Tree):
-                val = ["Tree", draw_tree(elem)]
             elif len(elem) == 0:
                 val = ["atomic", ["inline", "Empty list"]]
             else:
@@ -251,11 +248,16 @@ def draw(lst):
         return ["ref", id(elem)]
 
     def draw_tree(tree):
-        if tree.is_leaf():
-            return [tree.label]
-        return [tree.label, [draw_tree(branch) for branch in tree.branches]]
+        if is_leaf(tree):
+            return [repr(label(tree))]
+        return [repr(label(tree)), [draw_tree(branch) for branch in branches(tree)]]
 
-    wrap_debug([draw_worker(lst), heap])
+    if is_tree(lst):
+        data = ["Tree", draw_tree(lst)]
+    else:
+        data = [draw_worker(lst), heap]
+
+    wrap_debug(data)
 
 
 def visualize():
@@ -265,8 +267,6 @@ def visualize():
 def editor():
     print("EDITOR: ")
 
-def is_leaf(t):
-    return t.is_leaf();
 
 def record_exec(code, wrap):
     if wrap:
@@ -284,6 +284,31 @@ def input(prompt=""):
     return browser.self.blockingInput.wait()
 
 
+class TreeList(list):
+    pass
+
+
+old_type = type
+
+
+def type(arg):
+    if isinstance(arg, TreeList):
+        return list
+    return old_type(arg)
+
+
+def replace_trees(namespace):
+    if "tree" in namespace:
+        func = namespace["tree"]
+
+        def tree_debug(*args, **kwargs):
+            out = TreeList(func(*args, **kwargs))
+            out.__is_debug_tree = True
+            return out
+
+        namespace["tree"] = tree_debug
+
+
 old_open = open
 
 
@@ -292,10 +317,6 @@ def open(file, *args, **kwargs):
     return old_open(file, *args, **kwargs)
 
 
-# execution namespace
-# basically, this is a dictionary that python automatically checks
-# when calling eval(). If there is a corresponding command, in this
-# case, Tree, then it will default here. 
 editor_ns = {
     "credits": credits,
     "copyright": copyright,
@@ -305,12 +326,10 @@ editor_ns = {
     "draw": draw,
     "visualize": visualize,
     "editor": editor,
-    "Tree": Tree,
-    "tree": Tree,
-    "is_leaf": is_leaf,
     "input": input,
     "open": open,
     "__name__": "__main__",
+    "type": type,
 }
 
 firstLine = True
@@ -323,6 +342,7 @@ def handleInput(line):
         if line.strip():
             try:
                 exec(line, editor_ns)
+                replace_trees(editor_ns)
                 record_exec(line, False)
             except Exception as e:
                 if not isinstance(e, SyntaxError):
@@ -357,15 +377,12 @@ def handleInput(line):
     if _status == "main" or _status == "3string":
         try:
             _ = editor_ns["_"] = eval(current_line, editor_ns)
+            replace_trees(editor_ns)
             record_exec(current_line, False)
             flush()
             if _ is not None:
                 write(repr(_) + "\n")
-                # This line is basically saying, if the the evaluated element is not
-                # a atomic element (int, str, bool, etc), and if autodraw is active,
-                # display a visual representation of the object.
                 if not atomic(_) and autodraw_active:
-                    # Draw this object.
                     draw(_)
             flush()
             err(">>> ")
@@ -382,6 +399,7 @@ def handleInput(line):
             elif str(msg) == "eval() argument must be an expression":
                 try:
                     exec(current_line, editor_ns)
+                    replace_trees(editor_ns)
                     record_exec(current_line, False)
                 except Exception as e:
                     print_tb()
@@ -416,6 +434,7 @@ def handleInput(line):
         _status = "main"
         try:
             _ = exec(block_src, editor_ns)
+            replace_trees(editor_ns)
             record_exec(block_src, False)
             if _ is not None:
                 print(repr(_))

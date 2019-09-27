@@ -15,17 +15,12 @@ export default class OutputDrawElem extends React.PureComponent {
     draw(rawSVG) {
         const svg = SVG(rawSVG);
         svg.clear();
-        console.log(this.props);
-        const id = this.props.data[0]; const allData = this.props.data[1];
-        if (id[0] === "ref") {
-            const data = allData[id[1]];
-            if (data[0] === "Tree") {
-                displayTree(allData[id[1]], svg);
-            }
-            else {
-                displayElem(0, 10, id, allData, svg, 0, new Map(), "white");
-            }
-        }    
+        const [id, allData] = this.props.data;
+        if (id === "Tree") {
+            displayTree(allData, svg);
+        } else {
+            displayElem(0, 10, id, allData, svg, 0, new Map(), "white");
+        }
 
         rawSVG.setAttribute("height", svg.bbox().h + 20);
     }
