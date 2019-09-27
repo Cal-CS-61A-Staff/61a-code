@@ -160,7 +160,6 @@ _status = "main"  # or "block" if typing inside a block
 autodraw_active = False
 
 
-# Converts whatever we want to draw into a json string
 def json_repr(elem):
     if isinstance(elem, list):
         elem_reprs = [json_repr(x) for x in elem]
