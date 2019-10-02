@@ -300,6 +300,12 @@ def replace_trees(namespace):
     if "tree" in namespace:
         func = namespace["tree"]
 
+        try:
+            if hasattr(func(1), "__is_debug_tree"):
+                return
+        except:
+            return
+
         def tree_debug(*args, **kwargs):
             out = TreeList(func(*args, **kwargs))
             out.__is_debug_tree = True
