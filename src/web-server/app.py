@@ -1,5 +1,4 @@
 import csv
-import json
 import os
 import random
 import sqlite3
@@ -23,7 +22,9 @@ from flask import (
     render_template,
 )
 from flask_oauthlib.client import OAuth
+from sqlalchemy import create_engine, text
 from werkzeug import security
+from werkzeug.exceptions import NotFound
 
 from IGNORE_scheme_debug import Buffer, debug_eval, scheme_read, tokenize_lines
 from IGNORE_secrets import SECRET
@@ -33,6 +34,10 @@ CSV_ROOT = "https://docs.google.com/spreadsheets/d/1v3N9fak7a-pf70zBhAIUuzplRw84
 
 CSV_SHORTLINKS_SUFFIX = (
     "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0"
+)
+
+CSV_SHORTLINKS_PATHS_SUFFIX = (
+    "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=355056023"
 )
 
 CSV_AUTHORIZED_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=1240767129"
@@ -62,24 +67,36 @@ NOT_LOGGED_IN = "NOT_LOGGED_IN"
 COOKIE_SHORTLINK_REDIRECT = "shortlink"
 
 
+if __name__ == "__main__":
+    engine = create_engine("mysql://localhost/code")
+else:
+    engine = create_engine(os.getenv("DATABASE_URL"))
+
+
 @contextmanager
 def connect_db():
-    conn = sqlite3.connect("shortlinks.db")
-    try:
+    with engine.connect() as conn:
 
         def db(*args):
             try:
                 if isinstance(args[1][0], str):
                     raise TypeError
             except (IndexError, TypeError):
-                return conn.cursor().execute(*args)
+                return conn.execute(*args)
             else:
-                return conn.cursor().executemany(*args)
+                for data in args[1]:
+                    conn.execute(args[0], data, *args[2:])
 
         yield db
-    finally:
-        conn.commit()
-        conn.close()
+
+
+with connect_db() as db:
+    db(
+        """CREATE TABLE IF NOT EXISTS studentLinks (
+       link varchar(128),
+       fileName varchar(128),
+       fileContent BLOB)"""
+    )
 
 
 @app.route("/")
@@ -89,7 +106,13 @@ def root():
 
 @app.route("/<path>/")
 def load_file(path):
-    print(path)
+    try:
+        out = send_from_directory(STATIC_FOLDER, path.replace("//", "/"))
+    except NotFound:
+        pass
+    else:
+        return out
+
     raw = load_shortlink_file(path)
 
     if raw is NOT_LOGGED_IN:
@@ -100,7 +123,7 @@ def load_file(path):
         return "This file is only visible to staff."
 
     if raw is NOT_FOUND:
-        return send_from_directory(STATIC_FOLDER, path.replace("//", "/"))
+        return "File not found", 404
 
     data = {"fileName": raw["full_name"], "data": raw["data"]}
 
@@ -114,13 +137,20 @@ def get_raw(path):
 
 def load_shortlink_file(path):
     with connect_db() as db:
-        ret = db("SELECT * FROM links WHERE short_link=?;", [path]).fetchone()
+        ret = db("SELECT * FROM links WHERE short_link=%s;", [path]).fetchone()
         if ret is not None:
             return ServerFile(*ret)._asdict()
 
+        base_paths = db("SELECT * FROM linkPaths").fetchall()
+        for base_path, *_ in base_paths:
+            url = os.path.join(base_path, path)
+            data = requests.get(url)
+            if data.ok:
+                return {"full_name": path, "data": data.text}
+
         try:
             ret = db(
-                "SELECT * FROM studentLinks WHERE short_link=?;", [path]
+                "SELECT * FROM studentLinks WHERE short_link=%s;", [path]
             ).fetchone()
 
             if ret is None:
@@ -139,7 +169,7 @@ def load_shortlink_file(path):
 def load_stored_file(file_name):
     with connect_db() as db:
         out = db(
-            "SELECT * FROM stored_files WHERE file_name=?;", [file_name]
+            "SELECT * FROM stored_files WHERE file_name=%s;", [file_name]
         ).fetchone()
         if out:
             return out[1]
@@ -198,13 +228,30 @@ def refresh():
     for line in parsed:
         short_link, full_name, url, discoverable, *_ = line
         data = requests.get(url).text
-        file = ServerFile(short_link, full_name, url, data, discoverable)
+        file = ServerFile(short_link, full_name, url, data, int(discoverable == "TRUE"))
         all_files.append(file)
 
     with connect_db() as db:
         db("DROP TABLE IF EXISTS links")
-        db("CREATE TABLE links (short_link, url, data, full_name, discoverable)")
-        db("INSERT INTO links VALUES (?, ?, ?, ?, ?)", all_files)
+        db(
+            """CREATE TABLE links (
+    short_link varchar(128), 
+    url varchar(256), 
+    full_name varchar(128), 
+    data LONGBLOB, 
+    discoverable BOOLEAN)"""
+        )
+        db("INSERT INTO links VALUES (%s, %s, %s, %s, %s)", all_files)
+
+    # load shortlink paths
+    response = requests.get(CSV_ROOT + CSV_SHORTLINKS_PATHS_SUFFIX)
+    parsed = csv.reader(response.text.split("\n"))
+    next(parsed)  # discard headers
+    paths = [[x[0]] for x in parsed]
+    with connect_db() as db:
+        db("DROP TABLE IF EXISTS linkPaths")
+        db("CREATE TABLE linkPaths (path varchar(256))")
+        db("INSERT INTO linkPaths VALUES (%s)", paths)
 
     # refresh authorized staff
     response = requests.get(CSV_ROOT + CSV_AUTHORIZED_SUFFIX)
@@ -217,22 +264,23 @@ def refresh():
 
     with connect_db() as db:
         db("DROP TABLE IF EXISTS authorized")
-        db("CREATE TABLE authorized (email)")
-        db("INSERT INTO authorized VALUES (?)", authorized)
+        db("CREATE TABLE authorized (email varchar(128))")
+        db("INSERT INTO authorized VALUES (%s)", authorized)
 
     # refresh stored files
+    response = requests.get(CSV_ROOT + CSV_STORED_FILES_SUFFIX)
+    parsed = csv.reader(response.text.split("\n"))
+    next(parsed)  # discard headers
+    stored_files = []
+    for line in parsed:
+        file_name, url, *_ = line
+        data = requests.get(url).text
+        stored_files.append([file_name, data])
+
     with connect_db() as db:
-        response = requests.get(CSV_ROOT + CSV_STORED_FILES_SUFFIX)
-        parsed = csv.reader(response.text.split("\n"))
-        next(parsed)  # discard headers
-        stored_files = []
-        for line in parsed:
-            file_name, url, *_ = line
-            data = requests.get(url).text
-            stored_files.append([file_name, data])
         db("DROP TABLE IF EXISTS stored_files")
-        db("CREATE TABLE stored_files (file_name, file_contents)")
-        db("INSERT INTO stored_files VALUES (?, ?)", stored_files)
+        db("CREATE TABLE stored_files (file_name varchar(128), file_contents LONGBLOB)")
+        db("INSERT INTO stored_files VALUES (%s, %s)", stored_files)
 
 
 @app.route("/api/_registry")
@@ -289,7 +337,10 @@ def share():
     file_name, file_content = request.form["fileName"], request.form["fileContent"]
     with connect_db() as db:
         link = "".join(random.sample(words, 1)[0].title() for _ in range(3))
-        db("INSERT INTO studentLinks VALUES (?, ?, ?)", [link, file_name, file_content])
+        db(
+            "INSERT INTO studentLinks VALUES (%s, %s, %s)",
+            [link, file_name, file_content],
+        )
     return "code.cs61a.org/" + link
 
 
