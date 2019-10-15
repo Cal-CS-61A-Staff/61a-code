@@ -139,7 +139,7 @@ def load_shortlink_file(path):
     with connect_db() as db:
         ret = db("SELECT * FROM links WHERE short_link=%s;", [path]).fetchone()
         if ret is not None:
-            return ServerFile(*ret)._asdict()
+            return ServerFile(ret[0], ret[1], ret[2], ret[3].decode(), ret[4])._asdict()
 
         base_paths = db("SELECT * FROM linkPaths").fetchall()
         for base_path, *_ in base_paths:
@@ -149,15 +149,13 @@ def load_shortlink_file(path):
                 return {"full_name": path, "data": data.text}
 
         try:
-            ret = db(
-                "SELECT * FROM studentLinks WHERE short_link=%s;", [path]
-            ).fetchone()
+            ret = db("SELECT * FROM studentLinks WHERE link=%s;", [path]).fetchone()
 
             if ret is None:
                 return NOT_FOUND
 
             if check_auth():
-                return ServerFile(ret[0], ret[1], "", ret[2], False)._asdict()
+                return ServerFile(ret[0], ret[1], "", ret[2].decode(), False)._asdict()
             else:
                 return NOT_AUTHORIZED
 
