@@ -234,8 +234,8 @@ def refresh():
         db(
             """CREATE TABLE links (
     short_link varchar(128), 
-    url varchar(256), 
     full_name varchar(128), 
+    url varchar(1024), 
     data LONGBLOB, 
     discoverable BOOLEAN)"""
         )

@@ -2,8 +2,7 @@ import * as React from "react";
 import SVG from "svg.js";
 import svgPanZoom from "svg-pan-zoom/dist/svg-pan-zoom.min.js";
 
-import displayElem, { getDims, minWidth } from "../../../renderer/utils/diagramming.js";
-
+import { displayElem, getDims, minWidth } from "../../../renderer/utils/diagramming.js";
 
 const charWidth = getDims()[0];
 const charHeight = getDims()[1];
