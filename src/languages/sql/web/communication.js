@@ -16,7 +16,11 @@ async function runSqlCode(key, code) {
     const worker = new Worker("sqlWorker.js");
     worker.onmessage = (e) => {
         if (e.data.out) {
-            out(key, { __html: e.data.val, startsWith: () => false });
+            out(key, {
+                __html: e.data.val,
+                visualization: e.data.visualization,
+                startsWith: () => false,
+            });
         } else if (e.data.error) {
             err(key, e.data.val);
         } else if (e.data.exit) {

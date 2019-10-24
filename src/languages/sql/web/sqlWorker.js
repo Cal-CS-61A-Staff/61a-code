@@ -17,6 +17,10 @@ function stdout(val) {
     postMessage({ out: true, val });
 }
 
+function visualize(visualization) {
+    postMessage({ out: true, visualization });
+}
+
 function stderr(val) {
     postMessage({ error: true, val });
 }
@@ -38,8 +42,13 @@ onmessage = async (e) => {
     buff += input;
     if (!input.trimEnd() || buff.trimEnd().endsWith(";") || input.startsWith(".")) {
         const ret = await execute(buff.trimEnd());
-        for (const elem of ret) {
+        console.log(ret);
+        const out = ret.visualization ? ret.out : ret;
+        for (const elem of out) {
             stdout(elem);
+            if (ret.visualization && elem === out[out.length - 1]) {
+                visualize(ret.visualization);
+            }
             stdout("\n");
         }
         buff = "";

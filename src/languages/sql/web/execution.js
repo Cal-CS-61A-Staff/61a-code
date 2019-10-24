@@ -85,86 +85,90 @@ export default async function execute(command) {
         out.push(tableFormat(table));
     }
 
-    if (visualization) {
-        // const visualizeButton = document.createElement("BUTTON");
-        // $(visualizeButton).addClass("btn btn-info btn-sm");
-        // visualizeButton.innerHTML = "Visualize";
-        // out.push(visualizeButton);
-        //
-        // const visualizePane = document.createElement("DIV");
-        // $(visualizePane).addClass("card");
-        // const visualizePaneHeader = document.createElement("DIV");
-        // $(visualizePaneHeader).addClass("card-header");
-        // const innerVisualizePane = document.createElement("DIV");
-        // $(innerVisualizePane).addClass("card-body");
-        //
-        // const firstButton = document.createElement("BUTTON");
-        // firstButton.innerHTML = "&lt;&lt;";
-        // $(firstButton).addClass("btn btn-secondary");
-        //
-        // const prevButton = document.createElement("BUTTON");
-        // prevButton.innerHTML = "&lt;";
-        // $(prevButton).addClass("btn btn-secondary");
-        //
-        // const nextButton = document.createElement("BUTTON");
-        // nextButton.innerHTML = "&gt;";
-        // $(nextButton).addClass("btn btn-secondary");
-        //
-        // const lastButton = document.createElement("BUTTON");
-        // lastButton.innerHTML = "&gt;&gt;";
-        // $(lastButton).addClass("btn btn-secondary");
-        //
-        // const buttons = document.createElement("DIV");
-        // $(buttons).addClass("btn-group  btn-group-sm visButtons");
-        // $(buttons).append(firstButton).append(prevButton).append(nextButton)
-        //     .append(lastButton);
-        //
-        // const closeVisualizeButton = document.createElement("BUTTON");
-        // closeVisualizeButton.innerHTML = "Hide Visualization";
-        // $(closeVisualizeButton).addClass("btn btn-info btn-sm");
-        //
-        // $(visualizePaneHeader).append(buttons).append(closeVisualizeButton);
-        // $(visualizePane).append(visualizePaneHeader);
-        //
-        // const tableRenderArea = document.createElement("DIV");
-        // $(innerVisualizePane).append(tableRenderArea);
-        //
-        // $(visualizePane).append(innerVisualizePane);
-        // $(visualizePane).hide();
-        //
-        // out.push(visualizePane);
-        //
-        // let i = 0;
-        // $(visualizeButton).click(() => {
-        //     [tableRenderArea.innerHTML] = visualization;
-        //     $(visualizeButton).hide();
-        //     $(nextButton).show();
-        //     $(prevButton).show();
-        //     $(visualizePane).show();
-        // });
-        // $(firstButton).click(() => {
-        //     i = 0;
-        //     tableRenderArea.innerHTML = visualization[i];
-        // });
-        // $(prevButton).click(() => {
-        //     i = Math.max(i - 1, 0);
-        //     tableRenderArea.innerHTML = visualization[i];
-        // });
-        // $(nextButton).click(() => {
-        //     i = Math.min(i + 1, visualization.length - 1);
-        //     tableRenderArea.innerHTML = visualization[i];
-        // });
-        // $(lastButton).click(() => {
-        //     i = visualization.length - 1;
-        //     tableRenderArea.innerHTML = visualization[i];
-        // });
-        // $(closeVisualizeButton).click(() => {
-        //     $(visualizePane).hide();
-        //     $(visualizeButton).show();
-        //     i = 0;
-        //     tableRenderArea.innerHTML = visualization[i];
-        // });
-    }
+    // if (visualization) {
+    //     const visualizeButton = document.createElement("BUTTON");
+    //     $(visualizeButton).addClass("btn btn-info btn-sm");
+    //     visualizeButton.innerHTML = "Visualize";
+    //     out.push(visualizeButton);
+    //
+    //     const visualizePane = document.createElement("DIV");
+    //     $(visualizePane).addClass("card");
+    //     const visualizePaneHeader = document.createElement("DIV");
+    //     $(visualizePaneHeader).addClass("card-header");
+    //     const innerVisualizePane = document.createElement("DIV");
+    //     $(innerVisualizePane).addClass("card-body");
+    //
+    //     const firstButton = document.createElement("BUTTON");
+    //     firstButton.innerHTML = "&lt;&lt;";
+    //     $(firstButton).addClass("btn btn-secondary");
+    //
+    //     const prevButton = document.createElement("BUTTON");
+    //     prevButton.innerHTML = "&lt;";
+    //     $(prevButton).addClass("btn btn-secondary");
+    //
+    //     const nextButton = document.createElement("BUTTON");
+    //     nextButton.innerHTML = "&gt;";
+    //     $(nextButton).addClass("btn btn-secondary");
+    //
+    //     const lastButton = document.createElement("BUTTON");
+    //     lastButton.innerHTML = "&gt;&gt;";
+    //     $(lastButton).addClass("btn btn-secondary");
+    //
+    //     const buttons = document.createElement("DIV");
+    //     $(buttons).addClass("btn-group  btn-group-sm visButtons");
+    //     $(buttons).append(firstButton).append(prevButton).append(nextButton)
+    //         .append(lastButton);
+    //
+    //     const closeVisualizeButton = document.createElement("BUTTON");
+    //     closeVisualizeButton.innerHTML = "Hide Visualization";
+    //     $(closeVisualizeButton).addClass("btn btn-info btn-sm");
+    //
+    //     $(visualizePaneHeader).append(buttons).append(closeVisualizeButton);
+    //     $(visualizePane).append(visualizePaneHeader);
+    //
+    //     const tableRenderArea = document.createElement("DIV");
+    //     $(innerVisualizePane).append(tableRenderArea);
+    //
+    //     $(visualizePane).append(innerVisualizePane);
+    //     $(visualizePane).hide();
+    //
+    //     out.push(visualizePane);
+    //
+    //     let i = 0;
+    //     $(visualizeButton).click(() => {
+    //         [tableRenderArea.innerHTML] = visualization;
+    //         $(visualizeButton).hide();
+    //         $(nextButton).show();
+    //         $(prevButton).show();
+    //         $(visualizePane).show();
+    //     });
+    //     $(firstButton).click(() => {
+    //         i = 0;
+    //         tableRenderArea.innerHTML = visualization[i];
+    //     });
+    //     $(prevButton).click(() => {
+    //         i = Math.max(i - 1, 0);
+    //         tableRenderArea.innerHTML = visualization[i];
+    //     });
+    //     $(nextButton).click(() => {
+    //         i = Math.min(i + 1, visualization.length - 1);
+    //         tableRenderArea.innerHTML = visualization[i];
+    //     });
+    //     $(lastButton).click(() => {
+    //         i = visualization.length - 1;
+    //         tableRenderArea.innerHTML = visualization[i];
+    //     });
+    //     $(closeVisualizeButton).click(() => {
+    //         $(visualizePane).hide();
+    //         $(visualizeButton).show();
+    //         i = 0;
+    //         tableRenderArea.innerHTML = visualization[i];
+    //     });
+    // }
 
-    return out;
+    if (visualization) {
+        return { out, visualization };
+    } else {
+        return out;
+    }
 }

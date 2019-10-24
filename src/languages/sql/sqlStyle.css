@@ -7,15 +7,21 @@
     width: 100%;
 }
 
-.out-table > th, .out-table > tr {
-    border: 1px solid white;
+.out-table {
+    border: 1px solid black;
     border-collapse: collapse;
-    color: white;
+    color: black;
+    background: white;
+}
+
+
+.out-table th, .out-table tr, .out-table td {
+    border: 1px solid black;
 }
 
 .out-table > thead {
     font-weight: bold;
-    background-color: purple;
+    background-color: sandybrown;
 }
 
 .visButtons {
