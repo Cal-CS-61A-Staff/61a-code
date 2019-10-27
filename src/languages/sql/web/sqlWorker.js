@@ -32,13 +32,14 @@ function exit(val) {
 
 let buff = "";
 
-stdout(launchText);
-
 init();
 
 onmessage = async (e) => {
     const { data } = e;
     const { input } = data;
+    if (!data) {
+        stdout(launchText);
+    }
     buff += input;
     if (!input.trimEnd() || buff.trimEnd().endsWith(";") || input.startsWith(".")) {
         const ret = await execute(buff.trimEnd());
