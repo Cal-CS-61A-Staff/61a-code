@@ -104,6 +104,17 @@ def root():
     return render_template("index.html", initData={})
 
 
+@app.route("/scheme")
+def scheme():
+    return render_template(
+        "index.html",
+        initData={
+            "loadFile": {"fileName": "untitled.scm", "data": ""},
+            "startInterpreter": True,
+        },
+    )
+
+
 @app.route("/<path>/")
 def load_file(path):
     try:

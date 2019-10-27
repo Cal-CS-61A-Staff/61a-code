@@ -40,14 +40,14 @@ class App extends React.Component {
         window.history.replaceState(false, "", "/");
 
         if (!ELECTRON && window.initData) {
-            const { loadFile } = initData;
+            const { loadFile, startInterpreter } = initData;
 
             if (loadFile) {
                 this.handleFileCreate({
                     name: loadFile.fileName,
                     location: null,
                     content: loadFile.data,
-                });
+                }, startInterpreter);
             }
         }
     }
