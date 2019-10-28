@@ -1,5 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import * as React from "react";
+import $ from "jquery";
+
 import RunStopButton from "./RunStopButton";
 import StdinElem from "./StdinElem";
 import OutputElem from "./OutputElem";
@@ -74,6 +76,7 @@ class Output extends React.Component {
 
     postRender() {
         this.outputRef.current.scrollTop = this.outputRef.current.scrollHeight;
+        $(document.body).hide().show(0);
     }
 
     render() {
@@ -86,7 +89,6 @@ class Output extends React.Component {
                         onRestart={this.props.onRestart}
                     />
                 </div>
-                {/* eslint-disable-next-line */}
                 <div
                     className="outputWrapper"
                     ref={this.outputRef}
