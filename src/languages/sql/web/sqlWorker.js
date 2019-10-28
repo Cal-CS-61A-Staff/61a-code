@@ -8,11 +8,15 @@ const launchText = `CS61A SQL Web Interpreter
 Welcome to the 61A SQL web interpreter!
 Check out the code for this app on GitHub.
 
-Type .help for instructions.
 The tables used in homework, labs, and lecture are already available to use.
+
+To view a list of all available tables, type .tables
+To view a list of all CREATE statements, type .schema
+To launch an editor associated with your console, type .editor
+
 `;
 
-function stdout(val) {
+export function stdout(val) {
     postMessage({ out: true, val });
 }
 

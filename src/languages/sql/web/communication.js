@@ -19,7 +19,8 @@ async function runSqlCode(key, code) {
             out(key, {
                 __html: e.data.val,
                 visualization: e.data.visualization,
-                startsWith: () => false,
+                startsWith: e.data.val.startsWith.bind(e.data.val),
+                substr: e.data.val.substr.bind(e.data.val),
             });
         } else if (e.data.error) {
             err(key, e.data.val);

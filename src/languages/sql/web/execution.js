@@ -1,7 +1,7 @@
 import visualize from "./visualize.js";
 import { tableFormat } from "./utils.js";
 import preexisting from "./default_tables.js";
-import { stderr, exit } from "./sqlWorker.js";
+import { stdout, stderr, exit } from "./sqlWorker.js";
 
 let sql;
 let db;
@@ -30,17 +30,9 @@ export default async function execute(command) {
         if (command === ".quit" || command === ".exit") {
             exit("\nSQL web worker terminated.");
             return [];
-        } else if (command === ".help") {
-            return [
-                ".exit                  Exit this program\n"
-                + ".help                  Show this message\n"
-                + ".quit                  Exit this program\n"
-                // eslint-disable-next-line max-len
-                // + ".open                  Close existing database and reopen file to be selected\n"
-                // + ".read                  Execute SQL in file to be selected\n"
-                + ".tables                List names of tables\n"
-                + ".schema                Show all CREATE statements",
-            ];
+        } else if (command === ".editor") {
+            stdout("EDITOR: \n");
+            return [];
         } else if (command === ".tables") {
             const dbRet = db.exec("SELECT name as Tables FROM sqlite_master WHERE type = 'table';");
             return [tableFormat(dbRet[0])];
@@ -61,6 +53,9 @@ export default async function execute(command) {
         return [];
     }
 
+    if (command.trim()) {
+        stdout(`EXEC: ${command}`);
+    }
     let visualization;
     try {
         visualization = visualize(command, db);

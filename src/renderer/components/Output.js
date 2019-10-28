@@ -47,7 +47,7 @@ class Output extends React.Component {
         this.postRender(text);
         this.props.onInput(text);
         this.setState(state => ({
-            history: state.history.slice(0, state.history.length - 1).concat([text.trim(), ""]),
+            history: state.history.slice(0, state.history.length - 1).concat([text.trimEnd(), ""]),
             historyIndex: state.history.length,
         }));
     };

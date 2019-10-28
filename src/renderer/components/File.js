@@ -223,6 +223,11 @@ export default class File extends React.Component {
             this.debugExecutedCode();
         } else if (text.startsWith(EDITOR_MARKER)) {
             this.editorRef.current.forceOpen();
+            if (!this.state.editorText) {
+                this.setState(state => ({
+                    editorText: state.executedCode.join("\n"),
+                }));
+            }
         } else if (text.startsWith(EXEC_MARKER)) {
             const code = text.substr(EXEC_MARKER.length);
             this.setState(state => ({ executedCode: state.executedCode.concat([code]) }));
