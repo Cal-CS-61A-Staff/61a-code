@@ -37,7 +37,7 @@ init();
 onmessage = async (e) => {
     const { data } = e;
     const { input } = data;
-    if (!data) {
+    if (!input) {
         stdout(launchText);
     }
     buff += input;

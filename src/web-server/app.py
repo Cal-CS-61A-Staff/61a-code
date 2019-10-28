@@ -104,12 +104,34 @@ def root():
     return render_template("index.html", initData={})
 
 
+@app.route("/python")
+def python():
+    return render_template(
+        "index.html",
+        initData={
+            "loadFile": {"fileName": "untitled.py", "data": ""},
+            "startInterpreter": True,
+        },
+    )
+
+
 @app.route("/scheme")
 def scheme():
     return render_template(
         "index.html",
         initData={
             "loadFile": {"fileName": "untitled.scm", "data": ""},
+            "startInterpreter": True,
+        },
+    )
+
+
+@app.route("/sql")
+def sql():
+    return render_template(
+        "index.html",
+        initData={
+            "loadFile": {"fileName": "untitled.sql", "data": ""},
             "startInterpreter": True,
         },
     )

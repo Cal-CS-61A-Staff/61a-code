@@ -2,11 +2,6 @@
     border: dashed #ee7813;
 }
 
-.container {
-    margin: 0;
-    width: 100%;
-}
-
 .out-table {
     border: 1px solid black;
     border-collapse: collapse;
