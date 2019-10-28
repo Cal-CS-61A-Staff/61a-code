@@ -28,7 +28,7 @@ export default async function execute(command) {
         }
         // dotcommand
         if (command === ".quit" || command === ".exit") {
-            exit("SQLite web worker terminated.");
+            exit("\nSQL web worker terminated.");
             return [];
         } else if (command === ".help") {
             return [
