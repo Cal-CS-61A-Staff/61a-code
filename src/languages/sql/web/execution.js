@@ -1,7 +1,6 @@
 import visualize from "./visualize.js";
 import { tableFormat } from "./utils.js";
-import preexisting from "./default_tables.js";
-import { stdout, stderr, exit } from "./sqlWorker.js";
+import { exit, stderr, stdout } from "./sqlWorker.js";
 
 let sql;
 let db;
@@ -12,35 +11,39 @@ export function init() {
 }
 
 function newDatabase() {
-    const newDb = new sql.Database();
-    try {
-        newDb.exec(preexisting);
-    } catch (err) {
-        // pass
-    }
-    return newDb;
+    return new sql.Database();
 }
 
 export default async function execute(command) {
     if (command.startsWith(".")) {
-        if (command.split(" ").length > 1) {
-            return [`${command.split(" ")[0]} takes no arguments, on the web interpreter.`];
-        }
-        // dotcommand
-        if (command === ".quit" || command === ".exit") {
+        const split = command.split("\n");
+        const rest = split.slice(1).join("\n");
+        const dotcommand = split[0];
+        if (dotcommand === ".quit" || dotcommand === ".exit") {
             exit("\nSQL web worker terminated.");
             return [];
-        } else if (command === ".editor") {
+        } else if (dotcommand === ".editor") {
             stdout("EDITOR: \n");
-            return [];
-        } else if (command === ".tables") {
+            return execute(rest);
+        } else if (dotcommand === ".tables") {
             const dbRet = db.exec("SELECT name as Tables FROM sqlite_master WHERE type = 'table';");
-            return [tableFormat(dbRet[0])];
-        } else if (command === ".schema") {
+            if (dbRet.length) {
+                return [tableFormat(dbRet[0])].concat(await execute(rest));
+            } else {
+                return execute(rest);
+            }
+        } else if (dotcommand === ".schema") {
             const dbRet = db.exec("SELECT (sql || ';') as `CREATE Statements` FROM sqlite_master WHERE type = 'table';");
-            return [tableFormat(dbRet[0])];
+            if (dbRet.length) {
+                return [tableFormat(dbRet[0])].concat(await execute(rest));
+            } else {
+                return execute(rest);
+            }
+        } else if (dotcommand === ".clear") {
+            init();
+            return execute(rest);
         } else {
-            stderr(`The command ${command.split(" ")[0]} does not exist.\n`);
+            stderr(`The command ${dotcommand} does not exist.\n`);
             return [];
         }
     }
