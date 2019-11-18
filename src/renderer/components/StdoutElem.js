@@ -2,17 +2,13 @@ import * as React from "react";
 import * as hljs from "highlight.js";
 import { INPUT, ERROR } from "../../common/outputTypes.js";
 
-export default class StdoutElem extends React.Component {
+export default class StdoutElem extends React.PureComponent {
     constructor(props) {
         super(props);
         this.spanRef = React.createRef();
     }
 
     componentDidMount() {
-        this.postRender();
-    }
-
-    componentDidUpdate() {
         this.postRender();
     }
 
