@@ -14,6 +14,8 @@ To view a list of all available tables, type .tables
 To view a list of all CREATE statements, type .schema
 To launch an editor associated with your console, type .editor
 
+To clear all tables (including pre-loaded ones), type .open --new
+
 `;
 
 export function stdout(val) {
@@ -36,7 +38,15 @@ let buff = "";
 
 init();
 
+let preloaded;
+
 onmessage = async (e) => {
+    if (!preloaded) {
+        const data = await fetch("/api/preloaded_tables", { method: "POST" });
+        ({ data: preloaded } = await data.json());
+        await execute(preloaded);
+    }
+
     const { data } = e;
     const { input } = data;
     if (!input) {

@@ -1,8 +1,10 @@
 import csv
 import os
 import random
+import re
 import sqlite3
 import urllib.parse
+from base64 import b64decode, b64encode
 from collections import namedtuple
 from contextlib import contextmanager
 from multiprocessing import Process, Queue, active_children
@@ -45,6 +47,8 @@ CSV_AUTHORIZED_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84Nd
 CSV_STORED_FILES_SUFFIX = (
     "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=169284641"
 )
+
+CSV_PRELOADED_TABLES_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=1808429477"
 
 CONSUMER_KEY = "61a-web-repl"
 
@@ -179,7 +183,10 @@ def load_shortlink_file(path):
             url = os.path.join(base_path, path)
             data = requests.get(url)
             if data.ok:
-                return {"full_name": path, "data": data.text}
+                text = data.text
+                if path.endswith(".sql"):
+                    text = ".open --new\n\n" + text
+                return {"full_name": path, "data": text}
 
         try:
             ret = db("SELECT * FROM studentLinks WHERE link=%s;", [path]).fetchone()
@@ -231,6 +238,23 @@ def black_proxy():
         )
     except Exception as e:
         return jsonify({"success": False, "error": repr(e)})
+
+
+@app.route("/api/preloaded_tables", methods=["POST"])
+def preloaded_tables():
+    try:
+        with connect_db() as db:
+            return jsonify(
+                {
+                    "success": True,
+                    "data": b64decode(
+                        db("SELECT data FROM preloaded_tables").fetchone()[0]
+                    ).decode("utf-8"),
+                }
+            )
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False, "data": ""})
 
 
 @app.route("/api/_refresh")
@@ -312,6 +336,30 @@ def refresh():
         db("DROP TABLE IF EXISTS stored_files")
         db("CREATE TABLE stored_files (file_name varchar(128), file_contents LONGBLOB)")
         db("INSERT INTO stored_files VALUES (%s, %s)", stored_files)
+
+    # refresh SQL preloaded tables
+    response = requests.get(CSV_ROOT + CSV_PRELOADED_TABLES_SUFFIX)
+    parsed = csv.reader(response.text.split("\n"))
+    next(parsed)  # discard headers
+    init_sql = []
+    for line in parsed:
+        url, *_ = line
+        resp = requests.get(url)
+        if resp.status_code == 200:
+            init_sql.append(resp.text)
+
+    with connect_db() as db:
+        joined_sql = "\n\n".join(init_sql)
+        joined_sql = re.sub(
+            r"create\s+table(?!\s+if\b)",
+            "CREATE TABLE IF NOT EXISTS ",
+            joined_sql,
+            flags=re.IGNORECASE,
+        )
+        encoded = b64encode(bytes(joined_sql, "utf-8"))
+        db("DROP TABLE IF EXISTS preloaded_tables")
+        db("CREATE TABLE preloaded_tables (data LONGBLOB)")
+        db("INSERT INTO preloaded_tables VALUES (%s)", [encoded])
 
 
 @app.route("/api/_registry")
