@@ -1,6 +1,7 @@
 import csv
 import os
 import random
+import re
 import sqlite3
 import urllib.parse
 from base64 import b64decode, b64encode
@@ -348,7 +349,14 @@ def refresh():
             init_sql.append(resp.text)
 
     with connect_db() as db:
-        encoded = b64encode(bytes("\n\n".join(init_sql), "utf-8"))
+        joined_sql = "\n\n".join(init_sql)
+        joined_sql = re.sub(
+            r"create\s+table(?!\s+if\b)",
+            "CREATE TABLE IF NOT EXISTS ",
+            joined_sql,
+            flags=re.IGNORECASE,
+        )
+        encoded = b64encode(bytes(joined_sql, "utf-8"))
         db("DROP TABLE IF EXISTS preloaded_tables")
         db("CREATE TABLE preloaded_tables (data LONGBLOB)")
         db("INSERT INTO preloaded_tables VALUES (%s)", [encoded])
