@@ -14,7 +14,7 @@ To view a list of all available tables, type .tables
 To view a list of all CREATE statements, type .schema
 To launch an editor associated with your console, type .editor
 
-To clear all tables (including pre-loaded ones), type .clear
+To clear all tables (including pre-loaded ones), type .open --new
 
 `;
 

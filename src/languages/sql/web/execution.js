@@ -39,9 +39,12 @@ export default async function execute(command) {
             } else {
                 return execute(rest);
             }
-        } else if (dotcommand === ".clear") {
+        } else if (dotcommand === ".open --new") {
             init();
             return execute(rest);
+        } else if (dotcommand.startsWith(".open")) {
+            stderr(".open is not currently supported, except for the --new flag\n");
+            return [];
         } else {
             stderr(`The command ${dotcommand} does not exist.\n`);
             return [];

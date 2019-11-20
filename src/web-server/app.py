@@ -185,7 +185,7 @@ def load_shortlink_file(path):
             if data.ok:
                 text = data.text
                 if path.endswith(".sql"):
-                    text = ".clear\n\n" + text
+                    text = ".open --new\n\n" + text
                 return {"full_name": path, "data": text}
 
         try:
