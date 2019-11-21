@@ -35,11 +35,8 @@ export default class StdinElem extends React.Component {
     handleInput = (e) => {
         let text = e.currentTarget.innerText;
         const lines = text.split(/\r\n|\r|\n/);
-        for (let i = 0; i !== lines.length - 1; ++i) {
-            if (lines[i] === "" && i === lines.length - 2) {
-                continue; // TODO: FIX UGLY HACK
-            }
-            this.props.onInput(`${lines[i]}\n`);
+        if (lines.length > 1) {
+            this.props.onInput(`${lines.slice(0, lines.length - 1).join("\n")}\n`);
         }
         text = lines[lines.length - 1];
         if (lines.length > 1) {

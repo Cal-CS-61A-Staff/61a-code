@@ -46,10 +46,13 @@ class Output extends React.Component {
     handleInput = (text) => {
         this.postRender(text);
         this.props.onInput(text);
-        this.setState(state => ({
-            history: state.history.slice(0, state.history.length - 1).concat([text.trimEnd(), ""]),
-            historyIndex: state.history.length,
-        }));
+        this.setState((state) => {
+            const newHistory = state.history.slice(0, state.history.length - 1).concat([...text.trimEnd().split("\n"), ""]);
+            return {
+                history: newHistory,
+                historyIndex: newHistory.length,
+            };
+        });
     };
 
     handleKeyDown = (e) => {
