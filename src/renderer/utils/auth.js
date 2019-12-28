@@ -1,4 +1,5 @@
 import $ from "jquery";
+import { useEffect, useState } from "react";
 
 export function login() {
     window.open("/popup_login", "_blank");
@@ -9,7 +10,7 @@ export function logout() {
 }
 
 const handlers = new Set();
-let authData = { loggedOut: true };
+let currAuthData = { loggedOut: true };
 
 export async function checkLoggedIn() {
     let newAuthData;
@@ -18,14 +19,27 @@ export async function checkLoggedIn() {
     } catch {
         newAuthData = { loggedOut: true };
     }
-    if (JSON.stringify(newAuthData) !== JSON.stringify(authData)) {
-        authData = newAuthData;
+    if (JSON.stringify(newAuthData) !== JSON.stringify(currAuthData)) {
+        currAuthData = newAuthData;
         for (const { handler } of handlers) {
-            handler(authData);
+            handler(currAuthData);
         }
     }
 }
 
+export function isStaff(authData) {
+    return authData.data.participations.some(
+        ({ course, role }) => ["staff", "instructor"].includes(role) && course.offering.startsWith("cal/cs61a/"),
+    );
+}
+
+export function useAuthData() {
+    const [authData, setAuthData] = useState(currAuthData);
+    useEffect(() => addAuthListener(setAuthData));
+    return authData;
+}
+
+checkLoggedIn();
 setInterval(checkLoggedIn, 5000);
 
 window.addEventListener("focus", checkLoggedIn);
@@ -33,5 +47,5 @@ window.addEventListener("focus", checkLoggedIn);
 export function addAuthListener(handler) {
     const wrappedHandler = { handler };
     handlers.add(wrappedHandler);
-    return () => { handlers.remove(wrappedHandler); };
+    return () => { handlers.delete(wrappedHandler); };
 }

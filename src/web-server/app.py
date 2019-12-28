@@ -101,6 +101,12 @@ with connect_db() as db:
        fileName varchar(128),
        fileContent BLOB)"""
     )
+    db(
+        """CREATE TABLE IF NOT EXISTS staffLinks (
+       link varchar(128),
+       fileName varchar(128),
+       fileContent BLOB)"""
+    )
 
 
 @app.route("/")
@@ -187,6 +193,10 @@ def load_shortlink_file(path):
                 if path.endswith(".sql"):
                     text = ".open --new\n\n" + text
                 return {"full_name": path, "data": text}
+
+        ret = db("SELECT * FROM staffLinks WHERE link=%s;", [path]).fetchone()
+        if ret is not None:
+            return ServerFile(ret[0], ret[1], "", ret[2].decode(), False)._asdict()
 
         try:
             ret = db("SELECT * FROM studentLinks WHERE link=%s;", [path]).fetchone()
@@ -411,16 +421,28 @@ def check_auth():
     return email in authorized
 
 
-@app.route("/api/share", methods=["POST"])
-def share():
+def save_file(db_name):
     file_name, file_content = request.form["fileName"], request.form["fileContent"]
     with connect_db() as db:
         link = "".join(random.sample(words, 1)[0].title() for _ in range(3))
         db(
-            "INSERT INTO studentLinks VALUES (%s, %s, %s)",
+            f"INSERT INTO {db_name} VALUES (%s, %s, %s)",
             [link, file_name, file_content],
         )
     return "code.cs61a.org/" + link
+
+
+@app.route("/api/share", methods=["POST"])
+def share():
+    return save_file("studentLinks")
+
+
+@app.route("/api/staff_share", methods=["POST"])
+def staff_share():
+    if not check_auth():
+        abort(403)
+
+    return save_file("staffLinks")
 
 
 def kill_popup():

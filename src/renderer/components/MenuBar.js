@@ -10,8 +10,11 @@ import {
     MENU_LOGIN, MENU_LOGOUT,
 } from "../../common/communicationEnums.js";
 import MenuElem from "./MenuElem.js";
+import { useAuthData } from "../utils/auth.js";
 
-export default function MenuBar({ authData }) {
+export default function MenuBar() {
+    const authData = useAuthData();
+
     const menuOptions = [
         { code: MENU_NEW, name: "New", shortcut: "mod+n" },
         { code: MENU_OPEN, name: "Open", shortcut: "mod+o" },

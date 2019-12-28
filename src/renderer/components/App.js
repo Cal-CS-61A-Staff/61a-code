@@ -14,7 +14,6 @@ if (!ELECTRON) {
 }
 import { sendNoInteract } from "../utils/communication.js";
 import { OPEN_FILE } from "../../common/communicationEnums.js";
-import { addAuthListener } from "../utils/auth.js";
 
 class App extends React.Component {
     constructor(props) {
@@ -23,7 +22,6 @@ class App extends React.Component {
         this.state = {
             launch: true,
             initFile: null,
-            authData: { loggedOut: true },
         };
     }
 
@@ -52,8 +50,6 @@ class App extends React.Component {
                 }, startInterpreter);
             }
         }
-
-        addAuthListener(authData => this.setState({ authData }));
     }
 
     handleAllClosed = () => {
@@ -88,9 +84,7 @@ class App extends React.Component {
             console.log(this.state);
             return (
                 <>
-                    <MenuBar
-                        authData={this.state.authData}
-                    />
+                    <MenuBar />
                     { primaryElem }
                 </>
             );

@@ -1,6 +1,6 @@
 import React from "react";
 import FileNameField from "./FileNameField.js";
-import DownloadButton from "./DownloadButton.js";
+import ModalButton from "./ModalButton.js";
 import { dialogWrap } from "../utils/dialogWrap.js";
 
 function SaveDialog(props) {
@@ -10,7 +10,9 @@ function SaveDialog(props) {
                 defaultValue={props.defaultValue}
                 onClick={props.onNameSelect}
             />
-            <DownloadButton onClick={props.onDownloadClick} />
+            <ModalButton buttonText="Download" onClick={props.onDownloadClick}>
+                Or download a copy of your code to save on your computer.
+            </ModalButton>
         </>
     );
 }
