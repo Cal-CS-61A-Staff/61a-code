@@ -1,10 +1,9 @@
 import React from "react";
 import {
     GET_RECENT_FILES,
-    MENU_CLOSE_TAB, MENU_HELP,
+    MENU_CLOSE_TAB, MENU_HELP, MENU_LOGIN, MENU_LOGOUT,
     MENU_NEW,
     MENU_OPEN,
-    MENU_SAVE, MENU_SAVE_AS,
     SHOW_OPEN_DIALOG,
 } from "../../common/communicationEnums.js";
 import IntroBox from "./IntroBox";
@@ -12,6 +11,7 @@ import { sendNoInteract } from "../utils/communication.js";
 import claimMenu from "../utils/menuHandler.js";
 import RecentFileSelector from "./RecentFileSelector.js";
 import { openHelp } from "../utils/help.js";
+import { login, logout } from "../utils/auth.js";
 
 export default class LaunchScreen extends React.Component {
     static closeTab() {
@@ -30,10 +30,10 @@ export default class LaunchScreen extends React.Component {
                 claimMenu({
                     [MENU_NEW]: this.handleCreateClick,
                     [MENU_OPEN]: this.handleOpenClick,
-                    [MENU_SAVE]: () => null,
-                    [MENU_SAVE_AS]: () => null,
                     [MENU_CLOSE_TAB]: LaunchScreen.closeTab,
                     [MENU_HELP]: openHelp,
+                    [MENU_LOGIN]: login,
+                    [MENU_LOGOUT]: logout,
                 }),
         };
         sendNoInteract({

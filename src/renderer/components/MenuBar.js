@@ -1,10 +1,17 @@
-import * as React from "react";
+import React from "react";
 import {
-    MENU_NEW, MENU_OPEN, MENU_NEW_CONSOLE, MENU_SAVE, MENU_SAVE_AS, MENU_SHARE, MENU_HELP,
+    MENU_NEW,
+    MENU_OPEN,
+    MENU_NEW_CONSOLE,
+    MENU_SAVE,
+    MENU_SAVE_AS,
+    MENU_SHARE,
+    MENU_HELP,
+    MENU_LOGIN, MENU_LOGOUT,
 } from "../../common/communicationEnums.js";
 import MenuElem from "./MenuElem.js";
 
-export default function MenuBar() {
+export default function MenuBar({ authData }) {
     const menuOptions = [
         { code: MENU_NEW, name: "New", shortcut: "mod+n" },
         { code: MENU_OPEN, name: "Open", shortcut: "mod+o" },
@@ -14,6 +21,13 @@ export default function MenuBar() {
         { code: MENU_SHARE, name: "Share", shortcut: "mod+shift+option+s" },
         { code: MENU_HELP, name: "Help", shortcut: "f1" },
     ];
+
+    if (authData.loggedOut) {
+        menuOptions.push({ code: MENU_LOGIN, name: "Login", shortcut: "mod+shift+l" });
+    } else {
+        menuOptions.push({ code: MENU_LOGOUT, name: "Logout", shortcut: "mod+shift+l" });
+    }
+
     const menuElems = menuOptions.map(
         // eslint-disable-next-line react/no-array-index-key
         (elem, index) => <MenuElem key={index} {...elem} />,

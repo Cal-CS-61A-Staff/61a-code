@@ -2,7 +2,6 @@ import csv
 import os
 import random
 import re
-import sqlite3
 import urllib.parse
 from base64 import b64decode, b64encode
 from collections import namedtuple
@@ -24,7 +23,7 @@ from flask import (
     render_template,
 )
 from flask_oauthlib.client import OAuth
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from werkzeug import security
 from werkzeug.exceptions import NotFound
 
@@ -68,6 +67,7 @@ NOT_FOUND = "NOT_FOUND"
 NOT_AUTHORIZED = "NOT_AUTHORIZED"
 NOT_LOGGED_IN = "NOT_LOGGED_IN"
 
+COOKIE_IS_POPUP = "is_popup"
 COOKIE_SHORTLINK_REDIRECT = "shortlink"
 
 
@@ -423,6 +423,12 @@ def share():
     return "code.cs61a.org/" + link
 
 
+def kill_popup():
+    response = app.make_response("<script> window.close(); </script>")
+    response.delete_cookie(COOKIE_IS_POPUP)
+    return response
+
+
 def create_oauth_client(app):
     oauth = OAuth(app)
 
@@ -452,6 +458,17 @@ def create_oauth_client(app):
 
     remote.pre_request = check_req
 
+    @app.route("/popup_login")
+    def popup_login():
+        response = remote.authorize(callback=url_for("authorized", _external=True))
+        response.set_cookie(COOKIE_IS_POPUP, value="")
+        return response
+
+    @app.route("/popup_logout")
+    def popup_logout():
+        session.pop("dev_token", None)
+        return kill_popup()
+
     @app.route("/login")
     def login():
         return remote.authorize(callback=url_for("authorized", _external=True))
@@ -464,12 +481,14 @@ def create_oauth_client(app):
         if isinstance(resp, dict) and "access_token" in resp:
             session["dev_token"] = (resp["access_token"], "")
 
+        if COOKIE_IS_POPUP in request.cookies:
+            return kill_popup()
         if COOKIE_SHORTLINK_REDIRECT in request.cookies:
             return load_file(request.cookies[COOKIE_SHORTLINK_REDIRECT])
         else:
             return redirect("/")
 
-    @app.route("/user")
+    @app.route("/api/user", methods=["POST"])
     def client_method():
         token = session["dev_token"][0]
         r = requests.get("https://okpy.org/api/v3/user/?access_token={}".format(token))
