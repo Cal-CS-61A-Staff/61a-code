@@ -18,6 +18,7 @@
     "web-dev": "webpack-dev-server --hot --open --config webpack.web.config.js --mode development",
     "web-dist": "webpack --config webpack.web.config.js --mode production",
     "web-deploy": "cd dist/web/ && rm -rf .git && git init && git add -A && git commit -m \"init\" && git remote add dokku dokku@apps.cs61a.org:code && git push --force dokku master",
+    "web-test": "python dist/web/app.py",
     "size-profile": "webpack --config webpack.size.config.js --mode production"
   },
   "dependencies": {
@@ -81,7 +82,8 @@
     "url-loader": "^2.0.0",
     "webpack": "^4.34.0",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-dev-server": "^3.7.1"
+    "webpack-dev-server": "^3.7.1",
+    "workbox-webpack-plugin": "^4.3.1"
   },
   "electronWebpack": {
     "renderer": {

@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlWebpackTagsPlugin = require("html-webpack-tags-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const WorkboxPlugin = require("workbox-webpack-plugin");
 
 module.exports = {
     entry: {
@@ -93,6 +94,15 @@ module.exports = {
             from: "src/web-server",
             to: ".",
         }]),
+        new WorkboxPlugin.GenerateSW({
+            swDest: "static/service-worker.js",
+            exclude: [/.*/],
+            importsDirectory: "static",
+            runtimeCaching: [{
+                urlPattern: /.*/,
+                handler: "StaleWhileRevalidate",
+            }],
+        }),
     ],
 
 };

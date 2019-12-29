@@ -114,6 +114,11 @@ def root():
     return render_template("index.html", initData={})
 
 
+@app.route("/service-worker.js")
+def serviceworker():
+    return send_from_directory(STATIC_FOLDER, "service-worker.js")
+
+
 @app.route("/python")
 def python():
     return render_template(
