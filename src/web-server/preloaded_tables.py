@@ -7,7 +7,6 @@ from flask import jsonify
 
 from constants import CSV_ROOT
 from db import connect_db
-from refresher import setup
 
 CSV_PRELOADED_TABLES_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=1808429477"
 
@@ -30,7 +29,6 @@ def create_preloaded_tables(app):
             return jsonify({"success": False, "data": ""})
 
 
-@setup
 def setup_preloaded_tables():
     # refresh SQL preloaded tables
     response = requests.get(CSV_ROOT + CSV_PRELOADED_TABLES_SUFFIX)

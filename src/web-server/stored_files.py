@@ -5,7 +5,6 @@ from flask import abort
 
 from constants import CSV_ROOT
 from db import connect_db
-from refresher import setup
 
 CSV_STORED_FILES_SUFFIX = (
     "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=169284641"
@@ -24,7 +23,6 @@ def create_stored_files(app):
         abort(404)
 
 
-@setup
 def setup_stored_files():
     # refresh stored files
     response = requests.get(CSV_ROOT + CSV_STORED_FILES_SUFFIX)

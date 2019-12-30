@@ -2,7 +2,13 @@ from multiprocessing import Process, active_children
 
 from flask import redirect
 
+from authorized_staff import setup_authorized_staff
 from constants import CSV_ROOT
+from named_shortlinks import setup_named_shortlinks
+from preloaded_tables import setup_preloaded_tables
+from shortlink_generator import setup_shortlink_generator
+from shortlink_paths import setup_shortlink_paths
+from stored_files import setup_stored_files
 
 
 def create_refresher(app):
@@ -33,9 +39,11 @@ def create_refresher(app):
     refresh()
 
 
-setup_funcs = []
-
-
-def setup(f):
-    setup_funcs.append(f)
-    return f
+setup_funcs = [
+    setup_authorized_staff,
+    setup_named_shortlinks,
+    setup_preloaded_tables,
+    setup_shortlink_generator,
+    setup_shortlink_paths,
+    setup_stored_files,
+]

@@ -4,12 +4,15 @@ import requests
 from flask import send_from_directory, url_for, redirect, render_template, jsonify
 from werkzeug.exceptions import NotFound
 
-from constants import COOKIE_SHORTLINK_REDIRECT, STATIC_FOLDER, ServerFile
+from constants import (
+    COOKIE_SHORTLINK_REDIRECT,
+    STATIC_FOLDER,
+    ServerFile,
+    NOT_FOUND,
+    NOT_AUTHORIZED,
+    NOT_LOGGED_IN,
+)
 from db import connect_db
-
-NOT_FOUND = "NOT_FOUND"
-NOT_AUTHORIZED = "NOT_AUTHORIZED"
-NOT_LOGGED_IN = "NOT_LOGGED_IN"
 
 
 def create_shortlink_handler(app):

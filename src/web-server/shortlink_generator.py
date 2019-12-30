@@ -5,7 +5,6 @@ from flask import request, abort
 from english_words import english_words_set as words  # list of words to generate links
 
 from db import connect_db
-from refresher import setup
 
 
 def create_shortlink_generator(app):
@@ -31,7 +30,6 @@ def create_shortlink_generator(app):
         return save_file("staffLinks")
 
 
-@setup
 def setup_shortlink_generator():
     with connect_db() as db:
         db(

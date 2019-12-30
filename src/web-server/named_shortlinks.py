@@ -1,18 +1,22 @@
 import csv
 
 import requests
-from flask import abort
 
 from constants import ServerFile, CSV_ROOT
 from db import connect_db
-from refresher import setup
 
 CSV_SHORTLINKS_SUFFIX = (
     "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0"
 )
 
 
-@setup
+def attempt_shortlinks(path):
+    with connect_db() as db:
+        ret = db("SELECT * FROM links WHERE short_link=%s;", [path]).fetchone()
+        if ret is not None:
+            return ServerFile(ret[0], ret[1], ret[2], ret[3].decode(), ret[4])._asdict()
+
+
 def setup_named_shortlinks():
     response = requests.get(CSV_ROOT + CSV_SHORTLINKS_SUFFIX)
     parsed = csv.reader(response.text.split("\n"))
