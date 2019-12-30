@@ -21,8 +21,9 @@ def create_shortlink_handler(app):
             or attempt_generated_shortlink(path, app)
         )
 
-    @app.route("/<path>/")
+    @app.route("/<path:path>")
     def load_file(path):
+        print("try:", path)
         try:
             out = send_from_directory(STATIC_FOLDER, path.replace("//", "/"))
         except NotFound:

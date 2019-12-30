@@ -37,8 +37,6 @@ def create_refresher(app):
         for f in setup_funcs:
             f()
 
-    refresh()
-
 
 setup_funcs = [
     setup_authorized_staff,
