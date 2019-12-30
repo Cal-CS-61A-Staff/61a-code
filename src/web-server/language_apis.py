@@ -1,27 +1,14 @@
-from base64 import b64decode
 from multiprocessing import Process, Queue
 
 import black
 import requests
-from flask import jsonify, request, abort
+from flask import jsonify, request
 
 from IGNORE_scheme_debug import Buffer, debug_eval, scheme_read, tokenize_lines
-from db import connect_db
 from formatter import scm_reformat
 
 
 def create_language_apis(app):
-    # general
-    @app.route("/api/load_file/<file_name>/")
-    def load_stored_file(file_name):
-        with connect_db() as db:
-            out = db(
-                "SELECT * FROM stored_files WHERE file_name=%s;", [file_name]
-            ).fetchone()
-            if out:
-                return out[1]
-        abort(404)
-
     # python
     @app.route("/api/pytutor", methods=["POST"])
     def pytutor_proxy():
@@ -81,20 +68,3 @@ def create_language_apis(app):
             raise
 
         queue.put(out)
-
-    # sql
-    @app.route("/api/preloaded_tables", methods=["POST"])
-    def preloaded_tables():
-        try:
-            with connect_db() as db:
-                return jsonify(
-                    {
-                        "success": True,
-                        "data": b64decode(
-                            db("SELECT data FROM preloaded_tables").fetchone()[0]
-                        ).decode("utf-8"),
-                    }
-                )
-        except Exception as e:
-            print(e)
-            return jsonify({"success": False, "data": ""})

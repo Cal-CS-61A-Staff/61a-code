@@ -26,18 +26,3 @@ def connect_db():
                     conn.execute(args[0], data, *args[2:])
 
         yield db
-
-
-with connect_db() as db:
-    db(
-        """CREATE TABLE IF NOT EXISTS studentLinks (
-       link varchar(128),
-       fileName varchar(128),
-       fileContent BLOB)"""
-    )
-    db(
-        """CREATE TABLE IF NOT EXISTS staffLinks (
-       link varchar(128),
-       fileName varchar(128),
-       fileContent BLOB)"""
-    )

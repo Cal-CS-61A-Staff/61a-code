@@ -80,4 +80,4 @@ def create_shortlink_handler(app):
     def get_raw(path):
         return jsonify(load_shortlink_file(path))
 
-    return load_file
+    app.load_file = load_file

@@ -7,3 +7,4 @@ STATIC_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static
 ServerFile = namedtuple(
     "ServerFile", ["short_link", "full_name", "url", "data", "discoverable"]
 )
+CSV_ROOT = "https://docs.google.com/spreadsheets/d/1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI"

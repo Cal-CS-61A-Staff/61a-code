@@ -99,4 +99,4 @@ def create_oauth_client(app):
             ]
         return email in authorized
 
-    return check_auth
+    app.check_auth = check_auth

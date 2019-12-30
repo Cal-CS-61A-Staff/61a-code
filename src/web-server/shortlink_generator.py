@@ -5,6 +5,7 @@ from flask import request, abort
 from english_words import english_words_set as words  # list of words to generate links
 
 from db import connect_db
+from refresher import setup
 
 
 def create_shortlink_generator(app):
@@ -28,3 +29,20 @@ def create_shortlink_generator(app):
             abort(403)
 
         return save_file("staffLinks")
+
+
+@setup
+def setup_shortlink_generator():
+    with connect_db() as db:
+        db(
+            """CREATE TABLE IF NOT EXISTS studentLinks (
+           link varchar(128),
+           fileName varchar(128),
+           fileContent BLOB)"""
+        )
+        db(
+            """CREATE TABLE IF NOT EXISTS staffLinks (
+           link varchar(128),
+           fileName varchar(128),
+           fileContent BLOB)"""
+        )
