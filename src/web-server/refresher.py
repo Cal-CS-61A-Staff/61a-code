@@ -2,8 +2,9 @@ from multiprocessing import Process, active_children
 
 from flask import redirect
 
-from authorized_staff import setup_authorized_staff
 from constants import CSV_ROOT
+
+from authorized_staff import setup_authorized_staff
 from named_shortlinks import setup_named_shortlinks
 from preloaded_tables import setup_preloaded_tables
 from shortlink_generator import setup_shortlink_generator

@@ -5,7 +5,6 @@ from constants import STATIC_FOLDER
 
 from interpreter_links import create_interpreter_links
 from language_apis import create_language_apis
-from named_shortlinks import create_named_shortlinks
 from oauth_client import create_oauth_client
 from preloaded_tables import create_preloaded_tables
 from refresher import create_refresher

@@ -10,7 +10,7 @@ CSV_SHORTLINKS_SUFFIX = (
 )
 
 
-def attempt_shortlinks(path):
+def attempt_named_shortlinks(path):
     with connect_db() as db:
         ret = db("SELECT * FROM links WHERE short_link=%s;", [path]).fetchone()
         if ret is not None:

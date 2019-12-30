@@ -4,7 +4,28 @@ from flask import request, abort
 
 from english_words import english_words_set as words  # list of words to generate links
 
+from constants import NOT_LOGGED_IN, NOT_AUTHORIZED, NOT_FOUND, ServerFile
 from db import connect_db
+
+
+def attempt_generated_shortlink(path, app):
+    with connect_db() as db:
+        try:
+            ret = db("SELECT * FROM staffLinks WHERE link=%s;", [path]).fetchone()
+            if ret is not None:
+                return ServerFile(ret[0], ret[1], "", ret[2].decode(), False)._asdict()
+
+            ret = db("SELECT * FROM studentLinks WHERE link=%s;", [path]).fetchone()
+
+            if ret is None:
+                return NOT_FOUND
+
+            if app.check_auth():
+                return ServerFile(ret[0], ret[1], "", ret[2].decode(), False)._asdict()
+            else:
+                return NOT_AUTHORIZED
+        except Exception:
+            return NOT_LOGGED_IN
 
 
 def create_shortlink_generator(app):

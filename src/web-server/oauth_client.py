@@ -59,7 +59,9 @@ def create_oauth_client(app):
 
     @app.route("/oauth/login")
     def login():
-        return remote.authorize(callback=url_for("authorized", _external=True))
+        response = remote.authorize(callback=url_for("authorized", _external=True))
+        response.delete_cookie(COOKIE_IS_POPUP)
+        return response
 
     @app.route("/oauth/authorized")
     def authorized():

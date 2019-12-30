@@ -1,58 +1,25 @@
-import os
-
-import requests
-from flask import send_from_directory, url_for, redirect, render_template, jsonify
+from flask import jsonify, redirect, render_template, send_from_directory, url_for
 from werkzeug.exceptions import NotFound
 
 from constants import (
     COOKIE_SHORTLINK_REDIRECT,
-    STATIC_FOLDER,
-    ServerFile,
-    NOT_FOUND,
     NOT_AUTHORIZED,
+    NOT_FOUND,
     NOT_LOGGED_IN,
+    STATIC_FOLDER,
 )
-from db import connect_db
+from named_shortlinks import attempt_named_shortlinks
+from shortlink_generator import attempt_generated_shortlink
+from shortlink_paths import attempt_shortlink_paths
 
 
 def create_shortlink_handler(app):
     def load_shortlink_file(path):
-        with connect_db() as db:
-            ret = db("SELECT * FROM links WHERE short_link=%s;", [path]).fetchone()
-            if ret is not None:
-                return ServerFile(
-                    ret[0], ret[1], ret[2], ret[3].decode(), ret[4]
-                )._asdict()
-
-            base_paths = db("SELECT * FROM linkPaths").fetchall()
-            for base_path, *_ in base_paths:
-                url = os.path.join(base_path, path)
-                data = requests.get(url)
-                if data.ok:
-                    text = data.text
-                    if path.endswith(".sql"):
-                        text = ".open --new\n\n" + text
-                    return {"full_name": path, "data": text}
-
-            ret = db("SELECT * FROM staffLinks WHERE link=%s;", [path]).fetchone()
-            if ret is not None:
-                return ServerFile(ret[0], ret[1], "", ret[2].decode(), False)._asdict()
-
-            try:
-                ret = db("SELECT * FROM studentLinks WHERE link=%s;", [path]).fetchone()
-
-                if ret is None:
-                    return NOT_FOUND
-
-                if app.check_auth():
-                    return ServerFile(
-                        ret[0], ret[1], "", ret[2].decode(), False
-                    )._asdict()
-                else:
-                    return NOT_AUTHORIZED
-
-            except Exception:
-                return NOT_LOGGED_IN
+        return (
+            attempt_named_shortlinks(path)
+            or attempt_shortlink_paths(path)
+            or attempt_generated_shortlink(path, app)
+        )
 
     @app.route("/<path>/")
     def load_file(path):
