@@ -99,10 +99,9 @@ module.exports = {
             exclude: [/.*/],
             importsDirectory: "static",
             runtimeCaching: [{
-                urlPattern: /.*/,
+                urlPattern: ({ url }) => !url.pathname.match(/\/?(oauth|refresh).*/),
                 handler: "StaleWhileRevalidate",
             }],
         }),
     ],
-
 };

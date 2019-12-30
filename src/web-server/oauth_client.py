@@ -1,13 +1,15 @@
 import urllib.parse
 
 import requests
-from flask import session, url_for, request, redirect, jsonify
+from flask import session, url_for, request, redirect, jsonify, abort
 from flask_oauthlib.client import OAuth
 from werkzeug import security
 
 from IGNORE_secrets import SECRET
 from constants import COOKIE_IS_POPUP, COOKIE_SHORTLINK_REDIRECT
 from db import connect_db
+
+CONSUMER_KEY = "61a-web-repl"
 
 
 def create_oauth_client(app):
@@ -55,11 +57,11 @@ def create_oauth_client(app):
         session.pop("dev_token", None)
         return kill_popup()
 
-    @app.route("/login")
+    @app.route("/oauth/login")
     def login():
         return remote.authorize(callback=url_for("authorized", _external=True))
 
-    @app.route("/authorized")
+    @app.route("/oauth/authorized")
     def authorized():
         resp = remote.authorized_response()
         if resp is None:
@@ -76,6 +78,8 @@ def create_oauth_client(app):
 
     @app.route("/api/user", methods=["POST"])
     def client_method():
+        if "dev_token" not in session:
+            abort(403)
         token = session["dev_token"][0]
         r = requests.get("https://okpy.org/api/v3/user/?access_token={}".format(token))
         r.raise_for_status()
@@ -96,6 +100,3 @@ def create_oauth_client(app):
         return email in authorized
 
     return check_auth
-
-
-CONSUMER_KEY = "61a-web-repl"

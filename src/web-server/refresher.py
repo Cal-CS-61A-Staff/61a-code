@@ -29,11 +29,11 @@ CSV_PRELOADED_TABLES_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzpl
 
 
 def create_refresher(app):
-    @app.route("/api/_registry")
+    @app.route("/refresh/_registry")
     def registry():
         return redirect(CSV_ROOT)
 
-    @app.route("/api/_refresh")
+    @app.route("/refresh/_refresh")
     def sync_refresh():
         refresh()
         return (

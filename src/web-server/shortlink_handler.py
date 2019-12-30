@@ -63,7 +63,7 @@ def create_shortlink_handler(app):
         raw = load_shortlink_file(path)
 
         if raw is NOT_LOGGED_IN:
-            response = redirect(url_for("login"))
+            response = redirect(url_for("oauth/login"))
             response.set_cookie(COOKIE_SHORTLINK_REDIRECT, value=path)
             return response
         elif raw is NOT_AUTHORIZED:

@@ -2,11 +2,11 @@ import $ from "jquery";
 import { useEffect, useState } from "react";
 
 export function login() {
-    window.open("/popup_login", "_blank");
+    window.open("/oauth/popup_login", "_blank");
 }
 
 export function logout() {
-    window.open("/popup_logout", "_blank");
+    window.open("/oauth/popup_logout", "_blank");
 }
 
 const handlers = new Set();
