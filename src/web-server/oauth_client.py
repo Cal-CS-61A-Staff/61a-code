@@ -80,11 +80,10 @@ def create_oauth_client(app):
 
     @app.route("/api/user", methods=["POST"])
     def client_method():
-        if "dev_token" not in session:
-            abort(403)
         token = session["dev_token"][0]
         r = requests.get("https://okpy.org/api/v3/user/?access_token={}".format(token))
-        r.raise_for_status()
+        if not r.ok:
+            abort(401)
         return jsonify(r.json())
 
     @remote.tokengetter
