@@ -38,6 +38,8 @@ def setup_shortlink_paths():
     for candidate_path, requested_path, *_ in parsed:
         if requested_path.startswith("/"):
             requested_path = requested_path[1:]
+        if requested_path and not requested_path.endswith("/"):
+            requested_path += "/"
         paths.append([candidate_path, requested_path])
     with connect_db() as db:
         db("DROP TABLE IF EXISTS linkPaths")
