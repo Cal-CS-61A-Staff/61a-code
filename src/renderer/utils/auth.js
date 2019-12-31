@@ -40,7 +40,6 @@ export function useAuthData() {
 }
 
 checkLoggedIn();
-setInterval(checkLoggedIn, 5000);
 
 window.addEventListener("focus", checkLoggedIn);
 
