@@ -45,5 +45,7 @@ async function runSqlCode(key, code) {
             exit(key, "\n\nSQL web worker terminated.");
         },
     });
-    interactProcess(key, code);
+    if (code !== null) {
+        interactProcess(key, code);
+    }
 }

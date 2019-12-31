@@ -31,5 +31,7 @@ export default async function receive(arg) {
 
 async function runPyCode(key, code) {
     await runPyScript(key, webConsole, []);
-    interactProcess(key, code);
+    if (code !== null) {
+        interactProcess(key, code);
+    }
 }

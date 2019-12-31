@@ -31,5 +31,7 @@ export default async function receive(arg) {
 async function runScmCode(key, code) {
     // await runPyScript(key, interpreter, []);
     await runPyScript(key, transpiledInterpreter, { transpiled: true });
-    interactProcess(key, code);
+    if (code !== null) {
+        interactProcess(key, code);
+    }
 }

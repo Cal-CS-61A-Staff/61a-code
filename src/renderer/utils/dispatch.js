@@ -10,6 +10,7 @@ import PythonTutorDebug from "../../languages/python/components/PythonTutorDebug
 import pyDebugPrefix from "../../languages/python/utils/debugPrefix.js";
 import scmDebugPrefix from "../../languages/scheme/utils/debugPrefix.js";
 import { runSQLCode } from "../../languages/sql/utils/run.js";
+import ProcessPool from "./processPool.js";
 
 export function format(language) {
     const options = {
@@ -27,13 +28,14 @@ export function generateDebugTrace(language) {
     return options[language];
 }
 
+const interpreterPool = new ProcessPool({
+    [PYTHON]: runPyCode,
+    [SCHEME]: runScmCode,
+    [SQL]: runSQLCode,
+}, 2);
+
 export function runCode(language) {
-    const options = {
-        [PYTHON]: runPyCode,
-        [SCHEME]: runScmCode,
-        [SQL]: runSQLCode,
-    };
-    return options[language];
+    return interpreterPool.pop(language);
 }
 
 export function runFile(language) {
