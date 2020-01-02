@@ -17,7 +17,7 @@ function str2ab(strBuff, str) {
 
 export default function runPyScript(key, script, args) {
     return new Promise((resolve) => {
-        const worker = new Worker("pythonWorker.js");
+        const worker = new Worker("/pythonWorker.js");
         const commBuff = window.Atomics ? new window.SharedArrayBuffer(4) : null;
         const strBuff = window.Atomics ? new window.SharedArrayBuffer(strBuffLen) : null;
         worker.postMessage({

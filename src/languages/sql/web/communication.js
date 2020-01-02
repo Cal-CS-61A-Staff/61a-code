@@ -13,7 +13,7 @@ export default async function receive(arg) {
 }
 
 async function runSqlCode(key, code) {
-    const worker = new Worker("sqlWorker.js");
+    const worker = new Worker("/sqlWorker.js");
     worker.onmessage = (e) => {
         if (e.data.out) {
             out(key, {
