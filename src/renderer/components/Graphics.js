@@ -30,4 +30,4 @@ function Graphics({ data }) {
     );
 }
 
-export default glWrap(Graphics, "right", 50, "graphics", ["editor", "debugger"]);
+export default glWrap(Graphics, "right", 50, "graphics", []);
