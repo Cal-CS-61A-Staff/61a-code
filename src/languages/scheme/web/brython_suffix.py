@@ -38,6 +38,15 @@ def exit(data):
     browser.self.exit.write(data)
 
 
+sys.path.append(sys.path[0] + "/static/python/overrides")
+# noinspection PyUnresolvedReferences
+from abstract_turtle.logging_canvas import LoggingCanvas
+
+# noinspection PyUnresolvedReferences
+from abstract_turtle.turtle import Turtle
+
+sys.modules["turtle"] = Turtle(LoggingCanvas(None, None))
+
 sys.stdout.write = write
 sys.stderr.write = err
 sys.stdout.__len__ = sys.stderr.__len__ = lambda: 0
@@ -70,7 +79,7 @@ def handle_input(line):
     if firstLine:
         debugging = line.startswith(DEBUG_HOOK)
         if debugging:
-            line = line[len(DEBUG_HOOK):]
+            line = line[len(DEBUG_HOOK) :]
         callback = (lambda x: debug_eval(x, frame)) if debugging else run_expr
         firstLine = False
         if not line:
@@ -113,9 +122,9 @@ def run_expr(expr):
         handle_error(frame)
         record_exec(str(expr), True)
         if isinstance(e, RuntimeError):
-            err('Error: maximum recursion depth exceeded' + "\n")
+            err("Error: maximum recursion depth exceeded" + "\n")
         else:
-            err('Error: ' + str(e) + "\n")
+            err("Error: " + str(e) + "\n")
 
 
 browser.self.stdin.on(handle_input)
