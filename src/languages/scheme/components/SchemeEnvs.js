@@ -1,8 +1,7 @@
 import * as React from "react";
-import SVG from "svg.js";
-import svgPanZoom from "svg-pan-zoom/dist/svg-pan-zoom.min.js";
 
 import { displayElem, getDims, minWidth } from "../../../renderer/utils/diagramming.js";
+import Canvas from "../../../renderer/components/Canvas.js";
 
 const charWidth = getDims()[0];
 const charHeight = getDims()[1];
@@ -132,63 +131,15 @@ function evaluateObjects(index, objects) {
     return out;
 }
 
-export default class SchemeEnvs extends React.Component {
-    constructor(props) {
-        super(props);
-        this.svgRef = React.createRef();
-    }
-
-    componentDidMount() {
-        this.postRender(null);
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        this.postRender(snapshot);
-    }
-
-    getSnapshotBeforeUpdate() {
-        const out = {
-            zoom: svgPanZoom(this.svgRef.current).getZoom(),
-            pan: svgPanZoom(this.svgRef.current).getPan(),
-        };
-        svgPanZoom(this.svgRef.current).destroy();
-        return out;
-    }
-
-
-    async draw(rawSVG, snapshot) {
-        const svg = SVG.adopt(rawSVG).size(3000, 2000);
-        svg.clear();
-
-        const evaluatedFrames = evaluateFrames(this.props.index, this.props.frames);
-        const evaluatedObjects = evaluateObjects(this.props.index, this.props.objects);
-        console.log(evaluatedFrames, evaluatedObjects);
-
-        await displayEnvPointers(evaluatedFrames, evaluatedObjects, svg);
-
-        svgPanZoom(rawSVG, {
-            fit: false,
-            zoomEnabled: true,
-            center: false,
-            controlIconsEnabled: true,
-        });
-
-        if (snapshot) {
-            svgPanZoom(rawSVG).zoom(snapshot.zoom);
-            svgPanZoom(rawSVG).pan(snapshot.pan);
+export default function SchemeEnvs({ index, frames, objects }) {
+    return (
+        <Canvas draw={
+            (svg) => {
+                const evaluatedFrames = evaluateFrames(index, frames);
+                const evaluatedObjects = evaluateObjects(index, objects);
+                displayEnvPointers(evaluatedFrames, evaluatedObjects, svg);
+            }
         }
-    }
-
-    postRender(snapshot) {
-        // noinspection JSIgnoredPromiseFromCall
-        this.draw(this.svgRef.current, snapshot);
-    }
-
-    render() {
-        return (
-            <div className="scmTree">
-                <svg ref={this.svgRef} />
-            </div>
-        );
-    }
+        />
+    );
 }

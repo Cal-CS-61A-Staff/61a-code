@@ -500,3 +500,9 @@ html {
 .lm_close_tab {
     top: 9px !important;
 }
+
+.canvas {
+    width: 100%;
+    height: 100%;
+    background: white;
+}

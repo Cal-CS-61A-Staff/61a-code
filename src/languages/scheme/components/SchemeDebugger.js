@@ -7,8 +7,6 @@ import SchemeTree from "./SchemeTree.js";
 import SchemeEnvs from "./SchemeEnvs.js";
 import PositionChooser from "../../../renderer/components/PositionChooser.js";
 
-import "./SchemeDebugger.css";
-
 class SchemeDebugger extends React.PureComponent {
     constructor(props) {
         super(props);

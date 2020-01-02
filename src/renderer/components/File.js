@@ -18,10 +18,12 @@ import {
     runFile,
 } from "../utils/dispatch.js";
 import { ERROR, INPUT, OUTPUT } from "../../common/outputTypes.js";
+import Graphics from "./Graphics.js";
 
 const DEBUG_MARKER = "DEBUG: ";
 const EDITOR_MARKER = "EDITOR: ";
 const EXEC_MARKER = "EXEC: ";
+const TURTLE_MARKER = "TURTLE: ";
 
 export default class File extends React.Component {
     constructor(props) {
@@ -35,6 +37,8 @@ export default class File extends React.Component {
 
             outputData: [],
             outputActive: false,
+
+            graphicsData: [],
 
             executedCode: [],
 
@@ -231,6 +235,9 @@ export default class File extends React.Component {
         } else if (text.startsWith(EXEC_MARKER)) {
             const code = text.substr(EXEC_MARKER.length);
             this.setState(state => ({ executedCode: state.executedCode.concat([code]) }));
+        } else if (text.startsWith(TURTLE_MARKER)) {
+            const data = JSON.parse(text.substr(DEBUG_MARKER.length));
+            this.setState(({ graphicsData }) => ({ graphicsData: graphicsData.concat(data) }));
         } else {
             this.setState((state) => {
                 const outputData = state.outputData.concat([{
@@ -329,6 +336,10 @@ export default class File extends React.Component {
                     title={`${this.state.name} (Debug)`}
                     data={this.state.debugData}
                     onUpdate={this.handleDebugUpdate}
+                />
+                <Graphics
+                    title={`${this.state.name} (Graphics)`}
+                    data={this.state.graphicsData}
                 />
             </>
         );
