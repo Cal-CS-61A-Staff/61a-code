@@ -90,23 +90,23 @@ function displayTreeWorker(data, container, x, y, level, starts) {
     }
 }
 
-function displayTree(svg, allData) {
+function displayTree(svg, index, allData) {
     let currData;
     for (const data of allData) {
-        if (data[0] > this.props.index) {
+        if (data[0] > index) {
             break;
         }
         [, currData] = data;
     }
-    const data = getDataAtIndex(currData, this.props.index);
+    const data = getDataAtIndex(currData, index);
 
     // svg.clear();
 
     displayTreeWorker(data, svg, 10, 15, 0, [0]);
 }
 
-export default function SchemeTree({ data }) {
+export default function SchemeTree({ index, data }) {
     return (
-        <Canvas draw={svg => displayTree(svg, data)} />
+        <Canvas draw={svg => displayTree(svg, index, data)} />
     );
 }
