@@ -10,10 +10,10 @@ from sys import *
 
 # different import patterns to check that __annotations__ does not interfere
 # with import machinery
-# import test.ann_module as ann_module  # Doesn't work in Brython
+import test.ann_module as ann_module
 import typing
 from collections import ChainMap
-# from test import ann_module2  # Doesn't work in Brython
+from test import ann_module2
 import test
 
 # These are shared with test_tokenize and other test modules.
@@ -226,7 +226,6 @@ the \'lazy\' dog.\n\
 
 
 
-    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_eof_error(self):
         samples = ("def foo(", "\ndef foo(", "def foo(\n")
         for s in samples:
@@ -340,7 +339,6 @@ class GrammarTests(unittest.TestCase):
                 x: int
                 x.y: list = []
 
-    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_var_annot_metaclass_semantics(self):
         class CMeta(type):
             @classmethod
@@ -350,7 +348,6 @@ class GrammarTests(unittest.TestCase):
             XX: 'ANNOT'
         self.assertEqual(CC.__annotations__['xx'], 'ANNOT')
 
-    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_var_annot_module_semantics(self):
         with self.assertRaises(AttributeError):
             print(test.__annotations__)
@@ -360,7 +357,7 @@ class GrammarTests(unittest.TestCase):
                               {'123': 123, 'o': type})
         self.assertEqual(ann_module2.__annotations__, {})
 
-    @unittest.skip('Fails in Brython')
+    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_var_annot_in_module(self):
         # check that functions fail the same way when executed
         # outside of module where they were defined
@@ -641,7 +638,6 @@ class GrammarTests(unittest.TestCase):
         def f(a, *args, b, **kwds,): pass
         def f(a, *, b, **kwds,): pass
 
-    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_lambdef(self):
         ### lambdef: 'lambda' [varargslist] ':' test
         l1 = lambda : 0
@@ -692,7 +688,6 @@ class GrammarTests(unittest.TestCase):
     ### small_stmt: expr_stmt | pass_stmt | del_stmt | flow_stmt | import_stmt | global_stmt | access_stmt
     # Tested below
 
-    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_expr_stmt(self):
         # (exprlist '=')* exprlist
         1
@@ -708,7 +703,6 @@ class GrammarTests(unittest.TestCase):
 
     # Check the heuristic for print & exec covers significant cases
     # As well as placing some limits on false positives
-    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_former_statements_refer_to_builtins(self):
         keywords = "print", "exec"
         # Cases where we want the custom error
@@ -804,7 +798,6 @@ class GrammarTests(unittest.TestCase):
                 self.fail("continue then break in try/except in loop broken!")
         test_inner()
 
-    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_return(self):
         # 'return' [testlist]
         def g1(): return
@@ -1061,7 +1054,6 @@ class GrammarTests(unittest.TestCase):
             x = 2
         self.assertEqual(x, 2)
 
-    @unittest.skip('Fails in Brython -- still needs to be investigated')
     def test_for(self):
         # 'for' exprlist 'in' exprlist ':' suite ['else' ':' suite]
         for i in 1, 2, 3: pass

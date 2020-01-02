@@ -14,12 +14,15 @@ Number.isSafeInteger = Number.isSafeInteger || function (value) {
 
 var js,$pos,res,$op
 var _b_ = $B.builtins
-var _window = self
-var isWebWorker = $B.isa_web_worker =
-    ('undefined' !== typeof WorkerGlobalScope) &&
-    ("function" === typeof importScripts) &&
-    (navigator instanceof WorkerNavigator)
-
+var _window
+if ($B.isNode){
+    _window={ location: {
+        href:'',
+        origin: '',
+        pathname: ''} }
+} else {
+    _window=self
+}
 $B.parser = {}
 
 /*
@@ -339,7 +342,6 @@ var $_SyntaxError = $B.parser.$_SyntaxError = function (context, msg, indent){
     if(root.line_info){
         line_num = root.line_info
     }
-    if(indent !== undefined){line_num++}
     if(indent === undefined){
         if(Array.isArray(msg)){
             $B.$SyntaxError(module, msg[0], src, $pos, line_num)
@@ -365,6 +367,20 @@ For each instruction in the Python source code, an instance is created
 as a child of the block where it stands : the root for instructions at
 module level, or a function definition, a loop, a condition, etc.
 */
+
+/*
+Function that checks that a context is not inside another incompatible
+context. Used for (augmented) assignements */
+function check_assignment(context){
+    var ctx = context,
+        forbidden = ['assert', 'del', 'import', 'raise', 'return']
+    while(ctx){
+        if(forbidden.indexOf(ctx.type) > -1){
+            $_SyntaxError(context, 'invalid syntax - assign')
+        }
+        ctx = ctx.parent
+    }
+}
 
 var $Node = $B.parser.$Node = function(type){
     this.type = type
@@ -483,6 +499,7 @@ var $Node = $B.parser.$Node = function(type){
                 // value sent to the generator, if any
                 var set_yield = new $Node()
                 set_yield.is_set_yield_value = true
+                set_yield.after_yield = true
 
                 // the JS code will be set in py_utils.$B.make_node
                 js = $loop_num
@@ -690,6 +707,11 @@ var $AnnotationCtx = $B.parser.$AnnotationCtx = function(context){
     context.annotation = this
 
     var scope = $get_scope(context)
+    if(scope.binding.__annotations__ === undefined){
+        // In an imported module, __annotations__ is not defined by default
+        scope.binding.__annotations__ = true
+        context.create_annotations = true
+    }
 
     if(scope.ntype == "def" && context.tree && context.tree.length > 0 &&
             context.tree[0].type == "id"){
@@ -700,9 +722,11 @@ var $AnnotationCtx = $B.parser.$AnnotationCtx = function(context){
         }
         scope.annotations = scope.annotations || new Set()
         scope.annotations.add(name)
-        // name is local in the scope
-        scope.binding = scope.binding || {}
-        scope.binding[name] = true
+        // If name was not inside a parenthesis, it is local in the scope
+        if(! context.$in_parens){
+            scope.binding = scope.binding || {}
+            scope.binding[name] = true
+        }
     }
     this.toString = function(){return '(annotation) ' + this.tree}
 
@@ -751,12 +775,9 @@ var $AssignCtx = $B.parser.$AssignCtx = function(context, expression){
     disabled if a new AssignCtx object is created afterwards by method
     transform()
     */
-    var ctx = context
-    while(ctx){
-        if(ctx.type == 'assert'){
-            $_SyntaxError(context, 'invalid syntax - assign')
-        }
-        ctx = ctx.parent
+    check_assignment(context)
+    if(context.type == "expr" && context.tree[0].type == "lambda"){
+        $_SyntaxError(context, ["cannot assign to lambda"])
     }
 
     this.type = 'assign'
@@ -796,8 +817,7 @@ var $AssignCtx = $B.parser.$AssignCtx = function(context, expression){
             // Attribute bound of an id indicates if it is being
             // bound, as it is the case in the left part of an assignment
             assigned.bound = true
-            if(!$B._globals[scope.id] ||
-                $B._globals[scope.id][assigned.value] === undefined){
+            if(!scope.globals || !scope.globals.has(assigned.value)){
                 // A value is going to be assigned to a name
                 // After assignment the name will be bound to the current
                 // scope
@@ -844,6 +864,7 @@ var $AssignCtx = $B.parser.$AssignCtx = function(context, expression){
             assigned.push(left.tree[1])
             left = left.tree[0]
         }
+
         if(assigned.length > 0){
             assigned.push(left)
 
@@ -867,7 +888,8 @@ var $AssignCtx = $B.parser.$AssignCtx = function(context, expression){
                 new $RawJSCtx(assign, '$temp' + $loop_num)
             })
             $loop_num++
-            return assigned.length - 1
+            this.tree[0] = left
+            return
         }
 
         var left_items = null
@@ -882,8 +904,7 @@ var $AssignCtx = $B.parser.$AssignCtx = function(context, expression){
                     // simple assign : set attribute "bound" for name resolution
                     var name = left.tree[0].value
                     // check if name in globals
-                    if($B._globals && $B._globals[scope.id]
-                        && $B._globals[scope.id][name]){
+                    if(scope.globals && scope.globals.has(name)){
                     }else{
                         left.tree[0].bound = true
                     }
@@ -910,6 +931,7 @@ var $AssignCtx = $B.parser.$AssignCtx = function(context, expression){
                 (right.type == 'expr' && right.tree.length > 1)){
             right_items = right.tree
         }
+
         if(right_items !== null){ // form x, y = a, b
             if(right_items.length > left_items.length){
                 throw Error('ValueError : too many values to unpack (expected ' +
@@ -1178,7 +1200,7 @@ var $AttrCtx = $B.parser.$AttrCtx = function(context){
                             parent.context.tree[0].args === undefined){
                         // set attr to instance of a class without a parent
                         this.assign_self = true
-                        return [js + ".__class__ && !" +
+                        return [js + ".__class__ && " + js + ".__dict__ && !" +
                             js + ".__class__.$has_setattr && ! " + js +
                             ".$is_class ? " + js +
                             ".__dict__.$string_dict['" + this.name +
@@ -1201,6 +1223,9 @@ var $AttrCtx = $B.parser.$AttrCtx = function(context){
 
 var $AugmentedAssignCtx = $B.parser.$AugmentedAssignCtx = function(context, op){
     // Class for augmented assignments such as "+="
+
+    check_assignment(context)
+
     this.type = 'augm_assign'
     this.parent = context.parent
     context.parent.tree.pop()
@@ -1351,6 +1376,13 @@ var $AugmentedAssignCtx = $B.parser.$AugmentedAssignCtx = function(context, op){
         }
 
         var left = context.tree[0].to_js()
+        if(context.tree[0].type == "id"){
+            var binding_scope = context.tree[0].firstBindingScopeId()
+            if(binding_scope){
+                left = "$locals_" + binding_scope.replace(/\./g, '_') +
+                    '["' + context.tree[0].value + '"]'
+            }
+        }
 
         if(left_bound_to_int && right_is_int){
             parent.insert(rank + offset, $NodeJS(left + " "+ op + " " + right))
@@ -1425,7 +1457,7 @@ var $AugmentedAssignCtx = $B.parser.$AugmentedAssignCtx = function(context, op){
         var ctx1 = new $NodeCtx(aa1)
         var expr1 = new $ExprCtx(ctx1, 'clone', false)
         if(left_id_unbound){
-            new $RawJSCtx(expr1, '$locals["' + left_id + '"]')
+            new $RawJSCtx(expr1, left) //'$locals["' + left_id + '"]')
         }else{
             expr1.tree = context.tree
             expr1.tree.forEach(function(elt){
@@ -1452,7 +1484,7 @@ var $AugmentedAssignCtx = $B.parser.$AugmentedAssignCtx = function(context, op){
         var ctx2 = new $NodeCtx(aa2)
         var expr2 = new $ExprCtx(ctx2, 'clone', false)
         if(left_id_unbound){
-            new $RawJSCtx(expr2, '$locals["' + left_id + '"]')
+            new $RawJSCtx(expr2, left) //'$locals["' + left_id + '"]')
         }else{
             expr2.tree = context.tree
             expr2.tree.forEach(function(elt){
@@ -1484,8 +1516,16 @@ var $AwaitCtx = $B.parser.$AwaitCtx = function(context){
     this.tree = []
     context.tree.push(this)
 
+    var p = context
+    while(p){
+        if(p.type == "list_or_tuple"){
+            p.is_await = true
+        }
+        p = p.parent
+    }
+
     this.to_js = function(){
-        return 'await $B.promise(' + $to_js(this.tree) + ')'
+        return 'await ($B.promise(' + $to_js(this.tree) + '))'
     }
 }
 
@@ -2226,7 +2266,7 @@ var $DecoratorCtx = $B.parser.$DecoratorCtx = function(context){
             scope = $get_scope(this),
             ref = '$locals["'
         // reference of the original function, may have been declared global
-        if($B._globals[scope.id] && $B._globals[scope.id][obj.name]){
+        if(scope.globals && scope.globals.has(obj.name)){
             var module = $get_module(this)
             ref = '$locals_' + module.id + '["'
         }
@@ -2380,8 +2420,8 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
 
         this.binding = {}
 
-        if($B._globals[this.scope.id] !== undefined &&
-                $B._globals[this.scope.id][name] !== undefined){
+        if(this.scope.globals !== undefined &&
+                this.scope.globals.has(name)){
             // function name was declared global
             $bind(name, this.root, this)
         }else{
@@ -2431,7 +2471,8 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
         }
 
         var defaults = [],
-            defs1 = []
+            defs1 = [],
+            has_end_pos = false
         this.argcount = 0
         this.kwonlyargcount = 0 // number of args after a star arg
         this.kwonlyargsdefaults = []
@@ -2456,8 +2497,14 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
 
         var func_args = this.tree[1].tree
         func_args.forEach(function(arg){
-            this.args.push(arg.name)
-            this.varnames[arg.name] = true
+            if(arg.type == 'end_positional'){
+                this.args.push("/")
+                slot_list.push('"/"')
+                has_end_pos = true
+            }else{
+                this.args.push(arg.name)
+                this.varnames[arg.name] = true
+            }
             if(arg.type == 'func_arg_id'){
                 if(this.star_arg){
                     this.kwonlyargcount++
@@ -2507,8 +2554,6 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
         }
         var global_ns = '$locals_' + global_scope.id.replace(/\./g, '_')
 
-        var prefix = this.tree[0].to_js()
-        if(this.decorated){prefix = this.alias}
         var name = this.name + this.num
 
         // Add lines of code to node children
@@ -2531,7 +2576,7 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
             $NodeJS('var $top_frame = [$local_name, $locals,' +
                 '"' + global_scope.id + '", ' + global_ns + ', ' + name + ']'),
             $NodeJS('$B.frames_stack.push($top_frame)'),
-            $NodeJS('var $stack_length = $B.frames_stack.length')
+            $NodeJS('var $stack_length = $B.frames_stack.length;')
         ]
         if(this.async){
             enter_frame_nodes.push($NodeJS("var $stack = " +
@@ -2571,7 +2616,7 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
 
         var only_positional = false
         if(this.other_args === null && this.other_kw === null &&
-                this.after_star.length == 0){
+                this.after_star.length == 0 && !has_end_pos){
             // If function only takes positional arguments, we can generate
             // a faster version of argument parsing than by calling function
             // $B.args
@@ -2678,6 +2723,16 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
         // this() in module javascript
         nodes.push($NodeJS('$B.js_this = this;'))
 
+        // If the function is a generator, the beginning of the function body
+        // is the "suspension point" for generator.throw or generator.send,
+        // so we insert a set_yield_value node
+        if(this.type == "generator"){
+            var suspension_node = $NodeJS("// suspension")
+            suspension_node.is_set_yield_value = true
+            suspension_node.num = node.num
+            nodes.push(suspension_node)
+        }
+
         // remove children of original node
         for(var i = nodes.length - 1; i >= 0; i--){
             node.children.splice(0, 0, nodes[i])
@@ -2783,7 +2838,9 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
 
         for(var attr in this.binding){this.varnames[attr] = true}
         var co_varnames = []
-        for(var attr in this.varnames){co_varnames.push('"' + attr + '"')}
+        for(var attr in this.varnames){
+            co_varnames.push('"' + $B.from_alias(attr) + '"')
+        }
 
         // Get "free variables" (referenced in function but not bound inside
         // it)
@@ -2811,8 +2868,9 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
             h1 + 'co_kwonlyargcount:' + this.kwonlyargcount +
             h1 + 'co_name: "' + this.name + '"' +
             h1 + 'co_nlocals: ' + co_varnames.length +
-            h1 + 'co_varnames: [' + co_varnames.join(', ') + ']' +
-            h + '}\n' + ' '.repeat(indent + 4) +'};'
+            h1 + 'co_posonlyargcount: ' + (this.pos_only || 0) +
+            h1 + 'co_varnames: $B.fast_tuple([' + co_varnames.join(', ') + ']' +
+            h + ')}\n' + ' '.repeat(indent + 4) +'};'
 
         // End with None for interactive interpreter
         js += 'None;'
@@ -2833,7 +2891,7 @@ var $DefCtx = $B.parser.$DefCtx = function(context){
                 $NodeJS(res + '}'))
 
             node.parent.insert(rank + offset++, $NodeJS(
-                func_name1 + " = " + this.name + '$' + this.num +
+                this.func_name + " = " + this.name + '$' + this.num +
                 '(' + this.default_str + ')'))
 
             node.parent.insert(rank + offset++, $NodeJS(
@@ -2911,14 +2969,35 @@ var $DelCtx = $B.parser.$DelCtx = function(context){
             })
             this.tree = []
             return res.join(';')
+        }else if(this.tree[0].type == 'expr' &&
+                this.tree[0].tree[0].type == 'list_or_tuple'){
+            // del(x[0]) is the same as del x[0], cf.issue #923
+            this.tree[0] = this.tree[0].tree[0]
+            return this.to_js()
         }else{
             var expr = this.tree[0].tree[0]
 
             switch(expr.type) {
                 case 'id':
                     // cf issue #923
-                    var res = '$B.$delete("' + expr.value + '");'
-                    delete $get_scope(this).binding[expr.value]
+                    var scope = $get_scope(this),
+                        is_global = false
+                    if((scope.ntype == "def" || scope.ntype == "generator") &&
+                            scope.globals && scope.globals.has(expr.value)){
+                        // Delete from global namespace
+                        scope = scope.parent
+                        while(scope.parent &&
+                                scope.parent.id !== "__builtins__"){
+                            scope = scope.parent
+                        }
+                        is_global = true
+                    }
+                    var res = '$B.$delete("' + expr.value + '"' +
+                        (is_global ? ', "global"' : '') + ');'
+                    // Delete from scope to force the use of $search or
+                    // $global_search in name resolution, even if del is never
+                    // called.
+                    delete scope.binding[expr.value]
                     return res
                 case 'list_or_tuple':
                     var res = []
@@ -3093,6 +3172,20 @@ var $EllipsisCtx = $B.parser.$EllipsisCtx = function(context){
     }
 }
 
+var $EndOfPositionalCtx = $B.parser.$EndOfConditionalCtx = function(context){
+    // Indicates the end of positional arguments in a function definition
+    // PEP 570
+    this.type = "end_positional"
+    this.parent = context
+    context.has_end_positional = true
+    context.parent.pos_only = context.tree.length
+    context.tree.push(this)
+
+    this.to_js = function(){
+        return "/"
+    }
+}
+
 var $ExceptCtx = $B.parser.$ExceptCtx = function(context){
     // Class for keyword "except"
     this.type = 'except'
@@ -3181,11 +3274,27 @@ var $ExprCtx = $B.parser.$ExprCtx = function(context, name, with_commas){
         else if(this.tree.length == 1){res = this.tree[0].to_js(arg)}
         else{res = '_b_.tuple.$factory([' + $to_js(this.tree) + '])'}
         if(this.is_await){
-            res = "await $B.promise(" + res + ")"
+            res = "await ($B.promise(" + res + "))"
         }
         if(this.assign){
-            console.log("expr to js, is assign", this)
+            // Assignement expression (PEP 572)
             var scope = $get_scope(this)
+            // Inside comprehensions, assignement is in the first
+            // containing scope
+            while(scope.is_comp){
+                scope = scope.parent_block
+            }
+            if(scope.globals && scope.globals.has(this.assign.value)){
+                // Name is declared global
+                while(scope.parent_block &&
+                        scope.parent_block.id !== "__builtins__"){
+                    scope = scope.parent_block
+                }
+            }else if(scope.nonlocals &&
+                    scope.nonlocals[this.assign.value]){
+                // Name is declared nonlocal
+                scope = scope.parent_block
+            }
             res = "($locals_" + scope.id.replace(/\./g, '_') + '["' +
                 this.assign.value + '"] = ' + res + ')'
         }
@@ -3303,6 +3412,7 @@ var $ForExpr = $B.parser.$ForExpr = function(context){
 
             // Line to test if the callable "range" is the built-in "range"
             var test_range_node = new $Node()
+            test_range_node.module = node.parent.module
             if(range_is_builtin){
                 new $NodeJSCtx(test_range_node, 'if(1)')
             }else{
@@ -3585,8 +3695,8 @@ var $ForExpr = $B.parser.$ForExpr = function(context){
 
         // TARGET = await type(iter).__anext__(iter)
         if(target.tree.length == 1){
-            var js = target.to_js() + ' = await $B.promise(' +
-                anext_name + '(' + iterable_name + '))'
+            var js = target.to_js() + ' = await ($B.promise(' +
+                anext_name + '(' + iterable_name + ')))'
             try_node.add($NodeJS(js))
         }else{
             var new_node = new $Node(),
@@ -3596,8 +3706,8 @@ var $ForExpr = $B.parser.$ForExpr = function(context){
             target.parent = expr
             var assign = new $AssignCtx(expr)
 
-            new $RawJSCtx(assign, 'await $B.promise(' +
-                anext_name + '(' + iterable_name + '))')
+            new $RawJSCtx(assign, 'await ($B.promise(' +
+                anext_name + '(' + iterable_name + ')))')
 
             try_node.add(new_node)
         }
@@ -3672,7 +3782,12 @@ var $FromCtx = $B.parser.$FromCtx = function(context){
             pos = 0,
             indent = $get_node(this).indent,
             head = ' '.repeat(indent)
-
+        if(mod.startsWith("$exec")){
+            var frame = $B.last($B.frames_stack)[1]
+            if(frame.module && frame.module.__name__){
+                mod = frame.module.__name__
+            }
+        }
         var mod_elts = this.module.split(".")
         for(var i = 0; i < mod_elts.length; i++){
             module.imports[mod_elts.slice(0, i + 1).join(".")] = true
@@ -3704,14 +3819,10 @@ var $FromCtx = $B.parser.$FromCtx = function(context){
         }
         if(_mod){packages.push(_mod)}
         this.module = packages.join('.')
-        /*
-        console.log("from", this.module, "import", this.names, $package, packages,
-            module.module)
-        */
 
         // FIXME : Replacement still needed ?
         var mod_name = this.module.replace(/\$/g, '')
-        res[pos++] = '$B.$import("'
+        res[pos++] = 'var module = $B.$import("'
         res[pos++] = mod_name + '",["'
         res[pos++] = this.names.join('","') + '"], {'
         var sep = ''
@@ -3726,15 +3837,15 @@ var $FromCtx = $B.parser.$FromCtx = function(context){
             // Set attribute to indicate that the scope has a
             // 'from X import *' : this will make name resolution harder :-(
             scope.blurred = true
-            res[pos++] = '\n' + head + 'for(var $attr in $B.imported["' +
-                mod_name + '"]){if($attr.charAt(0) !== "_" && $attr.charAt(0) !== "$")' +
-                '{$locals[$attr] = $B.imported["' + mod_name + '"][$attr]}};'
+            res[pos++] = '\n' + head + 'for(var attr in module' +
+                '){if(attr.charAt(0) !== "_" && attr.charAt(0) !== "$")' +
+                '{$locals[attr] = module[attr]}};'
         }else{
             this.names.forEach(function(name){
                 module.imports[this.module + '.' + name] = true
                 res[pos++] = '\n' + head + '$locals["' +
-                (this.aliases[name] || name) + '"] = $B.imported["' +
-                mod_name + '"]["' + name + '"];'
+                (this.aliases[name] || name) + '"] = $B.$getattr($B.imported["' +
+                mod_name + '"], "' + name + '");'
             }, this)
         }
         res[pos++] = '\n' + head + 'None;'
@@ -3855,7 +3966,9 @@ var $GlobalCtx = $B.parser.$GlobalCtx = function(context){
     context.tree[context.tree.length] = this
     this.expect = 'id'
     this.scope = $get_scope(this)
-    $B._globals[this.scope.id] = $B._globals[this.scope.id] || {}
+    this.scope.globals = this.scope.globals || new Set()
+    this.module = $get_module(this)
+    this.module.binding = this.module.binding || {}
 
     this.toString = function(){return 'global ' + this.tree}
 
@@ -3864,7 +3977,8 @@ var $GlobalCtx = $B.parser.$GlobalCtx = function(context){
             $_SyntaxError(context, ["annotated name '" + name +
                 "' can't be global"])
         }
-        $B._globals[this.scope.id][name] = true
+        this.scope.globals.add(name)
+        this.module.binding[name] = true
     }
 
     this.to_js = function(){
@@ -3921,7 +4035,10 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
 
     if(context.type == 'target_list' ||
             (context.type == 'expr' && context.parent.type == 'target_list')){
-        // An id defined as a target in a "for" loop is bound
+        // An id defined as a target in a "for" loop is bound in the scope,
+        // but *not* in the node bindings, because if the iterable is empty
+        // the name has no value (cf. issue 1233)
+        this.no_bindings = true
         $bind(value, scope, this)
         this.bound = true
     }
@@ -3982,19 +4099,21 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
         // code tree. It will be translated to $local_search("x"), which will
         // check at run time if the name "x" exists and if not, raise an
         // UnboundLocalError.
-        var nb = 0,
-            node = $get_node(this),
+        var node = $get_node(this),
             found = false
+        var $test = this.value == "bx"
 
-        while(!found && node.parent && nb++ < 100){
+        while(!found && node.parent){
             var pnode = node.parent
             if(pnode.bindings && pnode.bindings[this.value]){
+                if($test){console.log("bound in", pnode)}
                 return pnode.bindings[this.value]
             }
             for(var i = 0; i < pnode.children.length; i++){
                 var child = pnode.children[i]
                 if(child === node){break}
                 if(child.bindings && child.bindings[this.value]){
+                    if($test){console.log("bound in child", child)}
                     return child.bindings[this.value]
                 }
             }
@@ -4117,11 +4236,10 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
         // get global scope
         var gs = innermost
 
-        var $test = false //val == "__class__"
+        var $test = val == "bx"
 
         if($test){
             console.log("this", this)
-            console.log("innermost", innermost)
         }
 
         while(true){
@@ -4139,6 +4257,7 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
 
         if (innermost.globals && innermost.globals.has(val)){
             search_ids = ['"' + gs.id + '"']
+            innermost = gs
         }
 
         if($test){
@@ -4148,10 +4267,14 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
         if(this.nonlocal || this.bound){
             var bscope = this.firstBindingScopeId()
             if($test){console.log("binding", bscope)}
-            // Might be undefined, for augmented assignments
+            // Might be undefined, for augmented assignments or if the name
+            // has been deleted before (by del)
             if(bscope !== undefined){
                 return "$locals_" + bscope.replace(/\./g, "_") + '["' +
                     val + '"]'
+            }else if(this.bound){
+                return "$locals_" + innermost.id.replace(/\./g, "_") +
+                    '["' + val + '"]'
             }
         }
 
@@ -4159,14 +4282,18 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
 
         // Build the list of scopes where the variable name is bound
         while(1){
-            if($B._globals[scope.id] !== undefined &&
-                    $B._globals[scope.id][val] !== undefined){
+            if(scope.globals !== undefined &&
+                    scope.globals.has(val)){
+                if($test){
+                    console.log("in globals of", scope.id)
+                }
                 // Variable is declared as global. If the name is bound in the
                 // global scope, use it ; if the name is being bound, bind it
                 // in the global namespace.
                 // Else return a call to a function that searches the name in
                 // globals, and throws NameError if not found.
                 if(this.boundBefore(gs)){
+                    if($test){console.log("bound before in gs", gs)}
                     return global_ns + '["' + val + '"]'
                 }else{
                     if($test){console.log("use global search", this)}
@@ -4177,6 +4304,11 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
                             search_ids + ')'
                     }
                 }
+            }
+            if($test){
+                console.log("scope", scope, "innermost", innermost,
+                    scope === innermost, "bound_before", bound_before,
+                    "found", found.slice())
             }
             if(scope === innermost){
                 // Handle the case when the same name is used at both sides
@@ -4204,7 +4336,9 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
                             }
                         }else{
                             found.push(scope)
+                            break
                         }
+                        if($test){console.log(val, "found in", scope.id)}
                     }
                 }
             }else{
@@ -4219,7 +4353,12 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
             else{break}
         }
         this.found = found
-        if($test){console.log("found", found)}
+        if($test){
+            console.log("found", found)
+            found.forEach(function(item){
+                console.log(item.id)
+            })
+        }
 
         if(this.nonlocal && found[0] === innermost){found.shift()}
 
@@ -4258,7 +4397,6 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
                 }
             }
             if(found.length > 1 && found[0].context){
-
                 if(found[0].context.tree[0].type == 'class'){
                     var ns0 = '$locals_' + found[0].id.replace(/\./g, '_'),
                         ns1 = '$locals_' + found[1].id.replace(/\./g, '_'),
@@ -4303,6 +4441,7 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
             var scope_ns = '$locals_' + scope.id.replace(/\./g, '_')
 
             if(scope.context === undefined){
+                if($test){console.log("module level", scope.id, scope.module)}
                 // name found at module level
                 if(scope.id == '__builtins__'){
                     if(gs.blurred){
@@ -4318,8 +4457,9 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
                         }
                         this.is_builtin = true
                     }
-                }else if(scope.id == scope.module){
+                }else{
                     // Name found at module level
+                    if($test){console.log("name found at module level")}
                     if(this.bound || this.augm_assign){
                         // If the id is in the left part of a binding or
                         // an augmented assign, eg "x = 0" or "x += 5"
@@ -4332,6 +4472,9 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
                             this.result = '$B.$search("' + val + '")'
                             return this.result
                         }else{
+                            if($test){
+                                console.log("boudn before ?", this.boundBefore(scope))
+                            }
                             if(this.boundBefore(scope)){
                                 // We are sure that the name is defined in the
                                 // scope
@@ -4348,11 +4491,10 @@ var $IdCtx = $B.parser.$IdCtx = function(context,value){
                             }
                         }
                     }
-                }else{
-                    val = scope_ns + '["' + val + '"]'
                 }
             }else if(scope === innermost){
-                if($B._globals[scope.id] && $B._globals[scope.id][val]){
+                if($test){console.log("scope is innermost", scope.id)}
+                if(scope.globals && scope.globals.has(val)){
                     val = global_ns + '["' + val + '"]'
                 }else if(!this.bound && !this.augm_assign){
                     // Search all the lines in the scope where the name is
@@ -4795,9 +4937,12 @@ var $ListOrTupleCtx = $B.parser.$ListOrTupleCtx = function(context,real){
                         delete $B.$py_src[listcomp_name]
 
                         js += 'return $locals_lc' + ix + '["x' + ix + '"]'
-                        js = '(function($locals_' + listcomp_name + '){' +
+                        js = 'function($locals_' + listcomp_name + '){' +
                             js + '})({})'
-                        return js
+                        if(this.is_await){
+                            js = 'async ' + js
+                        }
+                        return '(' + js
 
                     case 'dict_or_set_comp':
                         if(this.expression.length == 1){
@@ -4879,8 +5024,13 @@ var $NodeCtx = $B.parser.$NodeCtx = function(node){
                 // Node is annotation
                 if(is_not_def){
                     if(this.tree[0].type == "expr" &&
+                            ! this.tree[0].$in_parens &&
                             this.tree[0].tree[0].type == "id"){
-                        return "$locals.__annotations__.$string_dict['" +
+                        var js = ""
+                        if(this.create_annotations){
+                            js += "$locals.__annotations__ = _b_.dict.$factory();"
+                        }
+                        return js + "$locals.__annotations__.$string_dict['" +
                             this.tree[0].tree[0].value + "'] = " +
                             this.tree[0].annotation.to_js() + ";"
                     }else if(this.tree[0].type == "def"){
@@ -4896,12 +5046,16 @@ var $NodeCtx = $B.parser.$NodeCtx = function(node){
                     this.tree = []
                 }
             }else if(this.tree[0].type == "assign" &&
+                    ! this.tree[0].tree[0].$in_parens &&
                     this.tree[0].tree[0].annotation){
                 // Left side of assignment is annoted
                 var left = this.tree[0].tree[0],
                     right = this.tree[0].tree[1]
                 // Evaluate value first
-                this.js = "var $value = " + right.to_js() + ";"
+                if(this.create_annotations){
+                    this.js += "$locals.__annotations__ = _b_.dict.$factory();"
+                }
+                this.js += "var $value = " + right.to_js() + ";"
                 this.tree[0].tree.splice(1, 1)
                 new $RawJSCtx(this.tree[0], "$value")
                 if(left.tree[0] && left.tree[0].type == "id" && is_not_def){
@@ -4950,7 +5104,7 @@ var $NodeJSCtx = $B.parser.$NodeJSCtx = function(node,js){
 
 var $NonlocalCtx = $B.parser.$NonlocalCtx = function(context){
     // Class for keyword "nonlocal"
-    this.type = 'global'
+    this.type = 'nonlocal'
     this.parent = context
     this.tree = []
     this.names = {}
@@ -4965,7 +5119,7 @@ var $NonlocalCtx = $B.parser.$NonlocalCtx = function(context){
             ["nonlocal declaration not allowed at module level"])
     }
 
-    this.toString = function(){return 'global ' + this.tree}
+    this.toString = function(){return 'nonlocal ' + this.tree}
 
     this.add = function(name){
         if(this.scope.binding[name] == "arg"){
@@ -5439,6 +5593,12 @@ var $ReturnCtx = $B.parser.$ReturnCtx = function(context){
     this.tree = []
     context.tree[context.tree.length] = this
 
+    // Check if inside a function
+    this.scope = $get_scope(this)
+    if(["def", "generator"].indexOf(this.scope.ntype) == -1){
+        $_SyntaxError(context, ["'return' outside function"])
+    }
+
     // Check if return is inside a "for" loop
     // In this case, the loop will not be included inside a function
     // for optimisation
@@ -5467,7 +5627,7 @@ var $ReturnCtx = $B.parser.$ReturnCtx = function(context){
             this.tree.pop()
             new $IdCtx(new $ExprCtx(this, 'rvalue', false), 'None')
         }
-        var scope = $get_scope(this)
+        var scope = this.scope
         if(scope.ntype == 'generator'){
             return 'return [$B.generator_return(' + $to_js(this.tree) + ')]'
         }
@@ -5634,11 +5794,9 @@ var $StringCtx = $B.parser.$StringCtx = function(context,value){
                     // This gives us a node whose structure is always the same.
                     // The Javascript code matching the expression is the first
                     // child of the first "try" block in the node's children.
-                    var save_pos = $pos,
-                        temp_id = "temp" + $B.UUID()
-                    var expr_node = $B.py2js(expr, scope.module, temp_id, scope)
+                    var save_pos = $pos
+                    var expr_node = $B.py2js(expr, scope.module, scope.id, scope)
                     expr_node.to_js()
-                    delete $B.$py_src[temp_id]
                     $pos = save_pos
                     for(var j = 0; j < expr_node.children.length; j++){
                         var node = expr_node.children[j]
@@ -5694,11 +5852,20 @@ var $StringCtx = $B.parser.$StringCtx = function(context,value){
                 }else{
                     var re = new RegExp("'", "g")
                     var elt = parsed_fstring[i].replace(re, "\\'")
-                                               .replace("\n", "\\n")
+                                               .replace(/\n/g, "\\n")
                     elts.push("'" + elt + "'")
                 }
             }
             return elts.join(' + ')
+        }
+
+        function prepare(value){
+            value = value.replace(/\n/g,'\\n\\\n')
+            value = value.replace(/\\U([A-Fa-f0-9]{8})/gm,
+                        function(mo){
+                            return String.fromCharCode("0x"+mo.slice(2))
+                        })
+            return value
         }
 
         for(var i = 0; i < this.tree.length; i++){
@@ -5727,15 +5894,16 @@ var $StringCtx = $B.parser.$StringCtx = function(context,value){
                     if(is_fstring){
                         res += fstring(value)
                     }else{
-                        res += value.replace(/\n/g,'\\n\\\n')
+                        res += prepare(value)
                     }
                 }else{
-                    res += value.substr(1).replace(/\n/g,'\\n\\\n')
+                    res += prepare(value.substr(1))
                 }
                 if(i < this.tree.length - 1){res += '+'}
             }
         }
         if(is_bytes){res += ',"ISO-8859-1")'}
+        if(res.length == 0){res = '""'}
         return res
     }
 }
@@ -5872,12 +6040,16 @@ var $TryCtx = $B.parser.$TryCtx = function(context){
         var scope = $get_scope(this)
 
         var error_name = create_temp_name('$err')
-        var failed_name = create_temp_name('$failed')
+
+        // Add a boolean $failed, used to run the 'else' clause. Set as an
+        // attribute of $locals for the case when code is inside a
+        // generator (cf. issue #1146)
+        var failed_name = "$locals." + create_temp_name('$failed')
 
         // Transform node into Javascript 'try' (necessary if
         // "try" inside a "for" loop)
-        // Add a boolean $failed, used to run the 'else' clause
-        var js = 'var '+failed_name + ' = false;\n' +
+
+        var js = failed_name + ' = false;\n' +
             ' '.repeat(node.indent + 4) + 'try'
         new $NodeJSCtx(node, js)
         node.is_try = true // used in generators
@@ -5896,7 +6068,7 @@ var $TryCtx = $B.parser.$TryCtx = function(context){
         // happens in a callback function ; in this case the frame would be
         // lost at the time the exception is handled by $B.exception
         catch_node.add(
-            $NodeJS('var '+ failed_name + ' = true;' +
+            $NodeJS(failed_name + ' = true;' +
             '$B.pmframe = $B.last($B.frames_stack);'+
             // Fake line to start the 'else if' clauses
             'if(0){}')
@@ -6099,9 +6271,12 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
 
         */
 
-        node.is_try = true // for generators that use a context manager
-
         if(this.transformed){return}  // used if inside a for loop
+
+        this.prefix = ""
+        if(this.scope.ntype == "generator"){
+            this.prefix = "$locals."
+        }
 
         // If there are several "with" clauses, create a new child
         // For instance :
@@ -6134,13 +6309,22 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
             return this.transform_async(node, rank)
         }
 
+        var top_try_node = $NodeJS("try")
+        top_try_node.is_try = true
+        node.parent.insert(rank + 1, top_try_node)
+        //node.is_try = true // for generators that use a context manager
+
+
         // Used to create js identifiers:
         var num = this.num = $loop_num++
-        var cm_name  = '$ctx_manager' + num,
-            cme_name = '$ctx_manager_exit' + num,
-            exc_name = '$exc' + num,
-            err_name = '$err' + num,
-            val_name = '$value' + num
+
+        top_try_node.ctx_manager_num = num
+
+        this.cm_name  = this.prefix + '$ctx_manager' + num
+        this.cmexit_name = this.prefix + '$ctx_manager_exit' + num
+        this.exc_name = this.prefix + '$exc' + num
+        this.err_name = '$err' + num
+        this.val_name = '$value' + num
 
         if(this.tree[0].alias === null){this.tree[0].alias = '$temp'}
 
@@ -6174,13 +6358,13 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
         var try_node = new $Node()
         try_node.is_try = true
         new $NodeJSCtx(try_node, 'try')
-        node.add(try_node)
+        top_try_node.add(try_node)
 
         // if there is an alias, insert the value
         if(this.tree[0].alias){
             var alias = this.tree[0].alias.tree[0].tree[0].value
             try_node.add($NodeJS('$locals' + '["' + alias + '"] = ' +
-                val_name))
+                this.val_name))
         }
 
         // place block inside a try clause
@@ -6188,21 +6372,21 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
 
         var catch_node = new $Node()
         catch_node.is_catch = true // for generators
-        new $NodeJSCtx(catch_node, 'catch(' + err_name + ')')
+        new $NodeJSCtx(catch_node, 'catch(' + this.err_name + ')')
 
-        catch_node.add($NodeJS(exc_name + ' = false;' + err_name +
-            ' = $B.exception(' + err_name + ')\n' + ' '.repeat(node.indent+4) +
-                'var $b = '+cme_name+'('+
-                            err_name + '.__class__,' +
-                            err_name + ','+
-                            '$B.$getattr('+err_name + ', "traceback")'+
-                        ')'+
-                    //')'+
-                ';if(!$B.$bool($b)){' +
-                   'throw ' + err_name +
-                '}'
-        ))
-        node.add(catch_node)
+        var js = this.exc_name + ' = false;' + this.err_name +
+                ' = $B.exception(' + this.err_name + ')\n' +
+                ' '.repeat(node.indent + 4) +
+                'var $b = ' + this.cmexit_name + '(' +
+                this.err_name + '.__class__,' +
+                this.err_name + ','+
+                '$B.$getattr(' + this.err_name + ', "__traceback__"));'
+        if(this.scope.ntype == "generator"){
+            js += 'delete ' + this.cmexit_name + ';'
+        }
+        js += 'if(!$B.$bool($b)){throw ' + this.err_name + '}'
+        catch_node.add($NodeJS(js))
+        top_try_node.add(catch_node)
 
         var finally_node = new $Node()
         new $NodeJSCtx(finally_node, 'finally')
@@ -6211,10 +6395,21 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
         finally_node.context.in_ctx_manager = true
         finally_node.is_except = true
         finally_node.in_ctx_manager = true
-        finally_node.add($NodeJS('if(' + exc_name + ')'+ cme_name +
-            '(None,None,None);')
-        )
-        node.parent.insert(rank + 1, finally_node)
+        var js = 'if(' + this.exc_name
+        if(this.scope.ntype == "generator"){
+            js += ' && (!$yield)' +
+                  ' && ' + this.cmexit_name
+        }
+        js += '){;'+ this.cmexit_name + '(None,None,None);'
+        if(this.scope.ntype == "generator"){
+            js += 'delete ' + this.cmexit_name
+        }
+        js += '}'
+        if(this.scope.ntype == "generator"){
+            js += '$yield = undefined'
+        }
+        finally_node.add($NodeJS(js))
+        node.parent.insert(rank + 2, finally_node)
 
         this.transformed = true
     }
@@ -6248,29 +6443,30 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
 
         var new_nodes = []
         var num = this.num = $loop_num++
-        var cm_name  = '$ctx_manager' + num,
-            cmtype_name = '$ctx_mgr_type' + num,
+
+        this.cm_name  = '$ctx_manager' + num,
+        this.cmexit_name = '$ctx_manager_exit' + num
+        this.exc_name = '$exc' + num
+        var cmtype_name = '$ctx_mgr_type' + num,
             cmenter_name = '$ctx_manager_enter' + num,
-            cmexit_name = '$ctx_manager_exit' + num,
-            exc_name = '$exc' + num,
             err_name = '$err' + num
 
         // Line mgr = (EXPR)
-        var js = 'var ' + cm_name + ' = ' + expr.to_js() +','
+        var js = 'var ' + this.cm_name + ' = ' + expr.to_js() +','
         new_nodes.push($NodeJS(js))
 
         // aexit = type(mgr).__aexit__
         new_nodes.push($NodeJS('    ' + cmtype_name +
-            ' = _b_.type.$factory(' + cm_name + '),'))
-        new_nodes.push($NodeJS('    ' + cmexit_name +
+            ' = _b_.type.$factory(' + this.cm_name + '),'))
+        new_nodes.push($NodeJS('    ' + this.cmexit_name +
             ' = $B.$call($B.$getattr(' + cmtype_name + ', "__aexit__")),'))
 
         // aenter = type(mgr).__aenter__(mgr)
         new_nodes.push($NodeJS('    ' + cmenter_name +
             ' = $B.$call($B.$getattr(' + cmtype_name + ', "__aenter__"))' +
-            '(' + cm_name + '),'))
+            '(' + this.cm_name + '),'))
 
-        new_nodes.push($NodeJS("    " + exc_name + " = false"))
+        new_nodes.push($NodeJS("    " + this.exc_name + " = false"))
 
         // VAR = await aenter
         js = ""
@@ -6278,7 +6474,7 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
         if(alias){
             if(alias.tree[0].tree[0].type != "list_or_tuple"){
                 var js = alias.tree[0].to_js() + ' = ' +
-                    'await $B.promise(' + cmenter_name + ')'
+                    'await ($B.promise(' + cmenter_name + '))'
                 new_nodes.push($NodeJS(js))
             }else{
                 // Form "with manager as(x, y)"
@@ -6289,11 +6485,13 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
                 alias.tree[0].tree[0].parent = expr
                 var assign = new $AssignCtx(expr)
 
-                new $RawJSCtx(assign, 'await $B.promise(' +
-                    cmenter_name + ')')
+                new $RawJSCtx(assign, 'await ($B.promise(' +
+                    cmenter_name + '))')
 
                 new_nodes.push(new_node)
             }
+        }else{
+            new_nodes.push($NodeJS('await ($B.promise(' + cmenter_name + '))'))
         }
 
         // try:
@@ -6309,24 +6507,24 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
         new_nodes.push(catch_node)
 
         //     if not await aexit(mgr, $sys.exc_info())
-        catch_node.add($NodeJS(exc_name + ' = true'))
+        catch_node.add($NodeJS(this.exc_name + ' = true'))
         catch_node.add($NodeJS('var ' + err_name +
             ' = $B.imported["_sys"].exc_info()'))
-        var if_node = $NodeJS('if(! await $B.promise(' +
-            cmexit_name + '(' + cm_name + ', ' + err_name + '[0], ' +
-            err_name + '[1], ' + err_name + '[2])))')
+        var if_node = $NodeJS('if(! await ($B.promise(' +
+            this.cmexit_name + '(' + this.cm_name + ', ' + err_name + '[0], ' +
+            err_name + '[1], ' + err_name + '[2]))))')
         catch_node.add(if_node)
         //         raise
         if_node.add($NodeJS('$B.$raise()'))
 
         // else:
-        var else_node = $NodeJS('if(! ' + exc_name +')')
+        var else_node = $NodeJS('if(! ' + this.exc_name +')')
         new_nodes.push(else_node)
         //     await aexit(mgr, None, None, None)
-        else_node.add($NodeJS('await $B.promise(' +
-            cm_name + ', _b_.None, _b_.None, _b_.None)'))
+        else_node.add($NodeJS('await ($B.promise(' + this.cmexit_name + '(' +
+            this.cm_name +', _b_.None, _b_.None, _b_.None)))'))
 
-        // Remove original "for" node
+        // Remove original node
         node.parent.children.splice(rank, 1)
 
         for(var i = new_nodes.length - 1; i >= 0; i--){
@@ -6340,25 +6538,23 @@ var $WithCtx = $B.parser.$WithCtx = function(context){
     this.to_js = function(){
         this.js_processed = true
         var indent = $get_node(this).indent,
-            h = ' '.repeat(indent + 4),
+            h = ' '.repeat(indent),
             num = this.num
-        var cm_name  = '$ctx_manager' + num,
-            cme_name = '$ctx_manager_exit' + num,
-            exc_name = '$exc' + num,
+        var head = this.prefix == "" ? "var " : this.prefix,
+            cm_name  = '$ctx_manager' + num,
+            cme_name = head + '$ctx_manager_exit' + num,
+            exc_name = head + '$exc' + num,
             val_name = '$value' + num
         return 'var ' + cm_name + ' = ' + this.tree[0].to_js() + '\n' +
-               h + 'var ' + cme_name + ' = $B.$getattr('+cm_name+',"__exit__")\n' +
+               h + cme_name + ' = $B.$getattr('+cm_name+',"__exit__")\n' +
                h + 'var ' + val_name + ' = $B.$getattr('+cm_name+',"__enter__")()\n' +
-               h + 'var ' + exc_name + ' = true\n'+
-               h + 'try'
+               h + exc_name + ' = true\n'
     }
 }
 
 var $YieldCtx = $B.parser.$YieldCtx = function(context, is_await){
     // Class for keyword "yield"
-    // "await" is implemented as "yield from", for this case is_await is set
     this.type = 'yield'
-    this.toString = function(){return '(yield) ' + this.tree}
     this.parent = context
     this.tree = []
     context.tree[context.tree.length] = this
@@ -6418,6 +6614,7 @@ var $YieldCtx = $B.parser.$YieldCtx = function(context, is_await){
         var def = func_scope.context.tree[0]
         if(! is_await){
             def.type = 'generator'
+            func_scope.ntype = 'generator'
         }
         // Add to list of "yields" in function
         def.yields.push(this)
@@ -6428,9 +6625,24 @@ var $YieldCtx = $B.parser.$YieldCtx = function(context, is_await){
     }
 
     this.transform = function(node, rank){
+        // Add a node to handle values passed to the generator with methods
+        // send() or throw().
         var new_node = $NodeJS('// placeholder for generator sent value')
         new_node.is_set_yield_value = true
+        new_node.after_yield = true
+        new_node.indent = node.indent
         node.parent.insert(rank + 1, new_node)
+
+        // If inside a context manager, mark frame
+        var parent = node.parent
+        while(parent){
+            if(parent.ctx_manager_num !== undefined){
+                node.parent.insert(rank + 2,
+                    $NodeJS("$top_frame[1].$has_yield_in_cm = true"))
+                break
+            }
+            parent = parent.parent
+        }
     }
 
     this.to_js = function(){
@@ -6533,7 +6745,11 @@ var $add_line_num = $B.parser.$add_line_num = function(node,rank){
 $B.$add_line_num = $add_line_num
 
 var $bind = $B.parser.$bind = function(name, scope, context){
-    // Bind a name in scope
+    // Bind a name in scope:
+    // - add the name in the attribute "binding" of the scope
+    // - add it to the attribute "bindings" of the node, except if no_bindings
+    //   is set, which is the case for "for x in A" : if A is empty the name
+    //   has no value (issue #1233)
     if(scope.nonlocals && scope.nonlocals[name]){
         // name is declared nonlocal in the scope : don't bind
         return
@@ -6545,10 +6761,12 @@ var $bind = $B.parser.$bind = function(name, scope, context){
         return
     }
 
-    var node = $get_node(context)
-    // Add name to attribute "bindings" of node. Used in $IdCtx.boundBefore()
-    node.bindings = node.bindings || {}
-    node.bindings[name] = true
+    if(! context.no_bindings){
+        var node = $get_node(context)
+        // Add name to attribute "bindings" of node. Used in $IdCtx.boundBefore()
+        node.bindings = node.bindings || {}
+        node.bindings[name] = true
+    }
 
     scope.binding = scope.binding || {}
     if(scope.binding[name] === undefined){
@@ -6852,6 +7070,10 @@ var $transition = $B.parser.$transition = function(context, token, value){
                 $_SyntaxError(context, "empty annotation")
             }else if(token == ':' && context.parent.type != "def"){
                 $_SyntaxError(context, "more than one annotation")
+            }else if(token == "augm_assign"){
+                $_SyntaxError(context, "augmented assign as annotation")
+            }else if(token == "op"){
+                $_SyntaxError(context, "operator as annotation")
             }
             return $transition(context.parent, token)
 
@@ -6875,6 +7097,11 @@ var $transition = $B.parser.$transition = function(context, token, value){
             if(token == "def"){
                 return $transition(context.parent, token, value)
             }else if(token == "for" || token == "with"){
+                var ntype = $get_scope(context).ntype
+                if(ntype !== "def" && ntype != "generator"){
+                    $_SyntaxError(context, ["'async " + token +
+                        "' outside async function"])
+                }
                 var ctx = $transition(context.parent, token, value)
                 ctx.parent.async = true // set attr "async" of for/with context
                 return ctx
@@ -7358,6 +7585,12 @@ var $transition = $B.parser.$transition = function(context, token, value){
                 }
             }
 
+        case 'end_positional':
+            if(token == "," || token == ")"){
+                return $transition(context.parent, token, value)
+            }
+            $_SyntaxError(context, 'token ' + token + ' after ' + context)
+
         case 'except':
             switch(token) {
                 case 'id':
@@ -7428,10 +7661,18 @@ var $transition = $B.parser.$transition = function(context, token, value){
               case 'lambda':
               case 'pass':
               case 'str':
-              case '{':
                   $_SyntaxError(context, 'token ' + token + ' after ' +
                       context)
                   break
+              case '{':
+                  // Special case : "print {...}" must raise a SyntaxError
+                  // with "Missing parenthesis"...
+                  if(context.tree[0].type != "id" ||
+                          ["print", "exec"].indexOf(context.tree[0].value) == -1){
+                      $_SyntaxError(context, 'token ' + token + ' after ' +
+                          context)
+                  }
+                  return new $DictOrSetCtx(context)
               case '[':
               case '(':
               case '.':
@@ -7637,10 +7878,11 @@ var $transition = $B.parser.$transition = function(context, token, value){
                     // annotation
                     if(context.tree.length == 1){
                         var child = context.tree[0]
-                        if(["id", "sub", "attribute"].indexOf(child.type) > -1 ||
-                                (child.real == "tuple" && child.expect == "," &&
-                                 child.tree.length == 1)){
+                        if(["id", "sub", "attribute"].indexOf(child.type) > -1){
                             return new $AbstractExprCtx(new $AnnotationCtx(context), false)
+                        }else if(child.real == "tuple" && child.expect == "," &&
+                                 child.tree.length == 1){
+                            return new $AbstractExprCtx(new $AnnotationCtx(child.tree[0]), false)
                         }
                     }
                     $_SyntaxError(context, "invalid target for annotation")
@@ -7693,10 +7935,27 @@ var $transition = $B.parser.$transition = function(context, token, value){
                 break
             case ':=':
                 // PEP 572 : assignment expression
+                var ptype = context.parent.type
+                if(["node", "assign", "kwarg", "annotation"].
+                        indexOf(ptype) > -1){
+                    $_SyntaxError(context, ':= invalid, parent ' + ptype)
+                }else if(ptype == "func_arg_id" &&
+                        context.parent.tree.length > 0){
+                    // def foo(answer = p := 42):
+                    $_SyntaxError(context, ':= invalid, parent ' + ptype)
+                }else if(ptype == "call_arg" &&
+                        context.parent.parent.type == "call" &&
+                        context.parent.parent.parent.type == "lambda"){
+                    // lambda x := 1
+                    $_SyntaxError(context, ':= invalid, parent ' + ptype)
+                }
                 if(context.tree.length == 1 &&
                         context.tree[0].type == "id"){
                     var scope = $get_scope(context),
                         name = context.tree[0].value
+                    while(scope.is_comp){
+                        scope = scope.parent_block
+                    }
                     $bind(name, scope, context)
                     var parent = context.parent
                     parent.tree.pop()
@@ -7735,6 +7994,13 @@ var $transition = $B.parser.$transition = function(context, token, value){
                 }
                 return new $AbstractExprCtx(new $TernaryCtx(ctx), false)
             case 'eol':
+                // Special case for print and exec
+                if(context.tree.length == 2 &&
+                        context.tree[0].type == "id" &&
+                        ["print", "exec"].indexOf(context.tree[0].value) > -1){
+                    $_SyntaxError(context, ["Missing parentheses in call " +
+                        "to '" + context.tree[0].value + "'."])
+                }
                 if(["dict_or_set", "list_or_tuple"].indexOf(context.parent.type) == -1){
                     var t = context.tree[0]
                     if(t.type == "packed" ||
@@ -7899,10 +8165,22 @@ var $transition = $B.parser.$transition = function(context, token, value){
                     $_SyntaxError(context, 'token ' + token + ' after ' +
                         context)
                 case ')':
+                    var last = $B.last(context.tree)
+                    if(last && last.type == "func_star_arg"){
+                        if(last.name == "*"){
+                            if(context.op == '*'){
+                                // Form "def f(x, *)" is invalid
+                                $_SyntaxError(context,
+                                    ['named arguments must follow bare *'])
+                            }else{
+                                $_SyntaxError(context, 'invalid syntax')
+                            }
+                        }
+                    }
                     return context.parent
                 case 'op':
                     if(context.has_kw_arg){
-                        $_SyntaxError(context,'duplicate kw arg')
+                        $_SyntaxError(context, 'duplicate kw arg')
                     }
                     var op = value
                     context.expect = ','
@@ -7911,8 +8189,18 @@ var $transition = $B.parser.$transition = function(context, token, value){
                             $_SyntaxError(context,'duplicate star arg')
                         }
                         return new $FuncStarArgCtx(context, '*')
+                    }else if(op == '**'){
+                        return new $FuncStarArgCtx(context, '**')
+                    }else if(op == '/'){ // PEP 570
+                        if(context.has_end_positional){
+                            $_SyntaxError(context,
+                                ['duplicate / in function parameters'])
+                        }else if(context.has_star_arg){
+                            $_SyntaxError(context,
+                                ['/ after * in function parameters'])
+                        }
+                        return new $EndOfPositionalCtx(context)
                     }
-                    if(op == '**'){return new $FuncStarArgCtx(context, '**')}
                     $_SyntaxError(context, 'token ' + op + ' after ' + context)
             }
             $_SyntaxError(context, 'token ' + token + ' after ' + context)
@@ -7950,6 +8238,7 @@ var $transition = $B.parser.$transition = function(context, token, value){
             $_SyntaxError(context, 'token ' + token + ' after ' + context)
 
         case 'global':
+        case 'nonlocal':
             switch(token) {
                 case 'id':
                     if(context.expect == 'id'){
@@ -7990,9 +8279,10 @@ var $transition = $B.parser.$transition = function(context, token, value){
                 case 'int':
                 case 'float':
                 case 'imaginary':
-                    if(context.value == "print"){
+                    if(["print", "exec"].indexOf(context.value) > -1 ){
                         $_SyntaxError(context,
-                            ["missing parenthesis in call to 'print'"])
+                            ["missing parenthesis in call to '" +
+                            context.value + "'"])
                     }
                     $_SyntaxError(context, 'token ' + token + ' after ' +
                         context)
@@ -8090,12 +8380,11 @@ var $transition = $B.parser.$transition = function(context, token, value){
                 context.tree = []
                 context.body_start = $pos
                 return new $AbstractExprCtx(context, false)
-            }
-            if(context.args !== undefined){ // returning from expression
+            }if(context.args !== undefined){ // returning from expression
                 context.body_end = $pos
                 return $transition(context.parent, token)
             }
-            if(context.args === undefined){
+            if(context.args === undefined && token != "("){
                 return $transition(new $CallCtx(context), token, value)
             }
             $_SyntaxError(context, 'token ' + token + ' after ' + context)
@@ -8114,6 +8403,30 @@ var $transition = $B.parser.$transition = function(context, token, value){
                         case 'tuple':
                         case 'gen_expr':
                             if(token == ')'){
+                                while(context.type == "list_or_tuple" &&
+                                        context.real == "tuple" &&
+                                        context.parent.type == "expr" &&
+                                        context.parent.parent.type == "node" &&
+                                        context.tree.length == 1){
+                                    // Not a tuple, just an expression inside
+                                    // parenthesis at node level : replace by
+                                    // the expression.
+                                    // Required for code like
+                                    //     (pars): bool = True
+                                    //
+                                    // See also issue #1253 with code like
+                                    //
+                                    // def f():
+                                    //     ((((x)))) = 1
+                                    //
+                                    var node = context.parent.parent,
+                                        ix = node.tree.indexOf(context.parent),
+                                        expr = context.tree[0]
+                                    expr.parent = node
+                                    expr.$in_parens = true // keep information
+                                    node.tree.splice(ix, 1, expr)
+                                    context = expr.tree[0]
+                                }
                                 context.closed = true
                                 if(context.real == 'gen_expr'){
                                     context.intervals.push($pos)
@@ -8513,8 +8826,10 @@ var $transition = $B.parser.$transition = function(context, token, value){
                     return $transition(new $AbstractExprCtx(context, false),
                         token, value)
                 case ',':
-                    return $transition(context.parent, token)
                 case ')':
+                    if(context.tree.length == 0){
+                        $_SyntaxError(context, "unnamed star argument")
+                    }
                     return $transition(context.parent, token)
                 case ':':
                     if(context.parent.parent.type == 'lambda'){
@@ -8754,12 +9069,12 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
     ]
     // from https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Reserved_Words
 
-    var int_pattern = new RegExp("^\\d[0-9_]*(j|J)?"),
-        float_pattern1 = new RegExp("^\\d[0-9_]*\\.\\d*([eE][+-]?\\d+)?(j|J)?"),
-        float_pattern2 = new RegExp("^\\d[0-9_]*([eE][+-]?\\d+)(j|J)?"),
-        hex_pattern = new RegExp("^0[xX]([0-9a-fA-F_]+)"),
-        octal_pattern = new RegExp("^0[oO]([0-7_]+)"),
-        binary_pattern = new RegExp("^0[bB]([01_]+)")
+    var int_pattern = /^(\d[0-9_]*)(j|J)?/,
+        float_pattern1 = /^(\d[\d_]*)\.(\d*)([eE][+-]?\d+(_\d+)*)?(j|J)?/,
+        float_pattern2 = /^(\d[\d_]*)([eE][+-]?\d+(_\d+)*)(j|J)?/,
+        hex_pattern = /^0[xX]([\da-fA-F_]+)/,
+        octal_pattern = /^0[oO]([0-7_]+)/,
+        binary_pattern = /^0[bB]([01_]+)/
 
     var context = null
     var new_node = new $Node(),
@@ -9050,16 +9365,16 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
         }
         // identifier ?
         if(name == "" && car != '$'){
-            // regexIdentifier is defined in brython_builtins.js. It is a
-            // regular expression that matches all the valid Python
-            // identifier names, including those in non-latin writings (cf
-            // issue #358)
-            if($B.regexIdentifier.exec(car)){
+            // $B.unicode_tables is defined in unicode_data.js. Its attributes
+            // XID_Start and XID_Continue are objects with keys = the code
+            // points of valid characters for identifiers.
+            // Cf. https://docs.python.org/3/reference/lexical_analysis.html#identifiers
+            if($B.unicode_tables.XID_Start[car.charCodeAt(0)]){
                 name = car // identifier start
                 var p0 = pos
                 pos++
                 while(pos < src.length &&
-                        $B.regexIdentifier.exec(src.substring(p0, pos + 1))){
+                        $B.unicode_tables.XID_Continue[src.charCodeAt(pos)]){
                     name += src.charAt(pos)
                     pos++
                 }
@@ -9120,8 +9435,35 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
             }
         }
 
-        function rmu(numeric_literal){
+        function rmuf(numeric_literal){
             // Remove underscores inside a numeric literal (PEP 515)
+            // Raises SyntaxError for consecutive or trailing underscore
+            if(numeric_literal.search("__") > -1){
+                // consecutive underscores is a syntax error
+                $_SyntaxError(context, "invalid literal")
+            }else if(numeric_literal.endsWith("_")){
+                // trailing underscore is a syntax error
+                $_SyntaxError(context, "invalid literal")
+            }
+            return numeric_literal.replace(/_/g, "")
+        }
+
+        function check_int(numeric_literal){
+            // Check that the integer in numeric_literal is valid :
+            // same control as rmuf above + special case for integers
+            // starting with 0
+            rmuf(numeric_literal)
+            if(numeric_literal.startsWith("0")){
+                if(numeric_literal.substr(1).search(/[^0_]/) > -1){
+                    // 007 or 0_7 is invalid, only 0_0 is ok
+                    $_SyntaxError(context, "invalid literal")
+                }else{
+                    return "0"
+                }
+            }
+        }
+
+        function rmu(numeric_literal){
             return numeric_literal.replace(/_/g, "")
         }
 
@@ -9136,9 +9478,15 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
                     // number starting with . : add a 0 before the point
                     var j = pos + 1
                     while(j < src.length &&
-                        src.charAt(j).search(/\d|e|E/) > -1){j++}
-                    context = $transition(context, 'float',
-                        '0' + src.substr(pos, j - pos))
+                        src.charAt(j).search(/\d|e|E|_/) > -1){j++}
+                    if(src.charAt(j) == "j"){
+                        context = $transition(context, 'imaginary',
+                            '0' + rmu(src.substr(pos, j - pos)))
+                        j++
+                    }else{
+                        context = $transition(context, 'float',
+                            '0' + rmu(src.substr(pos, j - pos)))
+                    }
                     pos = j
                     break
                 }
@@ -9150,19 +9498,20 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
               // octal, hexadecimal, binary
               var res = hex_pattern.exec(src.substr(pos))
               if(res){
+                  rmuf(res[1])
                   context = $transition(context, 'int', [16, rmu(res[1])])
                   pos += res[0].length
                   break
               }
               var res = octal_pattern.exec(src.substr(pos))
               if(res){
-                  context = $transition(context, 'int', [8, rmu(res[1])])
+                  context = $transition(context, 'int', [8, rmuf(res[1])])
                   pos += res[0].length
                   break
               }
               var res = binary_pattern.exec(src.substr(pos))
               if(res){
-                  context = $transition(context, 'int', [2, rmu(res[1])])
+                  context = $transition(context, 'int', [2, rmuf(res[1])])
                   pos += res[0].length
                   break
               }
@@ -9172,6 +9521,7 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
                   if(parseInt(src.substr(pos)) === 0){
                       res = int_pattern.exec(src.substr(pos))
                       $pos = pos
+                      check_int(res[0])
                       context = $transition(context, 'int',
                           [10, rmu(res[0])])
                       pos += res[0].length
@@ -9192,25 +9542,29 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
                 // digit
                 var res = float_pattern1.exec(src.substr(pos))
                 if(res){
+                    check_int(res[1]) // check that the part before "." is ok
+                    if(res[2]){rmuf(res[2])} // same for the part after "."
                     $pos = pos
-                    if(res[2] !== undefined){
+                    if($B.last(res) !== undefined){
                         context = $transition(context, 'imaginary',
-                            rmu(res[0].substr(0,res[0].length - 1)))
-                    }else{context = $transition(context, 'float', rmu(res[0]))}
+                            rmuf(res[0].substr(0, res[0].length - 1)))
+                    }else{context = $transition(context, 'float', rmuf(res[0]))}
                 }else{
                     res = float_pattern2.exec(src.substr(pos))
                     if(res){
+                        check_int(res[1]) // check the part before "e"
+                        $pos = pos
+                        if($B.last(res) !== undefined){
+                            context = $transition(context, 'imaginary',
+                                rmuf(res[0].substr(0,res[0].length - 1)))
+                        }else{context = $transition(context, 'float', rmuf(res[0]))}
+                    }else{
+                        res = int_pattern.exec(src.substr(pos))
+                        check_int(res[1])
                         $pos = pos
                         if(res[2] !== undefined){
                             context = $transition(context, 'imaginary',
-                                rmu(res[0].substr(0,res[0].length - 1)))
-                        }else{context = $transition(context, 'float', rmu(res[0]))}
-                    }else{
-                        res = int_pattern.exec(src.substr(pos))
-                        $pos = pos
-                        if(res[1] !== undefined){
-                            context = $transition(context, 'imaginary',
-                                rmu(res[0].substr(0, res[0].length - 1)))
+                                rmu(res[1]))
                         }else{
                             context = $transition(context, 'int',
                                 [10, rmu(res[0])])
@@ -9279,7 +9633,6 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
                 $pos = pos
                 if(src.substr(pos, 2) == ":="){
                     // PEP 572 : assignment expression
-                    console.log("PEP 572", src.substr(pos, 2))
                     context = $transition(context, ":=")
                     pos++
                 }else{
@@ -9372,7 +9725,17 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
                 if(src.charAt(pos + 1) == '\n'){
                   lnum++
                   pos += 2
+                  if(pos == src.length){
+                      $_SyntaxError(context,
+                          ["unexpected EOF while parsing"])
+                  }else if(context.type == "node"){
+                      $_SyntaxError(context, 'nothing before \\')
+                  }
                   break
+                }else{
+                    $pos = pos
+                    $_SyntaxError(context,
+                        ['unexpected character after line continuation character'])
                 }
             case String.fromCharCode(12): // Form Feed : ignore
                 pos += 1
@@ -9386,8 +9749,12 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
     if(br_stack.length != 0){
         var br_err = br_pos[0]
         $pos = br_err[1]
+        var lines = src.split("\n"),
+            id = root.id,
+            fname = id.startsWith("$") ? '<string>' : id
         $_SyntaxError(br_err[0],
-            ["Unbalanced bracket " + br_stack.charAt(br_stack.length - 1)])
+            ["unexpected EOF while parsing (" + fname + ", line " +
+                (lines.length - 1) + ")"])
     }
     if(context !== null && context.type == "async"){
         // issue 941
@@ -9395,7 +9762,8 @@ var $tokenize = $B.parser.$tokenize = function(root, src) {
         $pos = pos - 7
         throw $_SyntaxError(context, "car " + car + "after async", pos)
     }
-    if(context !== null && context.tree[0] && $indented.indexOf(context.tree[0].type) > -1){
+    if(context !== null && context.tree[0] &&
+            $indented.indexOf(context.tree[0].type) > -1){
         $pos = pos - 1
         $_SyntaxError(context, 'expected an indented block', pos)
     }
@@ -9411,8 +9779,7 @@ var $create_root_node = $B.parser.$create_root_node = function(src, module,
         __doc__: true,
         __name__: true,
         __file__: true,
-        __package__: true,
-        __annotations__: true
+        __package__: true
     }
 
     root.parent_block = parent_block
@@ -9422,6 +9789,9 @@ var $create_root_node = $B.parser.$create_root_node = function(src, module,
     root.imports = {}
     if(typeof src == "object"){
         root.is_comp = src.is_comp
+        if(src.has_annotations){
+            root.binding.__annotations__ = true
+        }
         src = src.src
     }
     root.src = src
@@ -9436,7 +9806,6 @@ $B.py2js = function(src, module, locals_id, parent_scope, line_num){
     // line_info = [line_num, parent_block_id] if debug mode is set
     //
     // Returns a tree structure representing the Python source code
-
     $pos = 0
 
     if(typeof module == "object"){
@@ -9449,17 +9818,22 @@ $B.py2js = function(src, module, locals_id, parent_scope, line_num){
     parent_scope = parent_scope || $B.builtins_scope
 
     var t0 = new Date().getTime(),
-        is_comp = false
+        is_comp = false,
+        has_annotations = true // determine if __annotations__ is created
 
     if(typeof src == 'object'){
-        is_comp = src.is_comp
+        var is_comp = src.is_comp,
+            has_annotations = src.has_annotations
         src = src.src
     }
 
     // Normalise line ends
     src = src.replace(/\r\n/gm, "\n")
     // Remove trailing \, cf issue 970
-    while(src.endsWith("\\")){src = src.substr(0, src.length - 1)}
+    // but don't hide syntax error if ends with \\, cf issue 1210
+    if(src.endsWith("\\") && !src.endsWith("\\\\")){
+        src = src.substr(0, src.length - 1)
+    }
     // Normalise script end
     if(src.charAt(src.length - 1) != "\n"){src += "\n"}
 
@@ -9473,7 +9847,8 @@ $B.py2js = function(src, module, locals_id, parent_scope, line_num){
 
     var global_ns = '$locals_' + module.replace(/\./g,'_')
 
-    var root = $create_root_node({src: src, is_comp: is_comp},
+    var root = $create_root_node(
+        {src: src, is_comp: is_comp, has_annotations: has_annotations},
         module, locals_id, parent_scope, line_num)
 
     $tokenize(root, src)
@@ -9498,15 +9873,17 @@ $B.py2js = function(src, module, locals_id, parent_scope, line_num){
         $NodeJS(local_ns + '["__package__"] = "' + __package__ +'"'))
 
     // annotations
-    root.insert(offset++,
-        $NodeJS('$locals.__annotations__ = _b_.dict.$factory()'))
+    if(root.binding.__annotations__){
+        root.insert(offset++,
+            $NodeJS('$locals.__annotations__ = _b_.dict.$factory()'))
+    }
 
     // Code to create the execution frame and store it on the frames stack
     var enter_frame_pos = offset,
         js = 'var $top_frame = ["' + locals_id.replace(/\./g, '_') + '", ' +
             local_ns + ', "' + module.replace(/\./g, '_') + '", ' +
             global_ns + ']\n$B.frames_stack.push($top_frame)\n' +
-            'var $stack_length = $B.frames_stack.length'
+            'var $stack_length = $B.frames_stack.length;'
     root.insert(offset++, $NodeJS(js))
 
     // Wrap code in a try/finally to make sure we leave the frame
@@ -9531,10 +9908,8 @@ $B.py2js = function(src, module, locals_id, parent_scope, line_num){
 
     root.add(catch_node)
 
-    if($B.profile > 0){$add_profile(root, null, module)}
-    if($B.debug > 0){
-        $add_line_num(root, null, module)
-    }
+    // Add line numbers for debugging
+    $add_line_num(root, null, module)
 
     var t1 = new Date().getTime()
     if($B.debug > 2){
@@ -9549,14 +9924,57 @@ $B.py2js = function(src, module, locals_id, parent_scope, line_num){
     return root
 }
 
+$B.set_import_paths = function(){
+    // Set $B.meta_path, the list of finders to use for imports
+    //
+    // The original list in $B.meta_path is made of 3 finders defined in
+    // py_import.js :
+    // - finder_VFS : in the Virtual File System : a Javascript object with
+    //   source of the standard distribution
+    // - finder_static_stlib : use the script stdlib_path.js to identify the
+    //   packages and modules in the standard distribution
+    // - finder_path : search module at different urls
+
+    var meta_path = [],
+        path_hooks = []
+
+    // $B.use_VFS is set to true if the script brython_stdlib.js or
+    // brython_modules.js has been loaded in the page. In this case we use the
+    // Virtual File System (VFS)
+    if($B.use_VFS){
+        meta_path.push($B.$meta_path[0])
+        //path_hooks.push($B.$path_hooks[0])
+    }
+
+    if($B.$options.static_stdlib_import !== false && $B.protocol != "file"){
+        // Add finder using static paths
+        meta_path.push($B.$meta_path[1])
+        // Remove /Lib and /libs in sys.path :
+        // if we use the static list and the module
+        // was not find in it, it's no use searching twice in the same place
+        if($B.path.length > 3) {
+            $B.path.shift()
+            $B.path.shift()
+        }
+    }
+
+    // Use the defaut finder using sys.path if protocol is not file://
+    if($B.protocol !== "file"){
+        meta_path.push($B.$meta_path[2])
+        path_hooks.push($B.$path_hooks[0])
+    }
+    $B.meta_path = meta_path
+    $B.path_hooks = path_hooks
+}
+
 var brython = $B.parser.brython = function(options){
     // By default, only set debug level
-    if(options === undefined){options = {'debug': 0}}
+    if(options === undefined){options = {'debug': 1}}
 
     // If the argument provided to brython() is a number, it is the debug
     // level
     if(typeof options == 'number'){options = {'debug': options}}
-    if(options.debug === undefined){options.debug = 0}
+    if(options.debug === undefined){options.debug = 1}
     $B.debug = options.debug
     // set built-in variable __debug__
     _b_.__debug__ = $B.debug > 0
@@ -9579,60 +9997,15 @@ var brython = $B.parser.brython = function(options){
     }
     $B.static_stdlib_import = options.static_stdlib_import
 
-    // If options has an attribute "open", it will be used by the built-in
-    // function open() - see py_builtin_functions.js
-    if(options.open !== undefined){
-        _b_.open = options.open
-        console.log("DeprecationWarning: \'open\' option of \'brython\' "+
-            "function will be deprecated in future versions of Brython.")
-    }
-
     $B.$options = options
 
-    // Set $B.meta_path, the list of finders to use for imports
-    //
-    // The original list in $B.meta_path is made of 3 finders defined in
-    // py_import.js :
-    // - finder_VFS : in the Virtual File System : a Javascript object with
-    //   source of the standard distribution
-    // - finder_static_stlib : use the script stdlib_path.js to identify the
-    //   packages and modules in the standard distribution
-    // - finder_path : search module at different urls
-
-    var meta_path = [],
-        path_hooks = []
-
-    // $B.use_VFS is set to true if the script brython_stdlib.js or
-    // brython_modules.js has been loaded in the page. In this case we use the
-    // Virtual File System (VFS)
-    if($B.use_VFS){
-        meta_path.push($B.$meta_path[0])
-        path_hooks.push($B.$path_hooks[0])
-    }
-
-    if(options.static_stdlib_import !== false){
-        // Add finder using static paths
-        meta_path.push($B.$meta_path[1])
-        // Remove /Lib and /libs in sys.path :
-        // if we use the static list and the module
-        // was not find in it, it's no use searching twice in the same place
-        if($B.path.length > 3) {
-            $B.path.shift()
-            $B.path.shift()
-        }
-    }
-
-    // Always use the defaut finder using sys.path
-    meta_path.push($B.$meta_path[2])
-    $B.meta_path = meta_path
-    path_hooks.push($B.$path_hooks[1])
-    $B.path_hooks = path_hooks
+    $B.set_import_paths()
 
     // URL of the script where function brython() is called
     var $href = $B.script_path = _window.location.href,
         $href_elts = $href.split('/')
     $href_elts.pop()
-    if($B.isWebWorker){$href_elts.pop()} // WebWorker script is in the web_workers subdirectory
+    if($B.isWebWorker || $B.isNode){$href_elts.pop()} // WebWorker script is in the web_workers subdirectory
     $B.curdir = $href_elts.join('/')
 
     // List of URLs where imported modules should be searched
@@ -9670,7 +10043,7 @@ var brython = $B.parser.brython = function(options){
         })
     }
 
-    if(!$B.isWebWorker){
+    if(!($B.isWebWorker || $B.isNode)){
         // Get all links with rel=pythonpath and add them to sys.path
         var path_links = document.querySelectorAll('head link[rel~=pythonpath]'),
             _importlib = $B.imported['_importlib']
@@ -9681,12 +10054,6 @@ var brython = $B.parser.brython = function(options){
             }else{
                 $B.path.push(href);
             }
-            if(href.slice(-7).toLowerCase() == '.vfs.js' &&
-                    (' ' + e.rel + ' ').indexOf(' prefetch ') != -1) {
-                // Prefetch VFS file
-                $B.path_importer_cache[href + '/'] =
-                        $B.imported['_importlib'].VFSPathFinder.$factory(href)
-            }
             var filetype = e.hreflang
             if(filetype){
                 if(filetype.slice(0,2) == 'x-'){filetype = filetype.slice(2)}
@@ -9695,25 +10062,12 @@ var brython = $B.parser.brython = function(options){
         }
     }
 
-    // Allow user to specify the re module they want to use as a default
-    // Valid values are 'pyre' for pythons re module and
-    // 'jsre' for brythons customized re module
-    // Default is for brython to guess which to use by looking at
-    // complexity of the re pattern
-    if(options.re_module !== undefined){
-       if(options.re_module == 'pyre' || options.re_module == 'jsre'){
-          $B.$options.re = options.re
-       }
-       console.log("DeprecationWarning: \'re_module\' option of \'brython\' "+
-           "function will be deprecated in future versions of Brython.")
-    }
-
     if($B.$options.args){
         $B.__ARGV = $B.$options.args
     }else{
         $B.__ARGV = _b_.list.$factory([])
     }
-    if(!$B.isWebWorker){
+    if(!($B.isWebWorker || $B.isNode)){
         _run_scripts(options)
     }
 }
@@ -9773,8 +10127,8 @@ $B.run_script = function(src, name, run_loop){
             }
         })
         // Add task to stack
-        for(var j=0; j<imports.length;j++){
-           $B.tasks.push([$B.inImported, imports[j]])
+        for(var j = 0; j < imports.length; j++){
+            $B.tasks.push([$B.inImported, imports[j]])
         }
         root = null
     }
@@ -9926,8 +10280,9 @@ var _run_scripts = $B.parser._run_scripts = function(options){
                 // __name__.
                 // If the <script> tag has an attribute "id", it is taken as
                 // the module name.
-                if(elt.id){module_name = elt.id}
-                else{
+                if(elt.id){
+                    module_name = elt.id
+                }else{
                     // If no explicit name is given, the module name is
                     // "__main__" for the first script, and "__main__" + a
                     // random value for the next ones.
@@ -9984,4 +10339,7 @@ $B.brython = brython
 
 var brython = __BRYTHON__.brython
 
-
+if (__BRYTHON__.isNode) {
+    global.__BRYTHON__ = __BRYTHON__
+    module.exports = { __BRYTHON__ }
+}

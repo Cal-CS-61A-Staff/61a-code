@@ -13,20 +13,41 @@ function _randint(a, b){
 }
 
 var stat_result = $B.make_class("stat_result",
-    function(){
-        var res = {
-            __class__: stat_result,
-            st_atime: new Date(),
-            st_uid: -1,
-            st_gid: -1,
-            st_ino: -1,
-            st_mode: 0,
-            st_size: 1
-        };
-        ["mtime", "ctime", "atime_ns", "mtime_ns", "ctime_ns"].
-            forEach(function(item){
-                res["st_" + item] = res.st_atime
-            });
+    function(filename){
+        // Use $B.files, created by "python -m brython --make_file_system"
+        if($B.files && $B.files.hasOwnProperty(filename)){
+            var f = $B.files[filename],
+                res = {
+                    __class__: stat_result,
+                    st_atime: new Date().getTime(),
+                    st_ctime: f.ctime,
+                    st_mtime: f.mtime,
+                    st_uid: -1,
+                    st_gid: -1,
+                    st_ino: -1,
+                    st_mode: 0,
+                    st_size: 1
+                };
+            ["atime", "mtime", "ctime"].
+                forEach(function(item){
+                    res["st_" + item + "_ns"] = res["st_" + item] *
+                        1000000
+                });
+        }else{
+            var res = {
+                __class__: stat_result,
+                st_atime: new Date(),
+                st_uid: -1,
+                st_gid: -1,
+                st_ino: -1,
+                st_mode: 0,
+                st_size: 1
+            };
+            ["mtime", "ctime", "atime_ns", "mtime_ns", "ctime_ns"].
+                forEach(function(item){
+                    res["st_" + item] = res.st_atime
+                });
+        }
         return res
     }
 )
@@ -66,7 +87,8 @@ var $module = {
     getpid: function(){return 0},
     lstat: function(){return stat_result.$factory()},
     open: function(path, flags){return _b_.open(path, flags)},
-    stat: function(){return stat_result.$factory()},
+    stat: function(filename){return stat_result.$factory(filename)},
+    stat_result: function(filename){return stat_result.$factory(filename)},
     urandom: function(n){
         var randbytes = []
         for(var i = 0; i < n; i++){

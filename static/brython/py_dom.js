@@ -365,12 +365,12 @@ var $DOMEvent = $B.$DOMEvent = function(ev){
     return ev
 }
 
-$B.set_func_names(DOMEvent, "<dom>")
+$B.set_func_names(DOMEvent, "browser")
 
 var Clipboard = {
     __class__: _b_.type,
     $infos: {
-        __module__: "<pydom>",
+        __module__: "browser",
         __name__: "Clipboard"
     }
 }
@@ -530,7 +530,7 @@ var DOMNode = {
     __class__ : _b_.type,
     __mro__: [object],
     $infos: {
-        __module__: "<pydom>",
+        __module__: "browser",
         __name__: "DOMNode"
     }
 }
@@ -686,6 +686,12 @@ DOMNode.__getattribute__ = function(self, attr){
                 throw _b_.AttributeError.$factory("style." + attr +
                     " is not set for " + _b_.str.$factory(self))
             }
+        case "x":
+        case "y":
+            if(! (self.elt instanceof SVGElement)){
+                var pos = $getPosition(self.elt)
+                return attr == "x" ? pos.left : pos.top
+            }
         case "clear":
         case "closest":
             return function(){return DOMNode[attr](self, arguments[0])}
@@ -742,29 +748,37 @@ DOMNode.__getattribute__ = function(self, attr){
     if(res !== undefined){
         if(res === null){return _b_.None}
         if(typeof res === "function"){
+            // If elt[attr] is a function, it is converted in another function
+            // that produces a Python error message in case of failure.
             var func = (function(f, elt){
                 return function(){
                     var args = [], pos = 0
                     for(var i = 0; i < arguments.length; i++){
                         var arg = arguments[i]
                         if(typeof arg == "function"){
-                            var f1 = function(dest_fn) { return function(){
-                                try{return dest_fn.apply(null, arguments)}
-                                catch(err){
-                                    console.log(dest_fn, typeof dest_fn, err)
-                                    if(err.__class__ !== undefined){
-                                        var msg = $B.$getattr(err, 'info') +
-                                            '\n' + $B.class_name(err)
-                                        if(err.args){msg += ': ' + err.args[0]}
-                                        try{$B.$getattr($B.stderr, "write")(msg)}
-                                        catch(err){console.log(msg)}
-                                    }else{
-                                        try{$B.$getattr($B.stderr, "write")(err)}
-                                        catch(err1){console.log(err)}
+                            // Conversion of function arguments into functions
+                            // that handle exceptions. The converted function
+                            // is cached, so that for instance in this code :
+                            //
+                            // element.addEventListener("click", f)
+                            // element.removeEventListener("click", f)
+                            //
+                            // it is the same function "f" that is added and
+                            // then removed (cf. issue #1157)
+                            if(arg.$cache){
+                                var f1 = arg.$cache
+                            }else{
+                                var f1 = function(dest_fn){
+                                    return function(){
+                                        try{
+                                            return dest_fn.apply(null, arguments)
+                                        }catch(err){
+                                            $B.handle_error(err)
+                                        }
                                     }
-                                    throw err
-                                }
-                            }}(arg)
+                                }(arg)
+                                arg.$cache = f1
+                            }
                             args[pos++] = f1
                         }
                         else if(_b_.isinstance(arg, JSObject)){
@@ -773,6 +787,8 @@ DOMNode.__getattribute__ = function(self, attr){
                             args[pos++] = arg.elt
                         }else if(arg === _b_.None){
                             args[pos++] = null
+                        }else if(arg.__class__ == _b_.dict){
+                            args[pos++] = arg.$string_dict
                         }else{
                             args[pos++] = arg
                         }
@@ -828,6 +844,12 @@ DOMNode.__getitem__ = function(self, key){
              throw _b_.KeyError.$factory(key)
         }
     }
+}
+
+DOMNode.__hash__ = function(self){
+    return self.__hashvalue__ === undefined ?
+        (self.__hashvalue__ = $B.$py_next_hash--) :
+        self.__hashvalue__
 }
 
 DOMNode.__iter__ = function(self){
@@ -1471,7 +1493,7 @@ DOMNode.unbind = function(self, event){
     }
 }
 
-$B.set_func_names(DOMNode, "<dom>")
+$B.set_func_names(DOMNode, "browser")
 
 // return query string as an object with methods to access keys and values
 // same interface as cgi.FieldStorage, with getvalue / getlist / getfirst

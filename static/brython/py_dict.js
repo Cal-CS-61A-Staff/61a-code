@@ -41,6 +41,7 @@ $B.make_view = function(name, set_like){
         return klass.$infos.__name__ + '(' + _b_.repr(self.items) + ')'
     }
 
+    $B.set_func_names(klass, "builtins")
     return klass
 }
 
@@ -162,7 +163,11 @@ dict.__contains__ = function(){
         self = $.self,
         key = $.key
 
-    if(self.$jsobj){return self.$jsobj[key] !== undefined}
+    if(self.$is_namespace){key = $B.to_alias(key)} // issue 1244
+
+    if(self.$jsobj){
+        return self.$jsobj[key] !== undefined
+    }
 
     switch(typeof key) {
         case "string":
@@ -334,7 +339,9 @@ dict.__getitem__ = function(){
     var hash = _b_.hash(arg),
         _eq = function(other){return $B.rich_comp("__eq__", arg, other)}
 
-    arg.$hash = hash // cache for setdefault
+    if(typeof arg == "object"){
+        arg.$hash = hash // cache for setdefault
+    }
     var sk = self.$str_hash[hash]
     if(sk !== undefined && _eq(sk)){
         return self.$string_dict[sk]

@@ -32,6 +32,12 @@ var int = {
     }
 }
 
+int.as_integer_ratio = function(){
+  var $ = $B.args("as_integer_ratio", 1, {self:null}, ["self"],
+          arguments, {}, null, null)
+  return $B.$list([$.self, 1])
+}
+
 int.from_bytes = function() {
   var $ = $B.args("from_bytes", 3,
       {bytes:null, byteorder:null, signed:null},
@@ -627,16 +633,10 @@ int.$factory = function(value, base){
     if(typeof value == "number" &&
         (base === undefined || base == 10)){return parseInt(value)}
 
-    if(base !== undefined){
-        if(! _b_.isinstance(value, [_b_.str, _b_.bytes, _b_.bytearray])){
-            throw _b_.TypeError.$factory(
-                "int() can't convert non-string with explicit base")
-        }
-    }
-
     if(_b_.isinstance(value, _b_.complex)){
         throw _b_.TypeError.$factory("can't convert complex to int")
     }
+
     var $ns = $B.args("int", 2, {x:null, base:null}, ["x", "base"], arguments,
         {"base": 10}, null, null),
         value = $ns["x"],
@@ -732,15 +732,19 @@ int.$factory = function(value, base){
     if(_b_.isinstance(value, [_b_.bytes, _b_.bytearray])){
         return int.$factory($B.$getattr(value, "decode")("latin-1"), base)
     }
-    var $int = $B.$getattr(value, "__int__", _b_.None)
-    if($int !== _b_.None){return $int()}
 
-    var $index = $B.$getattr(value, "__index__", _b_.None)
-    if($index !== _b_.None){return $index()}
+    var num_value = $B.to_num(value, ["__int__", "__index__", "__trunc__"])
+    if(num_value === null){
+        throw _b_.TypeError.$factory(
+            "int() argument must be a string, a bytes-like " +
+            "object or a number, not '" + $B.class_name(value) + "'")
+    }
+    return num_value
 
+    /*
     var $trunc = $B.$getattr(value, "__trunc__", _b_.None)
     if($trunc !== _b_.None){
-        var res = $truc(),
+        var res = $trunc(),
             int_func = $int
         if(int_func === _b_.None){
             throw _b_.TypeError.$factory("__trunc__ returned non-Integral (type "+
@@ -754,6 +758,7 @@ int.$factory = function(value, base){
     throw _b_.TypeError.$factory(
         "int() argument must be a string, a bytes-like " +
         "object or a number, not '" + $B.class_name(value) + "'")
+    */
 }
 
 $B.set_func_names(int, "builtins")
@@ -772,13 +777,19 @@ $B.$bool = function(obj){ // return true or false
             return false
         default:
             if(obj.$is_class){return true}
-            var missing = {},
-                bool_func = $B.$getattr(obj, "__bool__", missing)
-            if(bool_func === missing){
-                try{return $B.$getattr(obj, "__len__")() > 0}
+            var klass = obj.__class__ || $B.get_class(obj),
+                missing = {},
+                bool_method = $B.$getattr(klass, "__bool__", missing)
+            if(bool_method === missing){
+                try{return _b_.len(obj) > 0}
                 catch(err){return true}
             }else{
-                return bool_func()
+                var res = $B.$call(bool_method)(obj)
+                if(res !== true && res !== false){
+                    throw _b_.TypeError.$factory("__bool__ should return " +
+                        "bool, returned " + $B.class_name(res))
+                }
+                return res
             }
     }
 }
@@ -810,7 +821,12 @@ for(var op in methods){
 }
 
 bool.__and__ = function(self, other){
-    return $B.$bool(int.__and__(self, other))
+    if(_b_.isinstance(other, bool)){
+        return self && other
+    }else if(_b_.isinstance(other, int)){
+        return int.__and__(bool.__index__(self), int.__index__(other))
+    }
+    return _b_.NotImplemented
 }
 
 bool.__hash__ = bool.__index__ = bool.__int__ = function(self){
@@ -821,7 +837,12 @@ bool.__hash__ = bool.__index__ = bool.__int__ = function(self){
 bool.__neg__ = function(self){return -$B.int_or_bool(self)}
 
 bool.__or__ = function(self, other){
-    return $B.$bool(int.__or__(self, other))
+    if(_b_.isinstance(other, bool)){
+        return self || other
+    }else if(_b_.isinstance(other, int)){
+        return int.__or__(bool.__index__(self), int.__index__(other))
+    }
+    return _b_.NotImplemented
 }
 
 bool.__pos__ = $B.int_or_bool
@@ -840,7 +861,12 @@ bool.__setattr__ = function(self, attr){
 }
 
 bool.__xor__ = function(self, other) {
-    return self.valueOf() != other.valueOf()
+    if(_b_.isinstance(other, bool)){
+        return self ^ other ? true : false
+    }else if(_b_.isinstance(other, int)){
+        return int.__xor__(bool.__index__(self), int.__index__(other))
+    }
+    return _b_.NotImplemented
 }
 
 bool.$factory = function(){

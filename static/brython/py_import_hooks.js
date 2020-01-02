@@ -38,14 +38,17 @@ function import_hooks(mod_name, _path, from_stdlib) {
             var find_module = $B.$getattr(_finder, "find_module", _b_.None)
             if(find_module !== _b_.None){
                 _loader = find_module(mod_name, _path)
-                // The loader has a method load_module()
-                var load_module = $B.$getattr(_loader, "load_module")
-                module = $B.$call(load_module)(mod_name)
-                _sys_modules[mod_name] = module
-                return module
+                if(_loader !== _b_.None){
+                    // The loader has a method load_module()
+                    var load_module = $B.$getattr(_loader, "load_module"),
+                        module = $B.$call(load_module)(mod_name)
+                    _sys_modules[mod_name] = module
+                    return module
+                }
             }
         }else{
-            spec = find_spec(mod_name, _path, undefined)
+            spec = find_spec(mod_name, _path)
+
             if(!$B.is_none(spec)){
                 module = $B.imported[spec.name]
                 if(module !== undefined){
@@ -60,13 +63,16 @@ function import_hooks(mod_name, _path, from_stdlib) {
 
     if(_loader === undefined){
         // No import spec found
-        var exc = _b_.ImportError.$factory("No module named " + mod_name)
+        var exc = _b_.ModuleNotFoundError.$factory(mod_name)
         exc.name = mod_name
         throw exc
     }
 
     // Import spec represents a match
     if($B.is_none(module)){
+        if(spec === _b_.None){
+            throw _b_.ModuleNotFoundError.$factory(mod_name)
+        }
         var _spec_name = _b_.getattr(spec, "name")
 
         // Create module object

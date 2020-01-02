@@ -1991,9 +1991,9 @@ browserslist@^4.6.0:
     node-releases "^1.1.23"
 
 brython@^3.7.3:
-  version "3.7.5"
-  resolved "https://registry.yarnpkg.com/brython/-/brython-3.7.5.tgz#b6a4d2b6bae044aa249a5851b70e7c45769cc0a6"
-  integrity sha512-+iUE0KglchhAGko1mEc1c3uZgE9wVcRnJh+iMJmuEOivuCdMm8Qq8qovTrGhmQFoZ4r0wzgiORdpD4ddck8lSQ==
+  version "3.8.6"
+  resolved "https://registry.yarnpkg.com/brython/-/brython-3.8.6.tgz#3e149f9846918f270c2bfe707d566fb7f7af29fb"
+  integrity sha512-08pUAkj0f31sSBAH1zvoCrxlGi8whemchQcmZbdSuUZShAiJqyBgIYjq/J/Wm4+xpEFiRCn7Qwa/aVAVaVVKhA==
 
 btoa-lite@^1.0.0:
   version "1.0.0"

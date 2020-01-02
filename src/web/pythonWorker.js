@@ -2,6 +2,8 @@
 import { join } from "path";
 
 self.window = self;
+// eslint-disable-next-line func-names
+self.Node = function () {}; // stub needed for webworker
 
 importScripts(join(__static, "brython/brython.js"));
 importScripts(join(__static, "brython/brython_stdlib.js"));

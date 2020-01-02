@@ -76,22 +76,24 @@
             }
         },
 
-        console: $B.JSObject.$factory(self.console),
+        console: self.console && $B.JSObject.$factory(self.console),
         self: $B.win,
         win: $B.win,
         $$window: $B.win,
     }
     browser.__path__ = browser.__file__
 
-    if($B.isWebWorker){
+    if ($B.isNode) {
+        delete browser.$$window
+        delete browser.win
+    }else if($B.isWebWorker){
         browser.is_webworker = true
         // In a web worker, name "window" is not defined, but name "self" is
         delete browser.$$window
         delete browser.win
         // browser.send is an alias for postMessage
         browser.self.js.send = self.postMessage
-
-    }else{
+    } else {
         browser.is_webworker = false
         update(browser, {
             $$alert:function(message){
@@ -101,7 +103,7 @@
             $$document:$B.DOMNode.$factory(document),
             doc: $B.DOMNode.$factory(document), // want to use document instead of doc
             DOMEvent:$B.DOMEvent,
-            DOMNode:$B.DOMNode.$factory,
+            DOMNode:$B.DOMNode,
             load:function(script_url){
                 // Load and eval() the Javascript file at script_url
                 var file_obj = $B.builtins.open(script_url)
@@ -152,29 +154,6 @@
             }
         })
 
-        $B.createWebComponent = function(cls){
-            class WebComp extends HTMLElement {
-              constructor() {
-                // Always call super first in constructor
-                super();
-                if(this.__init__){
-                    this.__init__()
-                }
-              }
-            }
-            for(key in cls){
-                if(typeof cls[key] == "function"){
-                    WebComp.prototype[key] = (function(attr){
-                        return function(){
-                            return __BRYTHON__.pyobj2jsobj(cls[attr]).call(null, this, ...arguments)
-                        }
-                    })(key)
-                }
-            }
-            customElements.define(cls.tag_name, WebComp)
-            return WebComp
-        }
-
         // creation of an HTML element
         modules['browser.html'] = (function($B){
 
@@ -198,7 +177,7 @@
                         args = $ns['args']
                     if(args.length == 1){
                         var first = args[0]
-                        if(_b_.isinstance(first,[_b_.str,_b_.int,_b_.float])){
+                        if(_b_.isinstance(first,[_b_.str, _b_.int, _b_.float])){
                             // set "first" as HTML content (not text)
                             self.elt.innerHTML = _b_.str.$factory(first)
                         }else if(first.__class__ === TagSum){
@@ -217,11 +196,12 @@
                                         $B.DOMNode.__le__(self, item)
                                     })
                                 }catch(err){
-                                    console.log(err)
-                                    console.log("first", first)
-                                    console.log(arguments)
-                                    throw _b_.ValueError.$factory(
-                                        'wrong element ' + _b_.str.$factory(first))
+                                    if($B.debug > 1){
+                                        console.log(err, err.__class__, err.args)
+                                        console.log("first", first)
+                                        console.log(arguments)
+                                    }
+                                    $B.handle_error(err)
                                 }
                             }
                         }
@@ -245,7 +225,9 @@
                             if(value !== false){
                                 // option.selected = false sets it to true :-)
                                 try{
-                                    arg = arg.replace('_', '-')
+                                    // Call attribute mapper (cf. issue#1187)
+                                    arg = $B.imported["browser.html"].
+                                        attribute_mapper(arg)
                                     self.elt.setAttribute(arg, value)
                                 }catch(err){
                                     throw _b_.ValueError.$factory(
@@ -352,6 +334,11 @@
             // expose function maketag to generate arbitrary tags (issue #624)
             obj.maketag = maketag
 
+            // expose function to transform parameters (issue #1187)
+            obj.attribute_mapper = function(attr){
+                return attr.replace(/_/g, '-')
+            }
+
             return obj
         })(__BRYTHON__)
     }
@@ -365,16 +352,35 @@
             if($B.js_this === undefined){return $B.builtins.None}
             return $B.JSObject.$factory($B.js_this)
         },
-        $$Date: $B.JSObject.$factory(self.Date),
-        JSConstructor: function(){
-            console.log('"javascript.JSConstructor" is deprecrated. ' +
-                'Use window.<js constructor name>.new() instead.')
-            return $B.JSConstructor.$factory.apply(null, arguments)
+        $$Date: self.Date && $B.JSObject.$factory(self.Date),
+        JSConstructor: {
+            __get__: function(){
+                console.warn('"javascript.JSConstructor" is deprecrated. ' +
+                    'Use window.<js constructor name>.new() instead.')
+                return $B.JSConstructor
+            },
+            __set__: function(){
+                throw _b_.AttributeError.$factory("read only")
+            }
         },
-        JSObject: function(){
-            console.log('"javascript.JSObject" is deprecrated. ' +
-                'Use window.<jsobject name> instead.')
-            return $B.JSObject.$factory(...arguments)
+        JSObject: {
+            __get__: function(){
+                console.warn('"javascript.JSObject" is deprecrated. To use ' +
+                    'a Javascript object, use window.<object name> instead.')
+                return $B.JSObject
+            },
+            __set__: function(){
+                throw _b_.AttributeError.$factory("read only")
+            }
+        },
+        JSON: {
+            __class__: $B.make_class("JSON"),
+            parse: function(s){
+                return $B.structuredclone2pyobj(JSON.parse(s))
+            },
+            stringify: function(obj){
+                return JSON.stringify($B.pyobj2structuredclone(obj))
+            }
         },
         jsobj2pyobj:function(obj){return $B.jsobj2pyobj(obj)},
         load:function(script_url){
@@ -386,9 +392,9 @@
             var content = $B.builtins.getattr(file_obj, 'read')()
             eval(content)
         },
-        $$Math: $B.JSObject.$factory(self.Math),
+        $$Math: self.Math && $B.JSObject.$factory(self.Math),
         NULL: null,
-        $$Number: $B.JSObject.$factory(self.Number),
+        $$Number: self.Number && $B.JSObject.$factory(self.Number),
         py2js: function(src, module_name){
             if(module_name === undefined){
                 module_name = '__main__' + $B.UUID()
@@ -397,10 +403,19 @@
                 $B.builtins_scope).to_js()
         },
         pyobj2jsobj:function(obj){return $B.pyobj2jsobj(obj)},
-        $$RegExp: $B.JSObject.$factory(self.RegExp),
-        $$String: $B.JSObject.$factory(self.String),
+        $$RegExp: self.RegExp && $B.JSObject.$factory(self.RegExp),
+        $$String: self.String && $B.JSObject.$factory(self.String),
         UNDEFINED: undefined
     }
+
+    var arraybuffers = ["Int8Array", "Uint8Array", "Uint8ClampedArray",
+        "Int16Array", "Uint16Array", "Int32Array", "Uint32Array",
+        "Float32Array", "Float64Array", "BigInt64Array", "BigUint64Array"]
+    arraybuffers.forEach(function(ab){
+        if(self[ab] !== undefined){
+            modules['javascript'][ab] = $B.JSObject.$factory(self[ab])
+        }
+    })
 
     // _sys module is at the core of Brython since it is paramount for
     // the import machinery.
@@ -408,11 +423,11 @@
     // see https://docs.python.org/3/reference/toplevel_components.html#programs
     var _b_ = $B.builtins
     modules['_sys'] = {
-        //__file__:$B.brython_path + '/src/builtin_modules.js',
         // Called "Getframe" because "_getframe" wouldn't be imported in
         // sys.py with "from _sys import *"
         Getframe : function(depth){
-            return $B._frame.$factory($B.frames_stack, depth)
+            return $B._frame.$factory($B.frames_stack,
+                $B.frames_stack.length - depth - 1)
         },
         exc_info: function(){
             for(var i = $B.frames_stack.length - 1; i >=0; i--){
@@ -420,10 +435,13 @@
                     exc = frame[1].$current_exception
                 if(exc){
                     return _b_.tuple.$factory([exc.__class__, exc,
-                        $B.$getattr(exc, "traceback")])
+                        $B.$getattr(exc, "__traceback__")])
                 }
             }
             return _b_.tuple.$factory([_b_.None, _b_.None, _b_.None])
+        },
+        excepthook: function(exc_class, exc_value, traceback){
+            $B.handle_error(exc_value)
         },
         modules: {
             __get__: function(){
@@ -502,7 +520,7 @@
     }
 
     for(var attr in modules){load(attr, modules[attr])}
-    if(! $B.isWebWorker){modules['browser'].html = modules['browser.html']}
+    if(!($B.isWebWorker || $B.isNode)){modules['browser'].html = modules['browser.html']}
 
     var _b_ = $B.builtins
 

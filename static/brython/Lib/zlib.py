@@ -283,7 +283,7 @@ def decompresser(codelengths):
 def tree_from_codelengths(codelengths):
     return decompresser(codelengths)["root"]
 
-class Error(Exception):
+class error(Exception):
     pass
 
 
@@ -599,7 +599,7 @@ def compress_dynamic(out, source, store, lit_len_count, distance_count):
 
 def compress_fixed(out, source, items):
     """Use fixed Huffman code."""
-
+    print("fixed", items)
     out.write(1, 0) # BTYPE = fixed Huffman codes
 
     for item in items:
@@ -614,9 +614,7 @@ def compress_fixed(out, source, items):
             if nb:
                 out.write_int(value, nb)
             # distance
-            code = distance - 1
-            value, nb = code, 5
-            out.write_int(value, nb, order="msf")
+            out.write_int(distance, 5, order="msf")
             # extra bits for distance
             value, nb = extra_distance
             if nb:
@@ -708,43 +706,12 @@ def compress(source, window_size=32 * 1024):
 
     return bytes(out.bytestream)
 
-def decomp_fixed(reader):
-    """Decompress with fixed Huffman codes."""
-    root = fixed_lit_len_tree
-    result = bytearray()
-
-    while True:
-        # read a literal or length
-        _type, value = read_literal_or_length(reader, root)
-        if _type == 'eob':
-            break
-        elif _type == 'literal':
-            result.append(value)
-        elif _type == 'length':
-            length = value
-            # next five bits are the distance code
-            dist_code = reader.read(5, "msf")
-            if dist_code < 3:
-                distance = dist_code + 1
-            else:
-                nb = (dist_code // 2) - 1
-                extra = reader.read(nb)
-                half, delta = divmod(dist_code, 2)
-                distance = 1 + (2 ** half) + delta * (2 ** (half - 1)) + extra
-            for _ in range(length):
-                result.append(result[-distance])
-
-            node = root
-        else:
-            node = child
-    return result
-
 def decompress(buf):
     reader = BitIO(buf)
 
     CM = reader.read(4) # compression method (usually 8)
     if CM != 8:
-        raise Error("unsupported compression method: {}".format(CM))
+        raise error("unsupported compression method: {}".format(CM))
 
     CINFO = reader.read(4) # ln(window size) - 8
 
@@ -756,7 +723,7 @@ def decompress(buf):
         BFINAL = reader.read(1)
 
         BTYPE = reader.read(2)
-
+        
         if BTYPE == 0b01:
             # Decompression with fixed Huffman codes for literals/lengths
             # and distances
@@ -779,7 +746,8 @@ def decompress(buf):
                         nb = (dist_code // 2) - 1
                         extra = reader.read(nb)
                         half, delta = divmod(dist_code, 2)
-                        distance = 1 + (2 ** half) + delta * (2 ** (half - 1)) + extra
+                        distance = (1 + (2 ** half) + 
+                            delta * (2 ** (half - 1)) + extra)
                     for _ in range(length):
                         result.append(result[-distance])
 

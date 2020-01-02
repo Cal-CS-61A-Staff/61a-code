@@ -36,12 +36,12 @@ $B.pyobj2structuredclone = function(obj){
     }else{
         console.log(obj, obj.__class__)
         return obj
-        //throw _b_.TypeError.$factory(_b_.str.$factory(obj) +
-        //    " does not support the structured clone algorithm")
     }
 }
 $B.structuredclone2pyobj = function(obj){
-    if(typeof obj == "boolean" || typeof obj == "number" ||
+    if(obj === null){
+        return _b_.None
+    }else if(typeof obj == "boolean" || typeof obj == "number" ||
             typeof obj == "string"){
         return obj
     }else if(obj instanceof Number){
@@ -111,19 +111,16 @@ JSConstructor.__getattribute__ = function(self, attr){
             return $B.$JS2Py(res)
         }
     }
-    return JSObject.__getattribute__(self.obj, attr)
+    return JSObject.__getattribute__(self, attr)
 }
 
 JSConstructor.$factory = function(obj){
     return {
         __class__: JSConstructor,
-        obj: obj,
+        js: obj,
         func: obj.js_func
     }
 }
-
-// JSObject : wrapper around a native Javascript object
-
 
 // Object used to convert Javascript undefined value
 var UndefinedClass = $B.make_class("undefined",
@@ -161,6 +158,10 @@ var jsobj2pyobj = $B.jsobj2pyobj = function(jsobj) {
         return jsobj
     }
 
+    if(jsobj instanceof Node){
+        return $B.DOMNode.$factory(jsobj)
+    }
+
     return JSObject.$factory(jsobj)
 }
 
@@ -191,7 +192,7 @@ var pyobj2jsobj = $B.pyobj2jsobj = function(pyobj){
         // underlying DOM element
         return pyobj.elt
 
-    }else if([_b_.list,_b_.tuple].indexOf(klass) > -1){
+    }else if([_b_.list, _b_.tuple].indexOf(klass) > -1){
 
         // Python list : transform its elements
         var res = []
@@ -200,7 +201,7 @@ var pyobj2jsobj = $B.pyobj2jsobj = function(pyobj){
         })
         return res
 
-    }else if(klass === _b_.dict){
+    }else if(klass === _b_.dict || _b_.issubclass(klass, _b_.dict)){
 
         // Python dictionaries are transformed into a Javascript object
         // whose attributes are the dictionary keys
@@ -215,7 +216,7 @@ var pyobj2jsobj = $B.pyobj2jsobj = function(pyobj){
         })
         return jsobj
 
-    }else if(klass === $B.builtins.float){
+    }else if(klass === _b_.float){
 
         // Python floats are converted to the underlying value
         return pyobj.valueOf()
@@ -247,6 +248,8 @@ var pyobj2jsobj = $B.pyobj2jsobj = function(pyobj){
     }
 }
 
+// JSObject : wrapper around a native Javascript object
+
 var JSObject = {
     __class__: _b_.type,
     __mro__: [object],
@@ -271,7 +274,7 @@ JSObject.__dir__ = function(self){
 }
 
 JSObject.__getattribute__ = function(self,attr){
-    var $test = false //attr == "data"
+    var $test = false //attr == "createChooseButton"
     if($test){console.log("get attr", attr, "of", self)}
     if(attr.substr(0,2) == '$$'){attr = attr.substr(2)}
     if(self.js === null){return object.__getattribute__(None, attr)}
@@ -357,6 +360,9 @@ JSObject.__getattribute__ = function(self,attr){
                     new_this = this
                 }
                 var result = js_attr.apply(new_this, args)
+                if($test){
+                    console.log("result", result, jsobj2pyobj(result))
+                }
                 return jsobj2pyobj(result)
             }
             res.__repr__ = function(){return '<function ' + attr + '>'}
@@ -429,8 +435,9 @@ JSObject.__getitem__ = function(self, rank){
             return res
         }
     }
-    try{return getattr(self.js, '__getitem__')(rank)}
-    catch(err){
+    try{
+        return $B.$call($B.$getattr(self.js, '__getitem__'))(rank)
+    }catch(err){
         if(self.js[rank] !== undefined){
             return JSObject.$factory(self.js[rank])
         }
@@ -456,7 +463,7 @@ JSObject.__iter__ = function(self){
                 }
                 items.push(nxt.value)
             }
-        }else if(self.js.length !== undefined && self.js.items !== undefined){
+        }else if(self.js.length !== undefined && self.js.item !== undefined){
             for(var i = 0; i < self.js.length; i++){
                 items.push(self.js.item(i))
             }
@@ -514,7 +521,6 @@ JSObject.__setattr__ = function(self, attr, value){
             self.js[attr] = function(){
                 var args = []
                 for(var i = 0, len = arguments.length; i < len; i++){
-                    console.log(i, arguments[i])
                     args.push($B.$JS2Py(arguments[i]))
                 }
                 try{return value.apply(null, args)}

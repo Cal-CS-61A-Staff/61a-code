@@ -387,6 +387,7 @@ Random.choices = function(){
     if(population.length == 0){
         throw _b_.ValueError.$factory("population is empty")
     }
+    population = _b_.list.$factory(population) // issue #1268
     if(weights === _b_.None){
         weights = []
         population.forEach(function(){
@@ -852,7 +853,7 @@ Random.seed = function(){
             a = parseInt(res)
         }
     }else{
-        throw ValueError.$factory('version can only be 1 or 2')
+        throw _b_.ValueError.$factory('version can only be 1 or 2')
     }
 
     self._random.seed(a)

@@ -24,7 +24,7 @@ import sys
 
 # Identifying as _sre from Python 2.3 or 2.4
 #if sys.version_info[:2] >= (2, 4):
-MAGIC = 20031017
+MAGIC = 20171005
 #else:
 #    MAGIC = 20030419
 
@@ -74,6 +74,17 @@ class SRE_Pattern:
         """If zero or more characters at the beginning of string match this
         regular expression, return a corresponding MatchObject instance. Return
         None if the string does not match the pattern."""
+        state = _State(string, pos, endpos, self.flags)
+        if state.match(self._code):
+            return SRE_Match(self, state)
+        return None
+
+    def fullmatch(self, string, pos=0, endpos=sys.maxsize):
+        """If the whole string matches this regular expression, return a
+        corresponding match object. Return None if the string does not match
+        the pattern; note that this is different from a zero-length match."""
+        if not string.endswith("$"):
+            string += "$"
         state = _State(string, pos, endpos, self.flags)
         if state.match(self._code):
             return SRE_Match(self, state)
@@ -261,6 +272,9 @@ class SRE_Match:
             self.lastgroup = pattern._indexgroup[self.lastindex]
         else:
             self.lastgroup = None
+
+    def __getitem__(self, rank):
+        return self.group(rank)
 
     def _create_regs(self, state):
         """Creates a tuple of index pairs representing matched groups."""

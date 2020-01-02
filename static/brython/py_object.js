@@ -76,7 +76,7 @@ object.__dir__ = function(self) {
             res.push(attr)
         }
     }
-    
+
     // add object's own attributes
     if(self.__dict__){
         for(var attr in self.__dict__.$string_dict){
@@ -111,7 +111,7 @@ object.__getattribute__ = function(obj, attr){
 
     var klass = obj.__class__ || $B.get_class(obj)
 
-    var $test = false // attr == "attr"
+    var $test = false // attr == "strange"
     if($test){console.log("attr", attr, "de", obj, "klass", klass)}
     if(attr === "__class__"){
         return klass
@@ -121,6 +121,7 @@ object.__getattribute__ = function(obj, attr){
         // Special case for list subclasses. Cf. issue 1081
         res = undefined
     }
+
     if(res === undefined && obj.__dict__ &&
             obj.__dict__.$string_dict.hasOwnProperty(attr)){
         return obj.__dict__.$string_dict[attr]
@@ -253,27 +254,18 @@ object.__getattribute__ = function(obj, attr){
                 // instance method object
                 if(res.$type == "staticmethod"){return res}
                 else{
-                    var self = res.__class__ === $B.method ? klass : obj
-                    function method(){
-                        var args = [self]
-                        for(var i = 0; i < arguments.length; i++){
-                            args.push(arguments[i])
-                        }
-                        var result = res.apply(null, args)
-                        return result
-                    }
-                    if(attr == "a"){console.log("make method from res", res)}
+                    var self = res.__class__ === $B.method ? klass : obj,
+                        method = res.bind(null, self) // add self as first argument
                     method.__class__ = $B.method
                     method.__get__ = function(obj, cls){
-                        var clmethod = function(){
-                            return res(cls, ...arguments)
-                        }
+                        var clmethod = res.bind(null, cls)
                         clmethod.__class__ = $B.method
                         clmethod.$infos = {
                             __self__: cls,
                             __func__: res,
                             __name__: res.$infos.__name__,
-                            __qualname__: cls.$infos.__name__ + "." + res.$infos.__name__
+                            __qualname__: cls.$infos.__name__ + "." +
+                                res.$infos.__name__
                         }
                         return clmethod
                     }
@@ -315,6 +307,9 @@ object.__getattribute__ = function(obj, attr){
             }
         }
         if(_ga !== undefined){
+            if(klass === $B.module){
+                return _ga(attr)
+            }
             return _ga(obj, attr)
         }
     }
@@ -430,8 +425,9 @@ object.__repr__ = function(self){
     if(self.__class__ === _b_.type) {
         return "<class '" + self.__name__ + "'>"
     }
-    if(self.__class__.$infos.__module__ !== undefined &&
-            self.__class__.$infos.__module__ !== "builtins"){
+    var module = self.__class__.$infos.__module__
+    if(module !== undefined && !module.startsWith("$") &&
+            module !== "builtins"){
         return "<" + self.__class__.$infos.__module__ + "." +
             $B.class_name(self) + " object>"
     }else{
