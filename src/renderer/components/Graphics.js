@@ -5,6 +5,7 @@ import Canvas from "./Canvas.js";
 function draw(svg, data, currIndex) {
     // eslint-disable-next-line no-param-reassign
     for (; currIndex.current !== data.length; ++currIndex.current) {
+        // eslint-disable-next-line
         const [command, params] = data[currIndex.current];
         if (command === "draw_rectangular_line") {
             // todo

@@ -7,6 +7,8 @@ class Color:
     def __repr__(self):
         return "[{}, {}, {}]".format(self.red, self.green, self.blue)
 
+    __json_repr__ = __repr__
+
     @staticmethod
     def of(*color):
         if len(color) == 3:
@@ -23,3 +25,5 @@ class Position:
 
     def __repr__(self):
         return "[{}, {}]".format(self.x, self.y)
+
+    __json_repr__ = __repr__

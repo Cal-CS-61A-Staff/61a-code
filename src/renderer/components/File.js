@@ -54,6 +54,7 @@ export default class File extends React.Component {
         this.editorRef = React.createRef();
         this.outputRef = React.createRef();
         this.debugRef = React.createRef();
+        this.graphicsRef = React.createRef();
 
         this.props.onActivate(this.props.id);
     }
@@ -238,6 +239,7 @@ export default class File extends React.Component {
         } else if (text.startsWith(TURTLE_MARKER)) {
             const data = JSON.parse(text.substr(DEBUG_MARKER.length));
             this.setState(({ graphicsData }) => ({ graphicsData: graphicsData.concat(data) }));
+            this.graphicsRef.current.forceOpen();
         } else {
             this.setState((state) => {
                 const outputData = state.outputData.concat([{
@@ -338,6 +340,7 @@ export default class File extends React.Component {
                     onUpdate={this.handleDebugUpdate}
                 />
                 <Graphics
+                    ref={this.graphicsRef}
                     title={`${this.state.name} (Graphics)`}
                     data={this.state.graphicsData}
                 />

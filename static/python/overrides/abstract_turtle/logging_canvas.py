@@ -1,4 +1,5 @@
 from abstract_turtle.canvas import Canvas
+from abstract_turtle.utils import json_repr
 
 
 class LoggingCanvas(Canvas):
@@ -7,7 +8,7 @@ class LoggingCanvas(Canvas):
 
     @staticmethod
     def report(data):
-        print("TURTLE:", data)
+        print("TURTLE:", json_repr(data))
 
     def draw_rectangular_line(self, start, end, color, width):
         self.report(
