@@ -104,16 +104,19 @@ export default class File extends React.Component {
 
         const numTrunc = this.state.outputData.length;
 
-        this.setState(state => ({
-            // eslint-disable-next-line react/no-access-state-in-setstate
-            executedCode: [],
-            interactCallback,
-            killCallback,
-            detachCallback,
-            outputData: state.outputData.slice(numTrunc),
-            outputActive: true,
-        }));
-
+        this.setState((state) => {
+            state.graphicsData.push(["clear"]);
+            return {
+                // eslint-disable-next-line react/no-access-state-in-setstate
+                executedCode: [],
+                graphicsData: state.graphicsData,
+                interactCallback,
+                killCallback,
+                detachCallback,
+                outputData: state.outputData.slice(numTrunc),
+                outputActive: true,
+            };
+        });
         this.outputRef.current.forceOpen();
     };
 
@@ -238,7 +241,10 @@ export default class File extends React.Component {
             this.setState(state => ({ executedCode: state.executedCode.concat([code]) }));
         } else if (text.startsWith(TURTLE_MARKER)) {
             const data = JSON.parse(text.substr(DEBUG_MARKER.length));
-            this.setState(({ graphicsData }) => ({ graphicsData: graphicsData.concat(data) }));
+            this.setState(({ graphicsData }) => {
+                graphicsData.push(data);
+                return { graphicsData };
+            });
             this.graphicsRef.current.forceOpen();
         } else {
             this.setState((state) => {

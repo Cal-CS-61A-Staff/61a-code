@@ -2,7 +2,7 @@ import * as React from "react";
 import SVG from "svg.js";
 import svgPanZoom from "svg-pan-zoom/dist/svg-pan-zoom.min.js";
 
-export default class Canvas extends React.Component {
+export default class SVGCanvas extends React.Component {
     constructor(props) {
         super(props);
         this.svgRef = React.createRef();

@@ -38,14 +38,24 @@ def exit(data):
     browser.self.exit.write(data)
 
 
-sys.path.append(sys.path[0] + "/static/python/overrides")
-# noinspection PyUnresolvedReferences
-from abstract_turtle.logging_canvas import LoggingCanvas
+def _tscheme_prep():
+    global _turtle_screen_on
+    if not _turtle_screen_on:
+        init_turtle()
+        _turtle_screen_on = True
 
-# noinspection PyUnresolvedReferences
-from abstract_turtle.turtle import Turtle
 
-sys.modules["turtle"] = Turtle(LoggingCanvas(None, None))
+def init_turtle():
+    sys.path.append(sys.path[0] + "/static/python/overrides")
+    # noinspection PyUnresolvedReferences
+    from abstract_turtle.logging_canvas import LoggingCanvas
+
+    # noinspection PyUnresolvedReferences
+    from abstract_turtle.turtle import Turtle
+
+    global turtle
+    turtle = sys.modules["turtle"] = Turtle(LoggingCanvas(None, None))
+
 
 sys.stdout.write = write
 sys.stderr.write = err

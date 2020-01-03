@@ -1,5 +1,6 @@
 from math import pi, sin, cos
 
+from .utils import json_repr
 from .model import Color, Position
 
 
@@ -20,24 +21,26 @@ class BaseTurtle:
         self.__degrees = 360
         self.__polygon = None
 
-    def __getattribute__(self, name):
-        attr = object.__getattribute__(self, name)
-        if hasattr(attr, "__call__"):
-
-            def newfunc(*args, **kwargs):
-                result = attr(*args, **kwargs)
-                print(
-                    "TURTLE:",
-                    [
-                        "turtle_state",
-                        [self.__x, self.__y, self.__pen_color, self.__theta],
-                    ],
-                )
-                return result
-
-            return newfunc
-        else:
-            return attr
+    # def __getattribute__(self, name):
+    #     attr = object.__getattribute__(self, name)
+    #     if hasattr(attr, "__call__"):
+    #
+    #         def newfunc(*args, **kwargs):
+    #             result = attr(*args, **kwargs)
+    #             print(
+    #                 "TURTLE:",
+    #                 json_repr(
+    #                     [
+    #                         "turtle_state",
+    #                         [self.__x, self.__y, self.__pen_color, self.__theta],
+    #                     ]
+    #                 ),
+    #             )
+    #             return result
+    #
+    #         return newfunc
+    #     else:
+    #         return attr
 
     def goto(self, x, y):
         """

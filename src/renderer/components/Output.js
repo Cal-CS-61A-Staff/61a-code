@@ -47,10 +47,11 @@ class Output extends React.Component {
         this.postRender(text);
         this.props.onInput(text);
         this.setState((state) => {
-            const newHistory = state.history.slice(0, state.history.length - 1).concat([...text.trimEnd().split("\n"), ""]);
+            const newHistory = state.history.slice(0, state.history.length - 1).concat(text.trimEnd().split("\n"));
+            const filteredNewHistory = newHistory.filter(x => x.length > 0).concat([""]);
             return {
-                history: newHistory,
-                historyIndex: newHistory.length,
+                history: filteredNewHistory,
+                historyIndex: filteredNewHistory.length,
             };
         });
     };

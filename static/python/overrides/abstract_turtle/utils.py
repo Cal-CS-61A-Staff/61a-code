@@ -15,7 +15,7 @@ def json_repr(elem):
         else:
             return "false"
     elif isinstance(elem, (int, float)):
-        return '"' + repr(elem) + '"'
+        return repr(elem)
     elif hasattr(elem, "__json_repr__"):
         return elem.__json_repr__()
     else:

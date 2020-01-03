@@ -1,6 +1,6 @@
 import * as React from "react";
 import { getDims } from "../../../renderer/utils/diagramming.js";
-import Canvas from "../../../renderer/components/Canvas.js";
+import SVGCanvas from "../../../renderer/components/SVGCanvas.js";
 
 const UNEVALUATED = "0";
 const EVALUATING = "1";
@@ -107,6 +107,6 @@ function displayTree(svg, index, allData) {
 
 export default function SchemeTree({ index, data }) {
     return (
-        <Canvas draw={svg => displayTree(svg, index, data)} />
+        <SVGCanvas draw={svg => displayTree(svg, index, data)} />
     );
 }

@@ -333,7 +333,7 @@ def init_turtle():
     sys.modules["turtle"] = Turtle(LoggingCanvas(None, None))
 
 
-init_turtle()
+# init_turtle()
 
 
 editor_ns = {

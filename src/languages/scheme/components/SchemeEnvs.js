@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { displayElem, getDims, minWidth } from "../../../renderer/utils/diagramming.js";
-import Canvas from "../../../renderer/components/Canvas.js";
+import SVGCanvas from "../../../renderer/components/SVGCanvas.js";
 
 const charWidth = getDims()[0];
 const charHeight = getDims()[1];
@@ -133,7 +133,7 @@ function evaluateObjects(index, objects) {
 
 export default function SchemeEnvs({ index, frames, objects }) {
     return (
-        <Canvas draw={
+        <SVGCanvas draw={
             (svg) => {
                 const evaluatedFrames = evaluateFrames(index, frames);
                 const evaluatedObjects = evaluateObjects(index, objects);
