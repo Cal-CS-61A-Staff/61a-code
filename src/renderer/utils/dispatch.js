@@ -32,7 +32,7 @@ const interpreterPool = new ProcessPool({
     [PYTHON]: runPyCode,
     [SCHEME]: runScmCode,
     [SQL]: runSQLCode,
-}, 2);
+}, 1);
 
 export function runCode(language) {
     return interpreterPool.pop(language);

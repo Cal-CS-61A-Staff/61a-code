@@ -51,10 +51,10 @@ def init_turtle():
     from abstract_turtle.logging_canvas import LoggingCanvas
 
     # noinspection PyUnresolvedReferences
-    from abstract_turtle.turtle import Turtle
+    from abstract_turtle.turtle import LoggingTurtle
 
     global turtle
-    turtle = sys.modules["turtle"] = Turtle(LoggingCanvas(None, None))
+    turtle = sys.modules["turtle"] = LoggingTurtle(LoggingCanvas(None, None))
 
 
 sys.stdout.write = write

@@ -22,7 +22,7 @@ class ProcessPool {
             this.pool.set(target, []);
         }
 
-        while (this.pool.get(target).length <= this.buffSize) {
+        while (this.pool.get(target).length < this.buffSize) {
             // eslint-disable-next-line no-use-before-define
             let handlers = Array(3).fill().map((_, i) => x => handlerBuffers[i].push(x));
             const handlerBuffers = handlers.map(() => []);

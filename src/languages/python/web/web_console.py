@@ -325,15 +325,15 @@ def open(file, *args, **kwargs):
 def init_turtle():
     sys.path.append(sys.path[0] + "/static/python/overrides")
     # noinspection PyUnresolvedReferences
-    from abstract_turtle.logging_canvas import LoggingCanvas
+    # from abstract_turtle.logging_canvas import LoggingCanvas
 
     # noinspection PyUnresolvedReferences
-    from abstract_turtle.turtle import Turtle
+    # from abstract_turtle.turtle import Turtle
 
-    sys.modules["turtle"] = Turtle(LoggingCanvas(None, None))
+    # sys.modules["turtle"] = Turtle(LoggingCanvas(None, None))
 
 
-# init_turtle()
+init_turtle()
 
 
 editor_ns = {

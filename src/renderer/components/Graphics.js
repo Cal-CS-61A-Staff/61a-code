@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars,no-param-reassign */
 import React, { useRef } from "react";
 
 import glWrap from "../utils/glWrap.js";
@@ -15,10 +16,9 @@ function y(val) {
     return -val + 1000;
 }
 
-function draw(canvas, data, currIndex) {
-    const ctx = canvas.getContext("2d");
+function draw(mainCanvas, turtleCanvas, data, currIndex, turtleState) {
+    const ctx = mainCanvas.getContext("2d");
 
-    // eslint-disable-next-line no-param-reassign
     for (; currIndex.current !== data.length; ++currIndex.current) {
         const [command, ...params] = data[currIndex.current];
         if (command === "draw_rectangular_line") {
@@ -51,20 +51,45 @@ function draw(canvas, data, currIndex) {
         } else if (command === "set_bgcolor") {
             const [color] = params;
             ctx.fillStyle = makeColorString(color);
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
         } else if (command === "clear") {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            turtleState.current = [[0, 0], 0];
+        } else if (command === "report_position") {
+            turtleState.current[0] = params;
+        } else if (command === "report_angle") {
+            [turtleState.current[1]] = params;
         } else {
             console.error(`Ignoring unknown graphics command ${command}`);
         }
     }
+
+    const { current: [[turtleX, turtleY], angle] } = turtleState;
+
+    const turtleCtx = turtleCanvas.getContext("2d");
+    turtleCtx.clearRect(0, 0, turtleCanvas.width, turtleCanvas.height);
+    turtleCtx.save();
+    turtleCtx.translate(x(turtleX), y(turtleY));
+    turtleCtx.rotate(angle * Math.PI / 180);
+    turtleCtx.beginPath();
+    turtleCtx.fillStyle = makeColorString([0, 0, 0]);
+    turtleCtx.moveTo(-5, 5);
+    turtleCtx.lineTo(5, 5);
+    turtleCtx.lineTo(0, 0);
+    turtleCtx.fill();
+    turtleCtx.restore();
 }
 
 function Graphics({ data }) {
     const currIndex = useRef(0);
-    currIndex.current = Math.min(currIndex.current, data.length);
+    const turtleState = useRef([[0, 0], 0]);
     return (
-        <HTMLCanvas draw={canvas => draw(canvas, data, currIndex)} />
+        <HTMLCanvas
+            layers={2}
+            draw={([mainCanvas, turtleCanvas]) => draw(
+                mainCanvas, turtleCanvas, data, currIndex, turtleState,
+            )}
+        />
     );
 }
 
