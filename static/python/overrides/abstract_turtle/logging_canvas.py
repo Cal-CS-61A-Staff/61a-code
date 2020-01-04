@@ -1,30 +1,40 @@
-from abstract_turtle.canvas import Canvas
-from abstract_turtle.utils import json_repr
 
+from abc import abstractmethod
 
-class LoggingCanvas(Canvas):
-    def __init__(self, width, height):
-        super().__init__(width, height)
+from .canvas import Canvas
 
-    @staticmethod
-    def report(data):
-        print("TURTLE:", json_repr(data))
+class AbstractLoggingCanvas(Canvas):
+    @abstractmethod
+    def on_action(self, log_line):
+        pass
 
     def draw_rectangular_line(self, start, end, color, width):
-        self.report(
-            ["draw_rectangular_line", [start.x, start.y, end.x, end.y], color, width]
-        )
+        self.on_action(['draw_rectangular_line', [start.x, start.y, end.x, end.y], color, width])
 
     def draw_circle(self, center, radius, color, width, is_filled):
-        self.report(
-            ["draw_circle", [center.x, center.y, radius], color, width, is_filled]
-        )
+        self.on_action(['draw_circle', [center.x, center.y, radius], color, width, is_filled])
 
     def fill_polygon(self, points, color):
-        self.report(["fill_polygon", [[point.x, point.y] for point in points], color])
+        self.on_action(['fill_polygon', [[point.x, point.y] for point in points], color])
 
     def set_bgcolor(self, color):
-        self.report(["set_bgcolor", color])
+        self.on_action(['set_bgcolor', color])
 
     def clear(self):
-        self.report(["clear"])
+        self.on_action(['clear'])
+
+    def update_turtle(self, drawn_turtle):
+        self.on_action([
+            'update_turtle',
+            [drawn_turtle.pos.x, drawn_turtle.pos.y],
+            drawn_turtle.heading,
+            drawn_turtle.stretch_wid,
+            drawn_turtle.stretch_len
+        ])
+
+class LoggingCanvas(AbstractLoggingCanvas):
+    def __init__(self, width, height):
+        super().__init__(width, height)
+        self.log = []
+    def on_action(self, log_line):
+        self.log.append(log_line)

@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 
+from abc import ABC, abstractmethod
 
 class Canvas(ABC):
     def __init__(self, width, height):
@@ -47,5 +47,12 @@ class Canvas(ABC):
     def clear(self):
         """
         Clear everything in the foreground
+        """
+        pass
+
+    @abstractmethod
+    def update_turtle(self, drawn_turtle):
+        """
+        Update the turtle to the given DrawnTurtle object, or remove the turtle if None is passed
         """
         pass

@@ -1,29 +1,40 @@
-class Color:
-    def __init__(self, red, green, blue):
-        self.red = red
-        self.green = green
-        self.blue = blue
 
-    def __repr__(self):
-        return "[{}, {}, {}]".format(self.red, self.green, self.blue)
+from collections import namedtuple
 
-    __json_repr__ = __repr__
+from math import sin, cos
 
-    @staticmethod
-    def of(*color):
-        if len(color) == 3:
-            if any(not isinstance(c, int) for c in color):
-                raise RuntimeError("Not a valid color: %s" % color)
-            return Color(*color)
-        raise RuntimeError("String colors not supported")
+def cons_color(*color):
+    if len(color) == 3:
+        if any(not isinstance(c, int) for c in color):
+            raise RuntimeError("Not a valid color: %s" % color)
+        return Color(*color)
+    raise RuntimeError("String colors not supported")
 
 
-class Position:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+Color = namedtuple('Color', ['red', 'green', 'blue'])
+Color.of = cons_color
 
-    def __repr__(self):
-        return "[{}, {}]".format(self.x, self.y)
+Position = namedtuple('Position', ['x', 'y'])
 
-    __json_repr__ = __repr__
+class DrawnTurtle(namedtuple('DrawnTurtle', ['pos', 'heading', 'stretch_wid', 'stretch_len'])):
+    @property
+    def points(self):
+        unadjusted_points = [
+            (-3, 8),
+            (0, 0),
+            (-3, -8),
+            (8, 0),
+        ]
+        stretched_points = [
+            (dx * self.stretch_len, dy * self.stretch_wid) for dx, dy in unadjusted_points
+        ]
+        rotated_points = [
+            rotate(*dxy, self.heading) for dxy in stretched_points
+        ]
+        moved_points = [
+            Position(self.pos.x + dx, self.pos.y + dy) for dx, dy in rotated_points
+        ]
+        return moved_points
+
+def rotate(x, y, theta):
+    return x * cos(theta) - y * sin(theta), x * sin(theta) + y * cos(theta)
