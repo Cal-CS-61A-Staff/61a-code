@@ -1,8 +1,7 @@
-import $ from "jquery";
-
 import { openDB } from "idb";
 import path from "path-browserify";
 import pathParse from "path-parse";
+import post from "../common/post.js";
 
 const DATABASE = "FileStorage";
 const FILE_STORE = "Files";
@@ -36,7 +35,7 @@ async function getDB() {
             location: "/home",
             content: [],
             type: DIRECTORY,
-            time: 2,
+            time: 1,
         });
     }
     return db;
@@ -48,7 +47,49 @@ export async function storeFile(content, location, type) {
 
 export async function getFile(location) {
     const db = await getDB();
-    return db.get(FILE_STORE, normalize(location));
+    return getFileWorker(location, db);
+}
+
+async function getFileWorker(location, db) {
+    if (isHomePath(location) || location === "/") {
+        return db.get(FILE_STORE, normalize(location));
+    } else if (isBackupPath(location)) {
+        if (location === "/cs61a") {
+            const assignments = await getAssignments();
+            return {
+                name: "cs61a",
+                location,
+                content: assignments.map(({ name }) => name.split("/").pop()),
+                type: DIRECTORY,
+                time: 1,
+            };
+        } else if (location.split("/").length === 3) {
+            const assignment = location.split("/").pop();
+            const backups = await getBackups(assignment);
+            return {
+                name: assignment,
+                location,
+                content: backups.map(({ name }) => name),
+                type: DIRECTORY,
+                time: 1,
+            };
+        } else {
+            try {
+                const [assignment, file] = await backupSplit(location);
+                const backups = await getBackups(assignment);
+                for (const backup of backups) {
+                    if (backup.name === file) {
+                        return backup;
+                    }
+                }
+                return undefined;
+            } catch {
+                return undefined;
+            }
+        }
+    } else {
+        return undefined;
+    }
 }
 
 export async function removeFile(location) {
@@ -61,15 +102,14 @@ export async function removeFile(location) {
 }
 
 export async function getAssignments() {
-    return (await $.post("/api/list_assignments")).data.assignments.filter(
+    return (await post("/api/list_assignments")).data.assignments.filter(
         ({ name }) => ["hw", "lab", "proj", "challenge"].some(x => name.includes(x)),
     );
 }
 
-export async function getBackups(endpoint) {
+export async function getBackups(assignment) {
     const backups = [];
-    const assignment = endpoint.split("/").pop();
-    const { data: { backups: ret } } = await $.post("/api/get_backups", { endpoint });
+    const { data: { backups: ret } } = await post("/api/get_backups", { assignment });
     for (const { messages } of ret) {
         for (const { created, contents, kind } of messages) {
             if (kind === "file_contents") {
@@ -106,10 +146,7 @@ export async function fileExists(location) {
 }
 
 async function fileExistsWorker(db, location) {
-    if (!location.startsWith("/home")) {
-        return true;
-    }
-    return (await db.get(FILE_STORE, location)) !== undefined;
+    return await getFileWorker(location) !== undefined;
 }
 
 async function addToDirectory(db, location, dirname) {
@@ -124,7 +161,7 @@ async function addToDirectory(db, location, dirname) {
 }
 
 async function storeFileWorker(db, content, location, type) {
-    if (location.startsWith("/home")) {
+    if (isHomePath(location)) {
         if (!(await fileExistsWorker(db, path.dirname(location)))) {
             await storeFileWorker(db, [], path.dirname(location), DIRECTORY);
         }
@@ -132,21 +169,34 @@ async function storeFileWorker(db, content, location, type) {
         await db.put(FILE_STORE, {
             name: path.basename(location), location, content, type, time: new Date().getTime(),
         });
-    } else if (location.startsWith("/cs61a")) {
-        const elems = location.split("/").slice(2); // [assignment, file]
-        if (elems.length !== 2) {
-            throw Error("Unable to write to path.");
-        }
-        const [assignment, file] = elems;
-        const assignments = await getAssignments();
-        if (!assignments.some(({ name }) => name.split("/").pop() === assignment)) {
-            throw Error("Assignment not found.");
-        }
-        const resp = await $.post("/api/save_backup", { file, content, assignment });
+    } else if (isBackupPath(location)) {
+        const [assignment, file] = await backupSplit(location);
+        const resp = await post("/api/save_backup", { file, content, assignment });
         if (!resp.success) {
             throw Error("Error when backing up.");
         }
     } else {
         throw Error("Unable to write to directory.");
     }
+}
+
+function isHomePath(location) {
+    return location.startsWith("/home");
+}
+
+function isBackupPath(location) {
+    return location.startsWith("/cs61a");
+}
+
+async function backupSplit(location) {
+    const elems = location.split("/").slice(2); // [assignment, file]
+    if (elems.length !== 2) {
+        throw Error("Unable to write to path.");
+    }
+    const [assignment, file] = elems;
+    const assignments = await getAssignments();
+    if (!assignments.some(({ name }) => name.split("/").pop() === assignment)) {
+        throw Error("Assignment not found.");
+    }
+    return [assignment, file];
 }

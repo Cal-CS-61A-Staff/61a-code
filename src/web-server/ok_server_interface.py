@@ -8,10 +8,10 @@ SEMESTER = "fa19"
 def create_ok_server_interface(app):
     @app.route("/api/get_backups", methods=["POST"])
     def get_backups():
-        endpoint = request.form["endpoint"]
+        assignment = request.form["assignment"]
         email = get_user_data(app)["email"]
         resp = app.remote.get(
-            "assignment/{}/export/{}?limit=1".format(endpoint, email)
+            "assignment/cal/cs61a/fa19/{}/export/{}?limit=1".format(assignment, email)
         ).data
         return jsonify(resp)
 

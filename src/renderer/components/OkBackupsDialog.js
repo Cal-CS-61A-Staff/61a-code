@@ -9,7 +9,7 @@ function OKBackupsDialog({ assignments, onFileSelect }) {
     const selected = selectedIndex === null ? null : assignments[selectedIndex];
 
     const backups = useAsync(
-        () => (selected ? getBackups(selected.name) : null),
+        () => (selected ? getBackups(selected.name.split("/").pop()) : null),
         null, [selected],
     );
 
