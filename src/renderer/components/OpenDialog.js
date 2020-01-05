@@ -1,7 +1,7 @@
 import * as React from "react";
 import UploadFileSelector from "./UploadFileSelector.js";
-import RecentFileSelector from "./RecentFileSelector.js";
 import { dialogWrap } from "../utils/dialogWrap.js";
+import RecentFileSelector from "./RecentFileSelector.js";
 
 function OpenDialog(props) {
     return (

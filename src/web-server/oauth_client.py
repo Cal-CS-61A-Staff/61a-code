@@ -7,9 +7,8 @@ from werkzeug import security
 
 from IGNORE_secrets import SECRET
 from constants import COOKIE_IS_POPUP, COOKIE_SHORTLINK_REDIRECT
-from db import connect_db
 
-CONSUMER_KEY = "61a-web-repl"
+CONSUMER_KEY = "61a-grade-view"
 
 
 def create_oauth_client(app):
@@ -19,7 +18,7 @@ def create_oauth_client(app):
         "ok-server",  # Server Name
         consumer_key=CONSUMER_KEY,
         consumer_secret=SECRET,
-        request_token_params={"scope": "email", "state": lambda: security.gen_salt(10)},
+        request_token_params={"scope": "all", "state": lambda: security.gen_salt(10)},
         base_url="https://okpy.org/api/v3/",
         request_token_url=None,
         access_token_method="POST",
@@ -92,14 +91,4 @@ def create_oauth_client(app):
     def get_oauth_token():
         return session.get("dev_token")
 
-    def check_auth():
-        ret = remote.get("user", token=session["dev_token"])
-        email = ret.data["data"]["email"]
-        with connect_db() as db:
-            authorized = [
-                prefix + "@berkeley.edu"
-                for (prefix, *_) in db("SELECT * FROM authorized").fetchall()
-            ]
-        return email in authorized
-
-    app.check_auth = check_auth
+    app.remote = remote

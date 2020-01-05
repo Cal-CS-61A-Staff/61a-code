@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { send } from "./communication";
 import { CLAIM_MENU } from "../../common/communicationEnums.js";
 
@@ -33,4 +35,8 @@ export default function claimMenu(handlers) {
     return () => {
         detach();
     };
+}
+
+export function useMenu(handlers) {
+    useEffect(claimMenu(handlers), []);
 }

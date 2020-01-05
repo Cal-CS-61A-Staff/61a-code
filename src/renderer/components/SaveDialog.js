@@ -11,7 +11,7 @@ function SaveDialog(props) {
                 onClick={props.onNameSelect}
             />
             <ModalButton buttonText="Download" onClick={props.onDownloadClick}>
-                Or download a copy of your code to save on your computer.
+                <p>Or download a copy of your code to save on your computer.</p>
             </ModalButton>
         </>
     );
