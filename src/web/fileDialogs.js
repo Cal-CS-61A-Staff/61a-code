@@ -6,6 +6,7 @@ import { closeDialog, loadDialog } from "../renderer/utils/dialogWrap.js";
 import {
     FILE, getFile, getRecentFiles, normalize, storeFile,
 } from "./filesystem.js";
+import { showBackupsDialog } from "./okDialogs.js";
 
 export async function showOpenDialog(key) {
     function handleClose() {
@@ -17,12 +18,18 @@ export async function showOpenDialog(key) {
         sendAndExit(key, { success: true, file });
     }
 
+    function handleBackupsButtonClick() {
+        closeDialog();
+        showBackupsDialog(key);
+    }
+
     const recents = await getRecentFiles();
 
     loadDialog(OpenDialog, {
         recents,
         onClose: handleClose,
         onFileSelect: handleFileSelect,
+        onBackupsButtonClick: handleBackupsButtonClick,
     });
 }
 
@@ -65,8 +72,12 @@ export function showSaveDialog(key, contents, hint) {
 
 
 export async function save(key, content, location) {
-    await storeFile(content, normalize(location), FILE);
-    sendAndExit(key, { success: true, name: path.basename(location), location });
+    try {
+        await storeFile(content, normalize(location), FILE);
+        sendAndExit(key, { success: true, name: path.basename(location), location });
+    } catch (e) {
+        sendAndExit(key, { success: false, message: e.message });
+    }
 }
 
 

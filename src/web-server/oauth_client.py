@@ -8,7 +8,7 @@ from werkzeug import security
 from IGNORE_secrets import SECRET
 from constants import COOKIE_IS_POPUP, COOKIE_SHORTLINK_REDIRECT
 
-CONSUMER_KEY = "61a-grade-view"
+CONSUMER_KEY = "61a-web-repl"
 
 
 def create_oauth_client(app):

@@ -178,6 +178,12 @@ export default class File extends React.Component {
             });
             if (ret.success) {
                 this.setState({ savedText });
+            } else {
+                send({
+                    type: SHOW_ERROR_DIALOG,
+                    title: "Unable to save",
+                    message: ret.message,
+                });
             }
         }
     };
@@ -194,6 +200,12 @@ export default class File extends React.Component {
                 name: ret.name,
                 savedText,
                 location: ret.location,
+            });
+        } else {
+            send({
+                type: SHOW_ERROR_DIALOG,
+                title: "Unable to save",
+                message: ret.message,
             });
         }
     };

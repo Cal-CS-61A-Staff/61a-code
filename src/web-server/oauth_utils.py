@@ -1,5 +1,3 @@
-from flask import session
-
 from db import connect_db
 
 
@@ -14,9 +12,5 @@ def check_auth(app):
 
 
 def get_user_data(app):
-    ret = app.remote.get("user", token=get_token())
+    ret = app.remote.get("user")
     return ret.data["data"]
-
-
-def get_token():
-    return session.get("dev_token")

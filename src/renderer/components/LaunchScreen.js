@@ -11,10 +11,8 @@ import { sendNoInteract } from "../utils/communication.js";
 import { useMenu } from "../utils/menuHandler.js";
 import { openHelp } from "../utils/help.js";
 import { login, logout } from "../utils/auth.js";
-import ModalButton from "./ModalButton.js";
-import { useAuthData } from "../utils/okUtils.js";
 import { useAsync } from "../utils/hooks.js";
-import RecentFileSelector from "./RecentFileSelector.js";
+import FileSelector from "./FileSelector.js";
 
 function closeTab() {
     if (ELECTRON) {
@@ -25,8 +23,6 @@ function closeTab() {
 }
 
 export default function LaunchScreen({ onFileCreate }) {
-    const { loggedOut } = useAuthData();
-
     const handleCreateClick = (extension) => {
         const realExtension = extension || "";
         const file = {
@@ -46,21 +42,17 @@ export default function LaunchScreen({ onFileCreate }) {
         }
     };
 
-    const handleBackupsClick = async () => {
-        if (loggedOut) {
-            login();
-        } else {
-            const ret = await sendNoInteract({ type: SHOW_OK_BACKUPS_DIALOG });
-            if (ret.success) {
-                onFileCreate(ret.file);
-            }
-        }
-    };
-
     const recentFiles = useAsync(
         () => sendNoInteract({ type: GET_RECENT_FILES }),
         [],
     );
+
+    const handleBackupsButtonClick = async () => {
+        const ret = await sendNoInteract({ type: SHOW_OK_BACKUPS_DIALOG });
+        if (ret.success) {
+            onFileCreate(ret.file);
+        }
+    };
 
     useMenu({
         [MENU_NEW]: handleCreateClick,
@@ -71,8 +63,6 @@ export default function LaunchScreen({ onFileCreate }) {
         [MENU_LOGOUT]: logout,
     });
 
-    const okButtonText = `${loggedOut ? "Login" : "Click"} to view backups`;
-
     return (
         <div className="row">
             <div className="introColumn">
@@ -82,16 +72,11 @@ export default function LaunchScreen({ onFileCreate }) {
                 />
             </div>
             <div className="recentColumn">
-                <div className="recentHolder browserFileSelector">
-                    <RecentFileSelector
-                        files={recentFiles}
-                        onFileSelect={onFileCreate}
-                    />
-                    <br />
-                    <ModalButton buttonText={okButtonText} onClick={handleBackupsClick}>
-                        <div className="LaunchScreenHeader">OKPy Backups</div>
-                    </ModalButton>
-                </div>
+                <FileSelector
+                    recentFiles={recentFiles}
+                    onBackupsButtonClick={handleBackupsButtonClick}
+                    onFileCreate={onFileCreate}
+                />
             </div>
         </div>
     );

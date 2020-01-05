@@ -12,17 +12,34 @@ export const FILE = "FILE";
 export const DIRECTORY = "DIRECTORY";
 
 async function getDB() {
-    return openDB(DATABASE, VERSION, {
-        async upgrade(db, oldVersion) {
+    const db = await openDB(DATABASE, VERSION, {
+        async upgrade(oldDB, oldVersion) {
             if (oldVersion < 1) {
-                db.createObjectStore(FILE_STORE, { keyPath: "location", autoIncrement: true });
+                oldDB.createObjectStore(FILE_STORE, { keyPath: "location", autoIncrement: true });
             } else if (oldVersion === 1) {
-                db.deleteObjectStore(FILE_STORE);
-                db.createObjectStore(FILE_STORE, { keyPath: "location", autoIncrement: true });
+                oldDB.deleteObjectStore(FILE_STORE);
+                oldDB.createObjectStore(FILE_STORE, { keyPath: "location", autoIncrement: true });
             }
             // who needs to preserve files anyway
         },
     });
+    await db.put(FILE_STORE, {
+        name: "",
+        location: "/",
+        content: ["/home", "/cs61a"],
+        type: DIRECTORY,
+        time: 1,
+    });
+    if (!(await db.get(FILE_STORE, "/home"))) {
+        await db.put(FILE_STORE, {
+            name: "home",
+            location: "/home",
+            content: [],
+            type: DIRECTORY,
+            time: 2,
+        });
+    }
+    return db;
 }
 
 export async function storeFile(content, location, type) {
@@ -60,7 +77,7 @@ export async function getBackups(endpoint) {
                     if (name !== "submit") {
                         backups.push({
                             name,
-                            location: `cs61a/${assignment}/${name}`,
+                            location: `/cs61a/${assignment}/${name}`,
                             content,
                             type: FILE,
                             time: Date.parse(created),
@@ -84,12 +101,14 @@ export function normalize(location) {
     return path.format(parsed);
 }
 
-
 export async function fileExists(location) {
     return fileExistsWorker(await getDB(), location);
 }
 
 async function fileExistsWorker(db, location) {
+    if (!location.startsWith("/home")) {
+        return true;
+    }
     return (await db.get(FILE_STORE, location)) !== undefined;
 }
 
@@ -105,13 +124,29 @@ async function addToDirectory(db, location, dirname) {
 }
 
 async function storeFileWorker(db, content, location, type) {
-    if (location !== "/") {
+    if (location.startsWith("/home")) {
         if (!(await fileExistsWorker(db, path.dirname(location)))) {
             await storeFileWorker(db, [], path.dirname(location), DIRECTORY);
         }
         await addToDirectory(db, location, path.dirname(location));
+        await db.put(FILE_STORE, {
+            name: path.basename(location), location, content, type, time: new Date().getTime(),
+        });
+    } else if (location.startsWith("/cs61a")) {
+        const elems = location.split("/").slice(2); // [assignment, file]
+        if (elems.length !== 2) {
+            throw Error("Unable to write to path.");
+        }
+        const [assignment, file] = elems;
+        const assignments = await getAssignments();
+        if (!assignments.some(({ name }) => name.split("/").pop() === assignment)) {
+            throw Error("Assignment not found.");
+        }
+        const resp = await $.post("/api/save_backup", { file, content, assignment });
+        if (!resp.success) {
+            throw Error("Error when backing up.");
+        }
+    } else {
+        throw Error("Unable to write to directory.");
     }
-    await db.put(FILE_STORE, {
-        name: path.basename(location), location, content, type, time: new Date().getTime(),
-    });
 }
