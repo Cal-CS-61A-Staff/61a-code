@@ -47,6 +47,8 @@ export default class File extends React.Component {
             detachCallback: null,
         };
 
+        this.isSaving = false;
+
         this.editorRef = React.createRef();
         this.outputRef = React.createRef();
         this.debugRef = React.createRef();
@@ -167,6 +169,10 @@ export default class File extends React.Component {
     };
 
     save = async () => {
+        if (this.isSaving) {
+            return;
+        }
+        this.isSaving = true;
         if (!this.state.location) {
             await this.saveAs();
         } else {
@@ -186,6 +192,7 @@ export default class File extends React.Component {
                 });
             }
         }
+        this.isSaving = false;
     };
 
     saveAs = async () => {
