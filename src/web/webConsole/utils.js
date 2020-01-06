@@ -20,9 +20,12 @@ function tildeExpand(inpPath) {
 }
 
 export function resolveRelativePath(inpPath, workingDirectory) {
-    if (path.isAbsolute(tildeExpand(inpPath))) {
-        return tildeExpand(inpPath);
+    const expanded = path.isAbsolute(tildeExpand(inpPath))
+        ? tildeExpand(inpPath)
+        : path.join(tildeExpand(workingDirectory), tildeExpand(inpPath));
+    if (expanded !== "/" && expanded.endsWith("/")) {
+        return expanded.slice(0, -1);
     } else {
-        return path.join(tildeExpand(workingDirectory), tildeExpand(inpPath));
+        return expanded;
     }
 }

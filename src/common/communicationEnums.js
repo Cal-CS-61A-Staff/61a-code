@@ -40,3 +40,5 @@ export const MENU_HELP = "MENU_HELP";
 
 export const MENU_LOGIN = "MENU_LOGIN";
 export const MENU_LOGOUT = "MENU_LOGOUT";
+
+export const SHOW_OK_BACKUPS_DIALOG = "SHOW_OK_BACKUPS_DIALOG";

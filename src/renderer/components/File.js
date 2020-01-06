@@ -47,6 +47,8 @@ export default class File extends React.Component {
             detachCallback: null,
         };
 
+        this.isSaving = false;
+
         this.editorRef = React.createRef();
         this.outputRef = React.createRef();
         this.debugRef = React.createRef();
@@ -167,6 +169,10 @@ export default class File extends React.Component {
     };
 
     save = async () => {
+        if (this.isSaving) {
+            return;
+        }
+        this.isSaving = true;
         if (!this.state.location) {
             await this.saveAs();
         } else {
@@ -178,8 +184,15 @@ export default class File extends React.Component {
             });
             if (ret.success) {
                 this.setState({ savedText });
+            } else {
+                send({
+                    type: SHOW_ERROR_DIALOG,
+                    title: "Unable to save",
+                    message: ret.message,
+                });
             }
         }
+        this.isSaving = false;
     };
 
     saveAs = async () => {
@@ -194,6 +207,12 @@ export default class File extends React.Component {
                 name: ret.name,
                 savedText,
                 location: ret.location,
+            });
+        } else {
+            send({
+                type: SHOW_ERROR_DIALOG,
+                title: "Unable to save",
+                message: ret.message,
             });
         }
     };

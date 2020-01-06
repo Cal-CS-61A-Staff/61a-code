@@ -1,26 +1,44 @@
 import { openDB } from "idb";
 import path from "path-browserify";
 import pathParse from "path-parse";
+import post from "../common/post.js";
 
 const DATABASE = "FileStorage";
-const OBJECT_STORE = "Files";
+const FILE_STORE = "Files";
 const VERSION = 2;
 
 export const FILE = "FILE";
 export const DIRECTORY = "DIRECTORY";
 
 async function getDB() {
-    return openDB(DATABASE, VERSION, {
-        async upgrade(db, oldVersion) {
+    const db = await openDB(DATABASE, VERSION, {
+        async upgrade(oldDB, oldVersion) {
             if (oldVersion < 1) {
-                db.createObjectStore(OBJECT_STORE, { keyPath: "location", autoIncrement: true });
+                oldDB.createObjectStore(FILE_STORE, { keyPath: "location", autoIncrement: true });
             } else if (oldVersion === 1) {
-                db.deleteObjectStore(OBJECT_STORE);
-                db.createObjectStore(OBJECT_STORE, { keyPath: "location", autoIncrement: true });
+                oldDB.deleteObjectStore(FILE_STORE);
+                oldDB.createObjectStore(FILE_STORE, { keyPath: "location", autoIncrement: true });
             }
             // who needs to preserve files anyway
         },
     });
+    await db.put(FILE_STORE, {
+        name: "",
+        location: "/",
+        content: ["/home", "/cs61a"],
+        type: DIRECTORY,
+        time: 1,
+    });
+    if (!(await db.get(FILE_STORE, "/home"))) {
+        await db.put(FILE_STORE, {
+            name: "home",
+            location: "/home",
+            content: [],
+            type: DIRECTORY,
+            time: 1,
+        });
+    }
+    return db;
 }
 
 export async function storeFile(content, location, type) {
@@ -29,21 +47,99 @@ export async function storeFile(content, location, type) {
 
 export async function getFile(location) {
     const db = await getDB();
-    return db.get(OBJECT_STORE, normalize(location));
+    return getFileWorker(db, location);
+}
+
+async function getFileWorker(db, location) {
+    if (isHomePath(location) || location === "/") {
+        return db.get(FILE_STORE, normalize(location));
+    } else if (isBackupPath(location)) {
+        if (location === "/cs61a") {
+            const assignments = await getAssignments();
+            return {
+                name: "cs61a",
+                location,
+                content: assignments.map(({ name }) => name.split("/").pop()),
+                type: DIRECTORY,
+                time: 1,
+            };
+        } else if (location.split("/").length === 3) {
+            const assignment = location.split("/").pop();
+            const backups = await getBackups(assignment);
+            return {
+                name: assignment,
+                location,
+                content: backups.map(({ name }) => name),
+                type: DIRECTORY,
+                time: 1,
+            };
+        } else {
+            try {
+                const [assignment, file] = await backupSplit(location);
+                const backups = await getBackups(assignment);
+                for (const backup of backups) {
+                    if (backup.name === file) {
+                        return backup;
+                    }
+                }
+                return undefined;
+            } catch {
+                return undefined;
+            }
+        }
+    } else {
+        return undefined;
+    }
 }
 
 export async function removeFile(location) {
-    const db = await getDB();
-    await db.delete(OBJECT_STORE, location);
-    const parDir = normalize(path.dirname(location));
-    const enclosingDirectory = await db.get(OBJECT_STORE, parDir);
-    enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(location));
-    await db.put(OBJECT_STORE, enclosingDirectory);
+    if (isHomePath(location)) {
+        if (location === "./home") {
+            throw Error("Cannot delete directory.");
+        }
+        const db = await getDB();
+        await db.delete(FILE_STORE, location);
+        const parDir = normalize(path.dirname(location));
+        const enclosingDirectory = await db.get(FILE_STORE, parDir);
+        enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(location));
+        await db.put(FILE_STORE, enclosingDirectory);
+    } else {
+        throw Error("Cannot delete directory.");
+    }
+}
+
+export async function getAssignments() {
+    return (await post("/api/list_assignments")).data.assignments.filter(
+        ({ name }) => ["hw", "lab", "proj", "challenge"].some(x => name.includes(x)),
+    );
+}
+
+export async function getBackups(assignment) {
+    const backups = [];
+    const { data: { backups: ret } } = await post("/api/get_backups", { assignment });
+    for (const { messages } of ret) {
+        for (const { created, contents, kind } of messages) {
+            if (kind === "file_contents") {
+                for (const [name, content] of Object.entries(contents)) {
+                    if (name !== "submit") {
+                        backups.push({
+                            name,
+                            location: `/cs61a/${assignment}/${name}`,
+                            content,
+                            type: FILE,
+                            time: Date.parse(created),
+                        });
+                    }
+                }
+            }
+        }
+    }
+    return backups;
 }
 
 export async function getRecentFiles() {
     const db = await getDB();
-    const raw = await db.getAll(OBJECT_STORE);
+    const raw = await db.getAll(FILE_STORE);
     return raw.filter(x => x.type === FILE).sort((a, b) => b.time - a.time);
 }
 
@@ -52,34 +148,68 @@ export function normalize(location) {
     return path.format(parsed);
 }
 
-
 export async function fileExists(location) {
     return fileExistsWorker(await getDB(), location);
 }
 
 async function fileExistsWorker(db, location) {
-    return (await db.get(OBJECT_STORE, location)) !== undefined;
+    return await getFileWorker(db, location) !== undefined;
 }
 
 async function addToDirectory(db, location, dirname) {
-    const directory = await db.get(OBJECT_STORE, dirname);
+    const directory = await db.get(FILE_STORE, dirname);
     if (directory.type !== DIRECTORY) {
         throw Error("Path does not point to directory.");
     }
     if (!directory.content.includes(location)) {
         directory.content.push(location);
     }
-    await db.put(OBJECT_STORE, directory);
+    await db.put(FILE_STORE, directory);
 }
 
 async function storeFileWorker(db, content, location, type) {
-    if (location !== "/") {
+    if (isHomePath(location)) {
+        if (location === "/home") {
+            throw Error("Cannot modify home directory.");
+        }
         if (!(await fileExistsWorker(db, path.dirname(location)))) {
             await storeFileWorker(db, [], path.dirname(location), DIRECTORY);
         }
         await addToDirectory(db, location, path.dirname(location));
+        await db.put(FILE_STORE, {
+            name: path.basename(location), location, content, type, time: new Date().getTime(),
+        });
+    } else if (isBackupPath(location)) {
+        if (type !== FILE) {
+            throw Error("Unable to create directory in this location.");
+        }
+        const [assignment, file] = await backupSplit(location);
+        const resp = await post("/api/save_backup", { file, content, assignment });
+        if (!resp.success) {
+            throw Error("Error when backing up.");
+        }
+    } else {
+        throw Error("Unable to write to directory.");
     }
-    await db.put(OBJECT_STORE, {
-        name: path.basename(location), location, content, type, time: new Date().getTime(),
-    });
+}
+
+function isHomePath(location) {
+    return location.startsWith("/home");
+}
+
+function isBackupPath(location) {
+    return location.startsWith("/cs61a");
+}
+
+async function backupSplit(location) {
+    const elems = location.split("/").slice(2); // [assignment, file]
+    if (elems.length !== 2) {
+        throw Error("Unable to write to path.");
+    }
+    const [assignment, file] = elems;
+    const assignments = await getAssignments();
+    if (!assignments.some(({ name }) => name.split("/").pop() === assignment)) {
+        throw Error("Assignment not found.");
+    }
+    return [assignment, file];
 }

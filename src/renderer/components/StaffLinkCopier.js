@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import $ from "jquery";
 
-import { isStaff, login, useAuthData } from "../utils/auth.js";
+import { login } from "../utils/auth.js";
 import LinkCopier from "./LinkCopier.js";
 import ModalButton from "./ModalButton.js";
+import { isStaff, useAuthData } from "../utils/okUtils.js";
 
 export default function StaffLinkCopier({ fileData }) {
     const authData = useAuthData();
@@ -14,7 +15,7 @@ export default function StaffLinkCopier({ fileData }) {
     if (authData.loggedOut) {
         return (
             <ModalButton buttonText="Log in" onClick={login}>
-            You must log in as course staff to share code with students.
+                <p>You must log in as course staff to share code with students.</p>
             </ModalButton>
         );
     } else if (isStaff(authData)) {
