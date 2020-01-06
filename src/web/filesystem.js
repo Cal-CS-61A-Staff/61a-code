@@ -47,10 +47,10 @@ export async function storeFile(content, location, type) {
 
 export async function getFile(location) {
     const db = await getDB();
-    return getFileWorker(location, db);
+    return getFileWorker(db, location);
 }
 
-async function getFileWorker(location, db) {
+async function getFileWorker(db, location) {
     if (isHomePath(location) || location === "/") {
         return db.get(FILE_STORE, normalize(location));
     } else if (isBackupPath(location)) {
@@ -93,12 +93,19 @@ async function getFileWorker(location, db) {
 }
 
 export async function removeFile(location) {
-    const db = await getDB();
-    await db.delete(FILE_STORE, location);
-    const parDir = normalize(path.dirname(location));
-    const enclosingDirectory = await db.get(FILE_STORE, parDir);
-    enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(location));
-    await db.put(FILE_STORE, enclosingDirectory);
+    if (isHomePath(location)) {
+        if (location === "./home") {
+            throw Error("Cannot delete directory.");
+        }
+        const db = await getDB();
+        await db.delete(FILE_STORE, location);
+        const parDir = normalize(path.dirname(location));
+        const enclosingDirectory = await db.get(FILE_STORE, parDir);
+        enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(location));
+        await db.put(FILE_STORE, enclosingDirectory);
+    } else {
+        throw Error("Cannot delete directory.");
+    }
 }
 
 export async function getAssignments() {
@@ -146,7 +153,7 @@ export async function fileExists(location) {
 }
 
 async function fileExistsWorker(db, location) {
-    return await getFileWorker(location) !== undefined;
+    return await getFileWorker(db, location) !== undefined;
 }
 
 async function addToDirectory(db, location, dirname) {
@@ -162,6 +169,9 @@ async function addToDirectory(db, location, dirname) {
 
 async function storeFileWorker(db, content, location, type) {
     if (isHomePath(location)) {
+        if (location === "/home") {
+            throw Error("Cannot modify home directory.");
+        }
         if (!(await fileExistsWorker(db, path.dirname(location)))) {
             await storeFileWorker(db, [], path.dirname(location), DIRECTORY);
         }
@@ -170,6 +180,9 @@ async function storeFileWorker(db, content, location, type) {
             name: path.basename(location), location, content, type, time: new Date().getTime(),
         });
     } else if (isBackupPath(location)) {
+        if (type !== FILE) {
+            throw Error("Unable to create directory in this location.");
+        }
         const [assignment, file] = await backupSplit(location);
         const resp = await post("/api/save_backup", { file, content, assignment });
         if (!resp.success) {
