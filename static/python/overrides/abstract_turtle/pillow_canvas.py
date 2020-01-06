@@ -64,8 +64,9 @@ class PillowCanvas(Canvas):
         data[transparents] = self.tr_color(self.background_color)
         return Image.fromarray(data)
 
-    def update_turtle(self, turtle):
-        self.turtle = turtle
+    def refreshed_turtle(self, turtle):
+        # no need to do stuff
+        pass
 
 def circle(draw, cx, cy, r, fill, width=1, segments=100):
     # based on https://gist.github.com/skion/9259926

@@ -16,8 +16,10 @@ function y(val) {
     return -val + 1000;
 }
 
-function draw(mainCanvas, turtleCanvas, data, currIndex, turtleState) {
+function draw(bgCanvas, mainCanvas, turtleCanvas, data, currIndex) {
+    const bgCtx = bgCanvas.getContext("2d");
     const ctx = mainCanvas.getContext("2d");
+    const turtleCtx = turtleCanvas.getContext("2d");
 
     for (; currIndex.current !== data.length; ++currIndex.current) {
         const [command, ...params] = data[currIndex.current];
@@ -50,44 +52,42 @@ function draw(mainCanvas, turtleCanvas, data, currIndex, turtleState) {
             ctx.fill();
         } else if (command === "set_bgcolor") {
             const [color] = params;
-            ctx.fillStyle = makeColorString(color);
-            ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+            bgCtx.fillStyle = makeColorString(color);
+            bgCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
         } else if (command === "clear") {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
             ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-            turtleState.current = [[0, 0], 0];
-        } else if (command === "report_position") {
-            turtleState.current[0] = params;
-        } else if (command === "report_angle") {
-            [turtleState.current[1]] = params;
+            turtleCtx.clearRect(0, 0, turtleCanvas.width, turtleCanvas.height);
+        } else if (command === "refreshed_turtle") {
+            turtleCtx.clearRect(0, 0, turtleCanvas.width, turtleCanvas.height);
+            const [turtleData] = params;
+            if (turtleData === null) {
+                continue;
+            }
+            const [[turtleX, turtleY], angle, scaleX, scaleY] = turtleData;
+            turtleCtx.save();
+            turtleCtx.translate(x(turtleX), y(turtleY));
+            turtleCtx.rotate(-angle);
+            turtleCtx.beginPath();
+            turtleCtx.fillStyle = makeColorString([0, 0, 0]);
+            turtleCtx.moveTo(-5 * scaleX, 5 * scaleY);
+            turtleCtx.lineTo(-5 * scaleX, -5 * scaleY);
+            turtleCtx.lineTo(0, 0);
+            turtleCtx.fill();
+            turtleCtx.restore();
         } else {
             console.error(`Ignoring unknown graphics command ${command}`);
         }
     }
-
-    const { current: [[turtleX, turtleY], angle] } = turtleState;
-
-    const turtleCtx = turtleCanvas.getContext("2d");
-    turtleCtx.clearRect(0, 0, turtleCanvas.width, turtleCanvas.height);
-    turtleCtx.save();
-    turtleCtx.translate(x(turtleX), y(turtleY));
-    turtleCtx.rotate(angle * Math.PI / 180);
-    turtleCtx.beginPath();
-    turtleCtx.fillStyle = makeColorString([0, 0, 0]);
-    turtleCtx.moveTo(-5, 5);
-    turtleCtx.lineTo(5, 5);
-    turtleCtx.lineTo(0, 0);
-    turtleCtx.fill();
-    turtleCtx.restore();
 }
 
 function Graphics({ data }) {
     const currIndex = useRef(0);
-    const turtleState = useRef([[0, 0], 0]);
     return (
         <HTMLCanvas
-            layers={2}
-            draw={([mainCanvas, turtleCanvas]) => draw(
-                mainCanvas, turtleCanvas, data, currIndex, turtleState,
+            layers={3}
+            draw={([bgCanvas, mainCanvas, turtleCanvas]) => draw(
+                bgCanvas, mainCanvas, turtleCanvas, data, currIndex,
             )}
         />
     );

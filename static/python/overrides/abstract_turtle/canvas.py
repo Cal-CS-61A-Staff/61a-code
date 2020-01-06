@@ -5,6 +5,16 @@ class Canvas(ABC):
     def __init__(self, width, height):
         self.width = width
         self.height = height
+        self._turtle = None
+
+    @property
+    def turtle(self):
+        return self._turtle
+
+    @turtle.setter
+    def turtle(self, turtle):
+        self._turtle = turtle
+        self.refreshed_turtle(turtle)
 
     @abstractmethod
     def draw_rectangular_line(self, start, end, color, width):
@@ -51,7 +61,7 @@ class Canvas(ABC):
         pass
 
     @abstractmethod
-    def update_turtle(self, drawn_turtle):
+    def refreshed_turtle(self, drawn_turtle):
         """
         Update the turtle to the given DrawnTurtle object, or remove the turtle if None is passed
         """

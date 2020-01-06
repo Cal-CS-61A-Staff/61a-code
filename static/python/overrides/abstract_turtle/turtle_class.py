@@ -1,8 +1,7 @@
 from math import pi, sin, cos
 
-from .utils import json_repr
 from .model import Color, Position, DrawnTurtle
-
+from .canvas import Canvas
 
 def turtle_method(func):
     """
@@ -11,18 +10,16 @@ def turtle_method(func):
     func.is_turtle_method = True
     return func
 
-
 class BaseTurtle:
     """
     Manages all the basic turtle functionality. The other turtle methods can be expressed in terms of these.
     """
-
     def __init__(self, canvas):
         self.__canvas = canvas
         self.__x = 0
         self.__y = 0
         self.__line_width = 1
-        self.__theta = pi / 2
+        self.__theta = pi/2
         self.__pen_color = Color(0, 0, 0)
         self.__fill_color = Color(0, 0, 0)
         self.__pen_down = True
@@ -40,15 +37,12 @@ class BaseTurtle:
         Go to the given position (X, Y).
         """
         if self.__pen_down:
-            self.__canvas.draw_line(
-                self.__current_pos, Position(x, y), self.__pen_color, self.__line_width
-            )
+            self.__canvas.draw_line(self.__current_pos, Position(x, y), self.__pen_color, self.__line_width)
         self.__x = x
         self.__y = y
         if self.filling():
             self.__polygon.append(self.__current_pos)
         self.__update_turtle()
-
     setpos = setposition = goto
 
     @turtle_method
@@ -56,11 +50,7 @@ class BaseTurtle:
         """
         Move forward the given amount.
         """
-        self.goto(
-            self.xcor() + amount * cos(self.__theta),
-            self.ycor() + amount * sin(self.__theta),
-        )
-
+        self.goto(self.xcor() + amount * cos(self.__theta), self.ycor() + amount * sin(self.__theta))
     fd = forward
 
     @turtle_method
@@ -70,7 +60,6 @@ class BaseTurtle:
         """
         self.__theta = self.__to_real_angle(heading)
         self.__update_turtle()
-
     seth = setheading
 
     @turtle_method
@@ -79,9 +68,7 @@ class BaseTurtle:
         Draw a circle at the given point with the given RADIUS
         """
         if self.__pen_down:
-            self.__canvas.draw_circle(
-                self.__current_pos, radius, self.__pen_color, self.__line_width, False
-            )
+            self.__canvas.draw_circle(self.__current_pos, radius, self.__pen_color, self.__line_width, False)
 
     @turtle_method
     def dot(self, size=None):
@@ -92,9 +79,7 @@ class BaseTurtle:
         if size is None:
             size = max(self.__line_width + 4, self.__line_width * 2)
         if self.__pen_down:
-            self.__canvas.draw_circle(
-                self.__current_pos, size, self.__pen_color, self.__line_width, True
-            )
+            self.__canvas.draw_circle(self.__current_pos, size, self.__pen_color, self.__line_width, True)
 
     @turtle_method
     def xcor(self):
@@ -130,7 +115,6 @@ class BaseTurtle:
         Do draw when moving
         """
         self.__pen_down = True
-
     pd = down = pendown
 
     @turtle_method
@@ -139,7 +123,6 @@ class BaseTurtle:
         Do not draw when moving
         """
         self.__pen_down = False
-
     pu = up = penup
 
     @turtle_method
@@ -150,7 +133,6 @@ class BaseTurtle:
         if width is None:
             return self.__line_width
         self.__line_width = width
-
     width = pensize
 
     @turtle_method
@@ -209,16 +191,9 @@ class BaseTurtle:
 
     def __update_turtle(self):
         if self.__turtle_is_shown:
-            self.__canvas.update_turtle(
-                DrawnTurtle(
-                    self.__current_pos,
-                    self.__theta,
-                    self.__turtle_stretch_wid,
-                    self.__turtle_stretch_len,
-                )
-            )
+            self.__canvas.turtle = DrawnTurtle(self.__current_pos, self.__theta, self.__turtle_stretch_wid, self.__turtle_stretch_len)
         else:
-            self.__canvas.update_turtle(None)
+            self.__canvas.turtle = None
 
     @turtle_method
     def hideturtle(self):
@@ -227,7 +202,6 @@ class BaseTurtle:
         """
         self.__turtle_is_shown = False
         self.__update_turtle()
-
     ht = hideturtle
 
     @turtle_method
@@ -237,7 +211,6 @@ class BaseTurtle:
         """
         self.__turtle_is_shown = True
         self.__update_turtle()
-
     st = showturtle
 
     @turtle_method
@@ -252,7 +225,6 @@ class BaseTurtle:
         self.__turtle_stretch_wid = stretch_wid
         self.__turtle_stretch_len = stretch_len
         self.__update_turtle()
-
     turtlesize = shapesize
 
     @property
@@ -263,7 +235,7 @@ class BaseTurtle:
         return (1 / 4 - amount / self.__degrees) * (2 * pi)
 
     def __from_real_angle(self, angle):
-        return (1 / 4 - angle / (2 * pi)) * self.__degrees
+        return (1/4 - angle / (2 * pi)) * self.__degrees
 
     @staticmethod
     def __convert_color(*color):
@@ -281,7 +253,6 @@ class Turtle(BaseTurtle):
         Move backward the given amount.
         """
         self.forward(-amount)
-
     bk = back = backward
 
     @turtle_method
@@ -290,7 +261,6 @@ class Turtle(BaseTurtle):
         Rotate right the given amount.
         """
         self.setheading(self.heading() + amount)
-
     rt = right
 
     @turtle_method
@@ -299,7 +269,6 @@ class Turtle(BaseTurtle):
         Rotate left the given amount.
         """
         self.right(-amount)
-
     lt = left
 
     @turtle_method
@@ -330,7 +299,6 @@ class Turtle(BaseTurtle):
         Get the current position as a tuple
         """
         return self.xcor(), self.ycor()
-
     pos = position
 
     @turtle_method
@@ -362,15 +330,3 @@ class Turtle(BaseTurtle):
     def reset(self):
         self.home()
         self.clear()
-
-
-class LoggingTurtle(Turtle):
-    @turtle_method
-    def goto(self, x, y):
-        super().goto(x, y)
-        print("TURTLE:", json_repr(["report_position", x, y]))
-
-    @turtle_method
-    def setheading(self, theta):
-        super().setheading(theta)
-        print("TURTLE:", json_repr(["report_angle", theta]))

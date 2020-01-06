@@ -17,6 +17,7 @@ class ForwardingCanvas(Canvas):
         self._canvas = canvas
 
     def set_canvas(self, canvas):
+        canvas.turtle = self._canvas.turtle
         self._canvas = canvas
 
     draw_rectangular_line = _forward("draw_rectangular_line")
@@ -24,4 +25,4 @@ class ForwardingCanvas(Canvas):
     fill_polygon = _forward("fill_polygon")
     set_bgcolor = _forward("set_bgcolor")
     clear = _forward("clear")
-    update_turtle = _forward("update_turtle")
+    refreshed_turtle = _forward("refreshed_turtle")

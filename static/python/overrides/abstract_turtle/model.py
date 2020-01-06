@@ -3,16 +3,14 @@ from collections import namedtuple
 
 from math import sin, cos
 
-def cons_color(*color):
-    if len(color) == 3:
-        if any(not isinstance(c, int) for c in color):
-            raise RuntimeError("Not a valid color: %s" % color)
-        return Color(*color)
-    raise RuntimeError("String colors not supported")
-
-
-Color = namedtuple('Color', ['red', 'green', 'blue'])
-Color.of = cons_color
+class Color(namedtuple('Color', ['red', 'green', 'blue'])):
+    @staticmethod
+    def of(*color):
+        if len(color) == 3:
+            if any(not isinstance(c, int) for c in color):
+                raise RuntimeError("Not a valid color: %s" % color)
+            return Color(*color)
+        raise RuntimeError("String colors not supported")
 
 Position = namedtuple('Position', ['x', 'y'])
 
@@ -35,6 +33,15 @@ class DrawnTurtle(namedtuple('DrawnTurtle', ['pos', 'heading', 'stretch_wid', 's
             Position(self.pos.x + dx, self.pos.y + dy) for dx, dy in rotated_points
         ]
         return moved_points
+
+    @property
+    def json_friendly(self):
+        return [
+            [self.pos.x, self.pos.y],
+            self.heading,
+            self.stretch_wid,
+            self.stretch_len
+        ]
 
 def rotate(x, y, theta):
     return x * cos(theta) - y * sin(theta), x * sin(theta) + y * cos(theta)

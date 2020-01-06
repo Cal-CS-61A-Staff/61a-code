@@ -46,15 +46,22 @@ def _tscheme_prep():
 
 
 def init_turtle():
+    global turtle
+
     sys.path.append(sys.path[0] + "/static/python/overrides")
     # noinspection PyUnresolvedReferences
-    from abstract_turtle.logging_canvas import LoggingCanvas
+    import abstract_turtle.turtle as t
+
+    turtle = sys.modules["turtle"] = t
 
     # noinspection PyUnresolvedReferences
-    from abstract_turtle.turtle import LoggingTurtle
+    from abstract_turtle import LoggingCanvas
 
-    global turtle
-    turtle = sys.modules["turtle"] = LoggingTurtle(LoggingCanvas(None, None))
+    class JSONCanvas(LoggingCanvas):
+        def on_action(self, log_line):
+            print("TURTLE:", json_repr(log_line))
+
+    turtle.set_canvas(JSONCanvas(None, None))
 
 
 sys.stdout.write = write

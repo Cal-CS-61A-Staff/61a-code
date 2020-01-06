@@ -161,6 +161,9 @@ autodraw_active = False
 
 
 def json_repr(elem):
+    if hasattr(elem, "_asdict"):
+        elem = list(elem)
+
     if isinstance(elem, list):
         elem_reprs = [json_repr(x) for x in elem]
         return "[" + ", ".join(elem_reprs) + "]"
@@ -176,8 +179,10 @@ def json_repr(elem):
             return "true"
         else:
             return "false"
-    elif isinstance(elem, int):
-        return '"' + repr(elem) + '"'
+    elif isinstance(elem, (int, float)):
+        return repr(elem)
+    elif elem is None:
+        return "null"
     else:
         raise Exception("Unable to serialize object of type " + str(old_type(elem)))
 
@@ -235,16 +240,16 @@ def draw(lst):
     def draw_worker(elem):
         if inline(elem):
             return ["inline", repr(elem)]
-        if not id(elem) in heap:
-            heap[id(elem)] = None
+        if not str(id(elem)) in heap:
+            heap[str(id(elem))] = None
             if atomic(elem):
                 val = ["atomic", ["inline", repr(elem)]]
             elif len(elem) == 0:
                 val = ["atomic", ["inline", "Empty list"]]
             else:
                 val = ["list", [draw_worker(x) for x in elem]]
-            heap[id(elem)] = val
-        return ["ref", id(elem)]
+            heap[str(id(elem))] = val
+        return ["ref", str(id(elem))]
 
     def draw_tree(tree):
         if is_leaf(tree):
@@ -324,13 +329,20 @@ def open(file, *args, **kwargs):
 
 def init_turtle():
     sys.path.append(sys.path[0] + "/static/python/overrides")
-    # noinspection PyUnresolvedReferences
-    # from abstract_turtle.logging_canvas import LoggingCanvas
-
-    # noinspection PyUnresolvedReferences
-    # from abstract_turtle.turtle import Turtle
-
-    # sys.modules["turtle"] = Turtle(LoggingCanvas(None, None))
+    #
+    # # noinspection PyUnresolvedReferences
+    # import abstract_turtle.turtle as turtle
+    #
+    # sys.modules["turtle"] = turtle
+    #
+    # # noinspection PyUnresolvedReferences
+    # from abstract_turtle import LoggingCanvas
+    #
+    # class JSONCanvas(LoggingCanvas):
+    #     def on_action(self, log_line):
+    #         print("TURTLE:", json_repr(log_line))
+    #
+    # turtle.set_canvas(JSONCanvas(None, None))
 
 
 init_turtle()
