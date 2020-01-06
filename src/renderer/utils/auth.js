@@ -1,4 +1,4 @@
-import $ from "jquery";
+import post from "../../common/post.js";
 
 export function login() {
     window.open("/oauth/popup_login", "_blank");
@@ -14,7 +14,7 @@ let currAuthData = { loggedOut: true };
 export async function checkLoggedIn() {
     let newAuthData;
     try {
-        newAuthData = await $.post("/api/user");
+        newAuthData = await post("/api/user");
     } catch {
         newAuthData = { loggedOut: true };
     }

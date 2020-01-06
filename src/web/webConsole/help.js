@@ -8,6 +8,7 @@ ls     - Lists all files in current directory
 cd     - Change to another directory
 mkdir  - Create a new directory
 rm     - Remove a file
+pwd    - Display current directory
 
 cat    - Print a file to the console
 edit   - Edit a file

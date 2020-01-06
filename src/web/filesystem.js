@@ -56,6 +56,9 @@ async function getFileWorker(db, location) {
     } else if (isBackupPath(location)) {
         if (location === "/cs61a") {
             const assignments = await getAssignments();
+            if (assignments.length === 0) {
+                throw Error("Cannot access folder while signed out.");
+            }
             return {
                 name: "cs61a",
                 location,
@@ -109,30 +112,38 @@ export async function removeFile(location) {
 }
 
 export async function getAssignments() {
-    return (await post("/api/list_assignments")).data.assignments.filter(
-        ({ name }) => ["hw", "lab", "proj", "challenge"].some(x => name.includes(x)),
-    );
+    try {
+        return (await post("/api/list_assignments")).data.assignments.filter(
+            ({ name }) => ["hw", "lab", "proj", "challenge"].some(x => name.includes(x)),
+        );
+    } catch {
+        return [];
+    }
 }
 
 export async function getBackups(assignment) {
     const backups = [];
-    const { data: { backups: ret } } = await post("/api/get_backups", { assignment });
-    for (const { messages } of ret) {
-        for (const { created, contents, kind } of messages) {
-            if (kind === "file_contents") {
-                for (const [name, content] of Object.entries(contents)) {
-                    if (name !== "submit") {
-                        backups.push({
-                            name,
-                            location: `/cs61a/${assignment}/${name}`,
-                            content,
-                            type: FILE,
-                            time: Date.parse(created),
-                        });
+    try {
+        const { data: { backups: ret } } = await post("/api/get_backups", { assignment });
+        for (const { messages } of ret) {
+            for (const { created, contents, kind } of messages) {
+                if (kind === "file_contents") {
+                    for (const [name, content] of Object.entries(contents)) {
+                        if (name !== "submit") {
+                            backups.push({
+                                name,
+                                location: `/cs61a/${assignment}/${name}`,
+                                content,
+                                type: FILE,
+                                time: Date.parse(created),
+                            });
+                        }
                     }
                 }
             }
         }
+    } catch {
+        // noop
     }
     return backups;
 }
