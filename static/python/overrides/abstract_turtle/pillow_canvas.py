@@ -1,7 +1,10 @@
 
 from math import sin, cos, pi
-from PIL import Image, ImageDraw
-import numpy as np
+try:
+    from PIL import Image, ImageDraw
+    import numpy as np
+except ImportError:
+    pass
 
 from .canvas import Canvas
 from .model import Color
