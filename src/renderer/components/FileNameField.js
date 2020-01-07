@@ -11,6 +11,12 @@ export default class FileNameField extends Component {
         this.inputRef.current.select();
     }
 
+    setText = (text) => {
+        this.inputRef.current.value = text;
+        this.inputRef.current.focus();
+        this.inputRef.current.select();
+    };
+
     handleKeyUp = (e) => {
         if (e.keyCode === 13) {
             this.handleClick();
@@ -23,7 +29,7 @@ export default class FileNameField extends Component {
 
     render() {
         return (
-            <div className="modalCol">
+            <div>
                 <p>
                     Enter file name to save your work in the browser:
                 </p>

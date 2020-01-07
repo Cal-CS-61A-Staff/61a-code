@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ModalButton({ children, buttonText, onClick }) {
     return (
-        <div className="modalCol">
+        <div className="ModalButton">
             {children}
             <button
                 className="fileDownloadBtn"

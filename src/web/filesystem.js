@@ -66,14 +66,18 @@ async function getFileWorker(db, location) {
             };
         } else if (location.split("/").length === 3) {
             const assignment = location.split("/").pop();
-            const backups = await getBackups(assignment);
-            return {
-                name: assignment,
-                location,
-                content: backups.map(({ name }) => `/cs61a/${assignment}/${name}`),
-                type: DIRECTORY,
-                time: 1,
-            };
+            try {
+                const backups = await getBackups(assignment);
+                return {
+                    name: assignment,
+                    location,
+                    content: backups.map(({ name }) => `/cs61a/${assignment}/${name}`),
+                    type: DIRECTORY,
+                    time: 1,
+                };
+            } catch {
+                return undefined;
+            }
         } else {
             try {
                 const [assignment, file] = await backupSplit(location);
@@ -121,27 +125,23 @@ export async function getAssignments() {
 
 export async function getBackups(assignment) {
     const backups = [];
-    try {
-        const { data: { backups: ret } } = await post("/api/get_backups", { assignment });
-        for (const { messages } of ret) {
-            for (const { created, contents, kind } of messages) {
-                if (kind === "file_contents") {
-                    for (const [name, content] of Object.entries(contents)) {
-                        if (name !== "submit") {
-                            backups.push({
-                                name,
-                                location: `/cs61a/${assignment}/${name}`,
-                                content,
-                                type: FILE,
-                                time: Date.parse(created),
-                            });
-                        }
+    const { data: { backups: ret } } = await post("/api/get_backups", { assignment });
+    for (const { messages } of ret) {
+        for (const { created, contents, kind } of messages) {
+            if (kind === "file_contents") {
+                for (const [name, content] of Object.entries(contents)) {
+                    if (name !== "submit") {
+                        backups.push({
+                            name,
+                            location: `/cs61a/${assignment}/${name}`,
+                            content,
+                            type: FILE,
+                            time: Date.parse(created),
+                        });
                     }
                 }
             }
         }
-    } catch {
-        // noop
     }
     return backups;
 }

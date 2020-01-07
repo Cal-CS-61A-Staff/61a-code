@@ -12,5 +12,10 @@ export default async function post(url = "", data = {}) {
         redirect: "manual",
         body: formData,
     });
+
+    if (response.status !== 200) {
+        throw new Error(`Error ${response.status}.`);
+    }
+
     return response.json();
 }

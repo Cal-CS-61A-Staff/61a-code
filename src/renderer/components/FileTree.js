@@ -8,7 +8,11 @@ import Collapse from "@material-ui/core/Collapse";
 import { useAsync } from "../utils/hooks.js";
 import { sendNoInteract } from "../utils/communication.js";
 import { OPEN_FILE } from "../../common/communicationEnums.js";
-import { DIRECTORY, FILE } from "../../common/fileTypes.js";
+import { DIRECTORY } from "../../common/fileTypes.js";
+import { useAuthData } from "../utils/okUtils.js";
+import { login } from "../utils/auth.js";
+
+const LOCKED = "LOCKED";
 
 const theme = createMuiTheme({
     transitions: { create: () => "none" },
@@ -19,7 +23,7 @@ const NoCollapse = React.forwardRef(
 );
 
 export default function FileTree({ onFileSelect }) {
-    const [expanded, setExpanded] = React.useState([]);
+    const [expanded, setExpanded] = React.useState(["Element-/"]);
 
     const handleToggle = (nodeID, isExpanding) => {
         if (isExpanding) {
@@ -46,8 +50,10 @@ export default function FileTree({ onFileSelect }) {
 }
 
 function TreeElement({ location, onToggle, onFileSelect }) {
-    const [expanded, _setExpanded] = useState(false);
+    const [expanded, _setExpanded] = useState(location === "/");
     const [fileType, setFileType] = useState(null);
+
+    const { loggedOut } = useAuthData();
 
     const [fileClicked, setFileClicked] = useState(false);
 
@@ -61,9 +67,14 @@ function TreeElement({ location, onToggle, onFileSelect }) {
     useEffect(() => () => onToggle(nodeID, false), []);
 
     const { success, file } = useAsync(() => (
-        (expanded || fileClicked) ? sendNoInteract({ type: OPEN_FILE, location }) : {}
+        (expanded || fileClicked || fileType) ? sendNoInteract({ type: OPEN_FILE, location }) : {}
     ),
-    {}, [expanded, fileClicked]);
+    {}, [!!(expanded || fileClicked || fileType), location, loggedOut]);
+
+    if (success === false && !fileType) {
+        setFileType(LOCKED);
+        login();
+    }
 
     const name = location === "/" ? location : location.split("/").pop();
     const isDirectory = (fileType === DIRECTORY) || (!fileType && !name.includes("."));
@@ -95,15 +106,17 @@ function TreeElement({ location, onToggle, onFileSelect }) {
             setExpanded(false);
         } else if (!expanded && isDirectory) {
             setExpanded(true);
-        } else if (fileType === FILE) {
+        }
+        if (fileType) {
             onFileSelect(file);
         } else {
             setFileClicked(true);
         }
     };
 
-    if (fileClicked && fileType === FILE) {
+    if (fileClicked && fileType) {
         onFileSelect(file);
+        setFileClicked(false);
     }
 
     let icon;
@@ -111,6 +124,8 @@ function TreeElement({ location, onToggle, onFileSelect }) {
         icon = <i className="fas fa-folder-open" />;
     } else if (isDirectory) {
         icon = <i className="fas fa-folder" />;
+    } else if (fileType === LOCKED) {
+        icon = <i className="fas fa-lock" />;
     } else {
         icon = <i className="fas fa-file-code" />;
     }

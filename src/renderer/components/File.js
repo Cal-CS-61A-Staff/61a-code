@@ -184,7 +184,7 @@ export default class File extends React.Component {
             });
             if (ret.success) {
                 this.setState({ savedText });
-            } else {
+            } else if (!ret.hideError) {
                 send({
                     type: SHOW_ERROR_DIALOG,
                     title: "Unable to save",
@@ -208,7 +208,7 @@ export default class File extends React.Component {
                 savedText,
                 location: ret.location,
             });
-        } else {
+        } else if (!ret.hideError) {
             send({
                 type: SHOW_ERROR_DIALOG,
                 title: "Unable to save",

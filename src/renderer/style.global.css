@@ -546,4 +546,30 @@ html {
     overflow: auto;
     border: 1px solid white;
     padding: 15px;
+    flex-grow: 1;
+}
+
+.ModalButton {
+    flex: 0;
+}
+
+.directoryIndicator {
+    margin: 20px 0 10px 0;
+    line-height: 30px;
+}
+
+.changeDirButton {
+    height: 30px;
+    margin-left: 5px;
+    vertical-align: middle;
+    background-color: black;
+    color: white;
+    font-size: 18px;
+    font-family: Calibri, sans-serif;
+    float: right;
+}
+
+.changeDirButton:hover {
+    background-color: dimgray;
+    cursor: pointer;
 }

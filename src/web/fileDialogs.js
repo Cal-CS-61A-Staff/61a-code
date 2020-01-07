@@ -35,18 +35,22 @@ export async function showOpenDialog(key) {
 }
 
 export async function open(key, location) {
-    const file = await getFile(location);
-    sendAndExit(key, { success: true, file });
+    try {
+        const file = await getFile(location);
+        sendAndExit(key, { success: true, file });
+    } catch (e) {
+        sendAndExit(key, { success: false, message: e.message });
+    }
 }
 
 export function showSaveDialog(key, contents, hint) {
     function handleClose() {
-        sendAndExit(key, { success: false });
+        sendAndExit(key, { success: false, hideError: true });
     }
 
-    function handleNameSelect(name) {
+    function handlePathSelect(selectedPath) {
         closeDialog();
-        return save(key, contents, normalize(path.join("/home/", name)));
+        return save(key, contents, selectedPath);
     }
 
     function handleDownloadClick() {
@@ -66,7 +70,7 @@ export function showSaveDialog(key, contents, hint) {
     loadDialog(SaveDialog, {
         defaultValue: hint,
         onClose: handleClose,
-        onNameSelect: handleNameSelect,
+        onPathSelect: handlePathSelect,
         onDownloadClick: handleDownloadClick,
     });
 }
