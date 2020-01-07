@@ -107,14 +107,16 @@ function TreeElement({ location, onToggle, onFileSelect }) {
         } else if (!expanded && isDirectory) {
             setExpanded(true);
         }
-        if (fileType) {
+        if (fileType === LOCKED) {
+            login();
+        } else if (fileType && fileType !== LOCKED) {
             onFileSelect(file);
-        } else {
+        } else if (fileType !== LOCKED) {
             setFileClicked(true);
         }
     };
 
-    if (fileClicked && fileType) {
+    if (fileClicked && fileType && fileType !== LOCKED) {
         onFileSelect(file);
         setFileClicked(false);
     }
