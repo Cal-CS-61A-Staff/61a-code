@@ -1,7 +1,8 @@
 import { checkArgs, resolveRelativePath } from "./utils.js";
-import { FILE, getFile } from "../filesystem.js";
+import { getFile } from "../filesystem.js";
 import { CONSOLE_EDIT } from "../../common/communicationEnums.js";
 import { call } from "./webConsoleWorker.js";
+import { FILE } from "../../common/fileTypes.js";
 
 export default async function run(args, workingDirectory, out, err) {
     checkArgs("run", args, 1, 1);

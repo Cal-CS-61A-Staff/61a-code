@@ -1,5 +1,6 @@
 import { checkArgs, resolveRelativePath } from "./utils.js";
-import { DIRECTORY, getFile, removeFile } from "../filesystem.js";
+import { getFile, removeFile } from "../filesystem.js";
+import { DIRECTORY } from "../../common/fileTypes.js";
 
 export default async function rm(args, workingDirectory, out, err) {
     checkArgs("rm", args, 1, 1);

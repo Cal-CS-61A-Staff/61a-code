@@ -2,13 +2,11 @@ import { openDB } from "idb";
 import path from "path-browserify";
 import pathParse from "path-parse";
 import post from "../common/post.js";
+import { DIRECTORY, FILE } from "../common/fileTypes.js";
 
 const DATABASE = "FileStorage";
 const FILE_STORE = "Files";
 const VERSION = 2;
-
-export const FILE = "FILE";
-export const DIRECTORY = "DIRECTORY";
 
 async function getDB() {
     const db = await openDB(DATABASE, VERSION, {
@@ -62,7 +60,7 @@ async function getFileWorker(db, location) {
             return {
                 name: "cs61a",
                 location,
-                content: assignments.map(({ name }) => name.split("/").pop()),
+                content: assignments.map(({ name }) => `/cs61a/${name.split("/").pop()}`),
                 type: DIRECTORY,
                 time: 1,
             };
@@ -72,7 +70,7 @@ async function getFileWorker(db, location) {
             return {
                 name: assignment,
                 location,
-                content: backups.map(({ name }) => name),
+                content: backups.map(({ name }) => `/cs61a/${assignment}/${name}`),
                 type: DIRECTORY,
                 time: 1,
             };

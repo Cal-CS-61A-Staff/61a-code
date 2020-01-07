@@ -47,6 +47,7 @@ html {
     font-size: 24px;
     font-weight: 200;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .fileCard {
@@ -160,7 +161,7 @@ html {
 }
 
 .fileUploadButton {
-    width: 90%;
+    width: 100%;
     height: 40px;
     border: 1px solid white;
     display: table;
@@ -172,14 +173,23 @@ html {
     cursor: pointer;
 }
 
-.fileDropTarget {
+.localFileSelector {
     width: 90%;
-    height: calc(100% - 70px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.fileDropTarget {
+    flex-grow: 1;
+    width: 100%;
     margin-top: 10px;
     margin-bottom: 20px;
     border: 2px dotted white;
-    display: table;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .centeredTextHolder {
@@ -503,4 +513,37 @@ html {
 
 .lm_close_tab {
     top: 9px !important;
+}
+
+.MuiTypography-body1.MuiTypography-body1 {
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 12pt;
+}
+
+.MuiCollapse-container.MuiTreeItem-group {
+    border-left: 1px dashed white;
+    padding-left: 12px;
+    margin-left: 12px;
+}
+
+/*[class^='Mui'] {*/
+/*    transition-duration: 0ms !important;*/
+/*}*/
+
+.MuiTreeItem-content {
+    padding: 5px 0 5px 0;
+}
+
+.TreeFileSelector {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 90%;
+}
+
+.FileTree {
+    margin-top: 10px;
+    overflow: auto;
+    border: 1px solid white;
+    padding: 15px;
 }

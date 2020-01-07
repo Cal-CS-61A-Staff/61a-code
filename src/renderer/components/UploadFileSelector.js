@@ -62,6 +62,7 @@ export default class UploadFileSelector extends Component {
     render() {
         return (
             <div className="modalCol localFileSelector">
+                <div className="browserFileSelector">Upload Files</div>
                 <div
                     className="fileDropTarget"
                     onDragEnter={this.handleDragEnter}

@@ -1,6 +1,7 @@
 import path from "path-browserify";
 import { checkArgs, resolveRelativePath } from "./utils.js";
-import { DIRECTORY, fileExists, storeFile } from "../filesystem.js";
+import { fileExists, storeFile } from "../filesystem.js";
+import { DIRECTORY } from "../../common/fileTypes.js";
 
 export default async function mkdir(args, workingDirectory, out, err) {
     checkArgs("mkdir", args, 1, 1);

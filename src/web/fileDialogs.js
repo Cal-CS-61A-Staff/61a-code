@@ -4,9 +4,10 @@ import OpenDialog from "../renderer/components/OpenDialog.js";
 import SaveDialog from "../renderer/components/SaveDialog.js";
 import { closeDialog, loadDialog } from "../renderer/utils/dialogWrap.js";
 import {
-    FILE, getFile, getRecentFiles, normalize, storeFile,
+    getFile, getRecentFiles, normalize, storeFile,
 } from "./filesystem.js";
 import { showBackupsDialog } from "./okDialogs.js";
+import { FILE } from "../common/fileTypes.js";
 
 export async function showOpenDialog(key) {
     function handleClose() {
