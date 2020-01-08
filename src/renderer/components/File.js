@@ -11,7 +11,7 @@ import {
 import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
 import {
     Debugger,
-    debugPrefix,
+    debugPrefix, extension,
     format,
     generateDebugTrace,
     runCode,
@@ -197,10 +197,12 @@ export default class File extends React.Component {
 
     saveAs = async () => {
         const savedText = this.state.editorText;
+        const hint = this.state.name.includes(".")
+            ? this.state.name : this.state.name += extension(this.identifyLanguage());
         const ret = await sendNoInteract({
             type: SHOW_SAVE_DIALOG,
             contents: savedText,
-            hint: this.state.name,
+            hint,
         });
         if (ret.success) {
             this.setState({
@@ -295,23 +297,24 @@ export default class File extends React.Component {
 
     identifyLanguage = () => {
         const name = this.state.name.toLowerCase();
-        if (name.endsWith(".py")) {
-            return PYTHON;
-        } else if (name.endsWith(".scm")) {
-            return SCHEME;
-        } else if (name.endsWith(".sql")) {
-            return SQL;
-        } else {
-            const code = this.state.editorText.toLowerCase();
-            if (code.split("def ").length > 1) {
-                return PYTHON;
-            } else if (code.split("select").length > 1) {
-                return SQL;
-            } else if (code.trim()[0] === "(" || code.split(";").length > 1) {
-                return SCHEME;
-            } else {
-                return PYTHON;
+
+        const candidates = [PYTHON, SCHEME, SQL];
+
+        for (const lang of candidates) {
+            if (name.endsWith(extension(lang))) {
+                return lang;
             }
+        }
+
+        const code = this.state.editorText.toLowerCase();
+        if (code.split("def ").length > 1) {
+            return PYTHON;
+        } else if (code.split("select").length > 1) {
+            return SQL;
+        } else if (code.trim()[0] === "(" || code.split(";").length > 1) {
+            return SCHEME;
+        } else {
+            return PYTHON;
         }
     };
 

@@ -558,7 +558,7 @@ html {
     line-height: 30px;
 }
 
-.changeDirButton {
+.newFolderButton {
     height: 30px;
     margin-left: 5px;
     vertical-align: middle;
@@ -569,7 +569,7 @@ html {
     float: right;
 }
 
-.changeDirButton:hover {
+.newFolderButton:hover {
     background-color: dimgray;
     cursor: pointer;
 }

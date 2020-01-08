@@ -8,12 +8,9 @@ import FileTree from "./FileTree.js";
 import { FILE } from "../../common/fileTypes.js";
 
 function SaveDialog({ defaultValue, onPathSelect, onDownloadClick }) {
-    const [treeOpen, setTreeOpen] = useState(false);
     const [targetFolder, setTargetFolder] = useState("/home");
 
     const fileNameInputRef = useRef();
-
-    const handleClick = () => setTreeOpen(true);
 
     const handleFileSelect = (file) => {
         if (file.type === FILE) {
@@ -39,11 +36,8 @@ function SaveDialog({ defaultValue, onPathSelect, onDownloadClick }) {
                 In directory:
                 {" "}
                 {targetFolder}
-                <button className="changeDirButton" type="button" onClick={handleClick}>
-                    Change directory
-                </button>
             </div>
-            {treeOpen && <FileTree onFileSelect={handleFileSelect} />}
+            <FileTree onFileSelect={handleFileSelect} />
             <ModalButton buttonText="Download" onClick={onDownloadClick}>
                 <p>Or download a copy of your code to save on your computer.</p>
             </ModalButton>

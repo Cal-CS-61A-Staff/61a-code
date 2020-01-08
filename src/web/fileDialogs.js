@@ -37,7 +37,7 @@ export async function showOpenDialog(key) {
 export async function open(key, location) {
     try {
         const file = await getFile(location);
-        sendAndExit(key, { success: true, file });
+        sendAndExit(key, { success: !!file, file });
     } catch (e) {
         sendAndExit(key, { success: false, message: e.message });
     }
@@ -50,7 +50,8 @@ export function showSaveDialog(key, contents, hint) {
 
     function handlePathSelect(selectedPath) {
         closeDialog();
-        return save(key, contents, selectedPath);
+        const withExtension = selectedPath.includes(".") ? selectedPath : `${selectedPath}.${hint.split(".").pop()}`;
+        return save(key, contents, withExtension);
     }
 
     function handleDownloadClick() {

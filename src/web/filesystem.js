@@ -106,7 +106,7 @@ export async function removeFile(location) {
         await db.delete(FILE_STORE, location);
         const parDir = normalize(path.dirname(location));
         const enclosingDirectory = await db.get(FILE_STORE, parDir);
-        enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(location));
+        enclosingDirectory.content.splice(enclosingDirectory.content.indexOf(location), 1);
         await db.put(FILE_STORE, enclosingDirectory);
     } else {
         throw Error("Cannot delete directory.");

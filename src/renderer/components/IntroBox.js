@@ -1,15 +1,19 @@
 import React from "react";
 import IntroButton from "./IntroButton";
+import { PYTHON, SCHEME, SQL } from "../../common/languages.js";
+import { extension } from "../utils/dispatch.js";
 
-export default function IntroBox(props) {
+export default function IntroBox({ onCreateClick, onOpenClick }) {
+    const handleClick = language => () => onCreateClick(extension(language));
+
     return (
         <div className="introHolder">
             <div className="introTitle">61A Code</div>
-            <IntroButton name="Create new file" onClick={() => props.onCreateClick()} />
-            <IntroButton name="Open existing file" onClick={props.onOpenClick} />
-            <IntroButton name="Start Python interpreter" onClick={() => props.onCreateClick(".py")} />
-            <IntroButton name="Start Scheme interpreter" onClick={() => props.onCreateClick(".scm")} />
-            <IntroButton name="Start SQL interpreter" onClick={() => props.onCreateClick(".sql")} />
+            <IntroButton name="Create new file" onClick={() => onCreateClick()} />
+            <IntroButton name="Open existing file" onClick={onOpenClick} />
+            <IntroButton name="Start Python interpreter" onClick={handleClick(PYTHON)} />
+            <IntroButton name="Start Scheme interpreter" onClick={handleClick(SCHEME)} />
+            <IntroButton name="Start SQL interpreter" onClick={handleClick(SQL)} />
         </div>
     );
 }

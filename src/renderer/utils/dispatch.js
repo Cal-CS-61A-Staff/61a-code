@@ -62,3 +62,12 @@ export function debugPrefix(language) {
     };
     return options[language];
 }
+
+export function extension(language) {
+    const extensions = {
+        PYTHON: ".py",
+        SCHEME: ".scm",
+        SQL: ".sql",
+    };
+    return extensions[language];
+}
