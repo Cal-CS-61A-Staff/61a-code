@@ -1,5 +1,7 @@
 
 from abc import ABC, abstractmethod
+from math import pi
+
 
 class Canvas(ABC):
     def __init__(self, width, height):
@@ -25,15 +27,17 @@ class Canvas(ABC):
 
     def draw_line(self, start, end, color, width):
         if width > 1:
-            self.draw_circle(start, width / 2, color, width, True)
+            self.draw_circle(start, width / 2, color, width, True, 0, 2 * pi)
         self.draw_rectangular_line(start, end, color, width)
         if width > 1:
-            self.draw_circle(end, width / 2, color, width, True)
+            self.draw_circle(end, width / 2, color, width, True, 0, 2 * pi)
 
     @abstractmethod
-    def draw_circle(self, center, radius, color, width, is_filled):
+    def draw_circle(self, center, radius, color, width, is_filled, start, end):
         """
-        Draw a circle of width 1 with the given center CENTER, radius RADIUS, and color COLOR
+        Draw a circle of width 1 with the given center CENTER, radius RADIUS, and color COLOR.
+        Only draw the portion with angle between START and END, moving counterclockwise from START to END.
+        RADIUS must be non-negative.
 
         Fill the circle if IS_FILLED is true.
         """

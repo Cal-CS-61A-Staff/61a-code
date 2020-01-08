@@ -1,5 +1,6 @@
 
 from abc import abstractmethod
+from math import pi
 
 from .canvas import Canvas
 
@@ -16,8 +17,8 @@ class AbstractLoggingCanvas(Canvas):
     def draw_rectangular_line(self, start, end, color, width):
         self.on_action(['draw_rectangular_line', [start.x, start.y, end.x, end.y], color, width])
 
-    def draw_circle(self, center, radius, color, width, is_filled):
-        self.on_action(['draw_circle', [center.x, center.y, radius], color, width, is_filled])
+    def draw_circle(self, center, radius, color, width, is_filled, start, end):
+        self.on_action(['draw_circle', [center.x, center.y, radius], color, width, is_filled, start, end])
 
     def fill_polygon(self, points, color):
         self.on_action(['fill_polygon', [[point.x, point.y] for point in points], color])

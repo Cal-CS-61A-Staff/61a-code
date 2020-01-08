@@ -32,15 +32,17 @@ class PillowCanvas(Canvas):
     def draw_rectangular_line(self, start, end, color, width):
         self.draw.line([self.tr_pos(start), self.tr_pos(end)], self.tr_color(color), width)
 
-    def draw_circle(self, center, radius, color, width, is_filled):
+    def draw_circle(self, center, radius, color, width, is_filled, start, end):
         x, y = self.tr_pos(center)
         left_up = (x-radius, y-radius)
         right_down = (x+radius, y+radius)
         box = [left_up, right_down]
         if is_filled:
+            assert start == 0
+            assert end == 2 * pi
             self.draw.ellipse(box, fill=self.tr_color(color))
         else:
-            circle(self.draw, x, y, radius, self.tr_color(color), width=width)
+            self.draw.arc(box, -end * 180 / pi, -start * 180 / pi, fill=self.tr_color(color), width=width)
 
     def fill_polygon(self, points, color):
         self.draw.polygon(
@@ -82,19 +84,3 @@ class PillowCanvas(Canvas):
     def refreshed_turtle(self, turtle):
         # no need to do stuff
         pass
-
-def circle(draw, cx, cy, r, fill, width=1, segments=100):
-    # based on https://gist.github.com/skion/9259926
-    da = 2 * pi / segments
-    dl = r * da
-
-    for i in range(segments):
-        a = (i+0.5) * da
-
-        x = cx + r * cos(a)
-        y = cy + r * sin(a)
-
-        dx = -sin(a) * dl
-        dy = cos(a) * dl
-
-        draw.line([(x-dx, y-dy), (x+dx, y+dy)], fill=fill, width=width)
