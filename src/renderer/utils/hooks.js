@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-// eslint-disable-next-line import/prefer-default-export
 export function useAsync(callback, initialState = null, deps = []) {
     const [data, setData] = useState(initialState);
 
@@ -12,4 +11,23 @@ export function useAsync(callback, initialState = null, deps = []) {
     }, deps);
 
     return data;
+}
+
+export function useRequestAnimationFrame(callback, deps) {
+    let initialTime;
+    let running = true;
+    useEffect(() => {
+        const worker = (time) => {
+            if (!initialTime) {
+                initialTime = time;
+            }
+            const delta = time - initialTime;
+            callback(delta);
+            if (running) {
+                requestAnimationFrame(worker);
+            }
+        };
+        requestAnimationFrame(worker);
+        return () => { running = false; };
+    }, deps);
 }
