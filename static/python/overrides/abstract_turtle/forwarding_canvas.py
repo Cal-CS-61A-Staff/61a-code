@@ -22,7 +22,7 @@ class ForwardingCanvas(Canvas):
 
     draw_rectangular_line = _forward("draw_rectangular_line")
     draw_circle = _forward("draw_circle")
-    fill_polygon = _forward("fill_polygon")
+    fill_path = _forward("fill_path")
     axis_aligned_rectangle = _forward("axis_aligned_rectangle")
     set_bgcolor = _forward("set_bgcolor")
     clear = _forward("clear")

@@ -44,9 +44,9 @@ class Canvas(ABC):
         pass
 
     @abstractmethod
-    def fill_polygon(self, points, color):
+    def fill_path(self, path, color):
         """
-        Fill the given polygon with edge points POINTS and fill color COLOR.
+        Fill the given polygon formed by the movements in PATH using fill color COLOR.
         """
         pass
 

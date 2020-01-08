@@ -1,4 +1,4 @@
-
+from abc import ABC
 from collections import namedtuple
 
 from math import sin, cos
@@ -74,3 +74,28 @@ class DrawnTurtle(namedtuple('DrawnTurtle', ['pos', 'heading', 'stretch_wid', 's
 
 def rotate(x, y, theta):
     return x * cos(theta) - y * sin(theta), x * sin(theta) + y * cos(theta)
+
+
+class Path(ABC):
+    def to_points(self):
+        """
+        Return an iterable of points corresponding to this path element
+        """
+
+
+class LineTo(Path, namedtuple("MoveTo", ["position"])):
+    def to_points(self):
+        return [self.position]
+
+
+class Arc(Path, namedtuple("Arc", ["center", "radius", "start_angle", "end_angle"])):
+    """
+    CENTER is the center of the arc
+    START_ANGLE and END_ANGLE are the starting and ending angles of the arc measured in radians CCW from the x-axis
+    """
+    divisions = 100
+
+    def to_points(self):
+        for i in range(self.divisions + 1):
+            ang = self.start_angle + (i / self.divisions) * (self.end_angle - self.start_angle)
+            yield Position(self.center.x + self.radius * cos(ang), self.center.y + self.radius * sin(ang))

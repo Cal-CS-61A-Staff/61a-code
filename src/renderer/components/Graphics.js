@@ -32,22 +32,35 @@ function draw(bgCanvas, mainCanvas, turtleCanvas, data, currIndex) {
             ctx.lineTo(x(endX), y(endY));
             ctx.stroke();
         } else if (command === "draw_circle") {
-            const [[centerX, centerY, radius], color, width, isFilled] = params;
+            const [
+                [centerX, centerY, radius], color, width, isFilled, startAngle, endAngle,
+            ] = params;
             ctx.beginPath();
             ctx.lineWidth = width;
             ctx.strokeStyle = makeColorString(color);
             ctx.fillStyle = makeColorString(color);
-            ctx.arc(x(centerX), y(centerY), radius, 0, 2 * Math.PI);
+            ctx.arc(x(centerX), y(centerY), radius, -endAngle, -startAngle);
             ctx.stroke();
             if (isFilled) {
                 ctx.fill();
             }
-        } else if (command === "fill_polygon") {
-            const [points, color] = params;
+        } else if (command === "fill_path") {
+            const [path, color] = params;
             ctx.beginPath();
             ctx.fillStyle = makeColorString(color);
-            for (const [nextX, nextY] of points) {
-                ctx.lineTo(x(nextX), y(nextY));
+            for (const movement of path) {
+                if (movement.length === 1) {
+                    const [[pointX, pointY]] = movement;
+                    ctx.lineTo(x(pointX), y(pointY));
+                } else if (movement.length === 4) {
+                    const [[centerX, centerY], radius, startAngle, endAngle] = movement;
+                    ctx.arc(
+                        x(centerX), y(centerY), radius, -startAngle, -endAngle,
+                        endAngle > startAngle,
+                    );
+                } else {
+                    console.error("Unknown movement:", movement);
+                }
             }
             ctx.fill();
         } else if (command === "axis_aligned_rectangle") {

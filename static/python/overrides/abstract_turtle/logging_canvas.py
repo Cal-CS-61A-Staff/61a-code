@@ -20,8 +20,8 @@ class AbstractLoggingCanvas(Canvas):
     def draw_circle(self, center, radius, color, width, is_filled, start, end):
         self.on_action(['draw_circle', [center.x, center.y, radius], color, width, is_filled, start, end])
 
-    def fill_polygon(self, points, color):
-        self.on_action(['fill_polygon', [[point.x, point.y] for point in points], color])
+    def fill_path(self, path, color):
+        self.on_action(['fill_path', path, color])
 
     def axis_aligned_rectangle(self, bottom_left, width, height, color):
         self.on_action(['axis_aligned_rectangle', [bottom_left.x, bottom_left.y], width, height, color])
