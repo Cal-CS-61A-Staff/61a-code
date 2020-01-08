@@ -47,6 +47,14 @@ class Canvas(ABC):
         pass
 
     @abstractmethod
+    def axis_aligned_rectangle(self, bottom_left, width, height, color):
+        """
+        Fill the given rectangle with bottom left corner BOTTOM_LEFT, and dimensions (WIDTH, HEIGHT),
+            and fill color COLOR
+        """
+        pass
+
+    @abstractmethod
     def set_bgcolor(self, color):
         """
         Fill the entire background with the given COLOR

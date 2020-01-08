@@ -50,6 +50,12 @@ function draw(bgCanvas, mainCanvas, turtleCanvas, data, currIndex) {
                 ctx.lineTo(x(nextX), y(nextY));
             }
             ctx.fill();
+        } else if (command === "axis_aligned_rectangle") {
+            const [[cornerX, cornerY], width, height, color] = params;
+            ctx.beginPath();
+            ctx.fillStyle = makeColorString(color);
+            ctx.rect(x(cornerX), y(cornerY), width, -height);
+            ctx.fill();
         } else if (command === "set_bgcolor") {
             const [color] = params;
             bgCtx.fillStyle = makeColorString(color);

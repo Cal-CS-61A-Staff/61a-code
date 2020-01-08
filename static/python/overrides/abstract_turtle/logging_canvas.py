@@ -22,6 +22,9 @@ class AbstractLoggingCanvas(Canvas):
     def fill_polygon(self, points, color):
         self.on_action(['fill_polygon', [[point.x, point.y] for point in points], color])
 
+    def axis_aligned_rectangle(self, bottom_left, width, height, color):
+        self.on_action(['axis_aligned_rectangle', [bottom_left.x, bottom_left.y], width, height, color])
+
     def set_bgcolor(self, color):
         self.on_action(['set_bgcolor', color])
 

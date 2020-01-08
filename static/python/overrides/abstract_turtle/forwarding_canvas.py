@@ -23,6 +23,7 @@ class ForwardingCanvas(Canvas):
     draw_rectangular_line = _forward("draw_rectangular_line")
     draw_circle = _forward("draw_circle")
     fill_polygon = _forward("fill_polygon")
+    axis_aligned_rectangle = _forward("axis_aligned_rectangle")
     set_bgcolor = _forward("set_bgcolor")
     clear = _forward("clear")
     refreshed_turtle = _forward("refreshed_turtle")

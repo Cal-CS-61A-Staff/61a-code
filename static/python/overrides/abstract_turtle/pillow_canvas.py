@@ -7,7 +7,7 @@ except ImportError:
     pass
 
 from .canvas import Canvas
-from .model import Color
+from .model import Color, Position
 
 
 class PillowCanvas(Canvas):
@@ -45,6 +45,18 @@ class PillowCanvas(Canvas):
     def fill_polygon(self, points, color):
         self.draw.polygon(
             [self.tr_pos(point) for point in points],
+            fill=self.tr_color(color)
+        )
+
+    def axis_aligned_rectangle(self, bottom_left, width, height, color):
+        blx, bly = self.tr_pos(bottom_left)
+        # bounding box in pixel space, make this exactly w*h
+        # subtract one to have blx, blx+1, ..., blx+w-1, etc.
+        tlx, tly = blx + (width - 1), bly - (height - 1)
+        bounding_box = [blx, bly, tlx, tly]
+        print(bounding_box)
+        self.draw.rectangle(
+            bounding_box,
             fill=self.tr_color(color)
         )
 
