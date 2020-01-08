@@ -6,6 +6,7 @@ from english_words import english_words_set as words  # list of words to generat
 
 from constants import NOT_LOGGED_IN, NOT_AUTHORIZED, NOT_FOUND, ServerFile
 from db import connect_db
+from oauth_utils import check_auth
 
 
 def attempt_generated_shortlink(path, app):
@@ -20,7 +21,7 @@ def attempt_generated_shortlink(path, app):
             if ret is None:
                 return NOT_FOUND
 
-            if app.check_auth():
+            if check_auth(app):
                 return ServerFile(ret[0], ret[1], "", ret[2].decode(), False)._asdict()
             else:
                 return NOT_AUTHORIZED
@@ -45,7 +46,7 @@ def create_shortlink_generator(app):
 
     @app.route("/api/staff_share", methods=["POST"])
     def staff_share():
-        if not app.check_auth():
+        if not check_auth(app):
             abort(403)
 
         return save_file("staffLinks")

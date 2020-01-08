@@ -1,16 +1,13 @@
 import * as React from "react";
 import UploadFileSelector from "./UploadFileSelector.js";
-import RecentFileSelector from "./RecentFileSelector.js";
 import { dialogWrap } from "../utils/dialogWrap.js";
+import TreeFileSelector from "./TreeFileSelector.js";
 
-function OpenDialog(props) {
+function OpenDialog({ onFileSelect }) {
     return (
         <>
-            <UploadFileSelector onFileSelect={props.onFileSelect} />
-            <RecentFileSelector
-                files={props.recents}
-                onFileSelect={props.onFileSelect}
-            />
+            <TreeFileSelector onFileSelect={onFileSelect} />
+            <UploadFileSelector onFileSelect={onFileSelect} />
         </>
     );
 }

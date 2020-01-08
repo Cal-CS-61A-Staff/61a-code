@@ -1,5 +1,4 @@
-import $ from "jquery";
-import { useEffect, useState } from "react";
+import post from "../../common/post.js";
 
 export function login() {
     window.open("/oauth/popup_login", "_blank");
@@ -15,7 +14,7 @@ let currAuthData = { loggedOut: true };
 export async function checkLoggedIn() {
     let newAuthData;
     try {
-        newAuthData = await $.post("/api/user");
+        newAuthData = await post("/api/user");
     } catch {
         newAuthData = { loggedOut: true };
     }
@@ -27,16 +26,8 @@ export async function checkLoggedIn() {
     }
 }
 
-export function isStaff(authData) {
-    return authData.data.participations.some(
-        ({ course, role }) => ["staff", "instructor"].includes(role) && course.offering.startsWith("cal/cs61a/"),
-    );
-}
-
-export function useAuthData() {
-    const [authData, setAuthData] = useState(currAuthData);
-    useEffect(() => addAuthListener(setAuthData));
-    return authData;
+export function getCurrAuthData() {
+    return currAuthData;
 }
 
 checkLoggedIn();

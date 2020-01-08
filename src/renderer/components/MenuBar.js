@@ -10,7 +10,7 @@ import {
     MENU_LOGIN, MENU_LOGOUT,
 } from "../../common/communicationEnums.js";
 import MenuElem from "./MenuElem.js";
-import { useAuthData } from "../utils/auth.js";
+import { useAuthData } from "../utils/okUtils.js";
 
 export default function MenuBar() {
     const authData = useAuthData();

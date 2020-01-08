@@ -1,29 +1,12 @@
-/* eslint-disable react/no-array-index-key */
 import React from "react";
-import FileCard from "./FileCard.js";
+import CardList from "./CardList.js";
 
-export default function RecentFileSelector(props) {
-    const cards = props.files.map((file, index) => (
-        <FileCard
-            key={index}
-            file={file}
-            onClick={() => props.onFileSelect(file)}
-        />
-    ));
-    let content;
-    if (props.files.length > 0) {
-        content = (
-            <>
-            Recent files
-                {cards}
-            </>
-        );
-    } else {
-        content = "No recent files.";
-    }
+export default function RecentFileSelector({ files, onFileSelect }) {
     return (
-        <div className="modalCol browserFileSelector">
-            {content}
-        </div>
+        <CardList
+            header={files.length ? "Recent Local Files" : "No recent local files."}
+            items={files.slice(0, 3).map(x => x.name)}
+            onClick={i => onFileSelect(files[i])}
+        />
     );
 }

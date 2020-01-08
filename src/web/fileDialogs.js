@@ -4,8 +4,10 @@ import OpenDialog from "../renderer/components/OpenDialog.js";
 import SaveDialog from "../renderer/components/SaveDialog.js";
 import { closeDialog, loadDialog } from "../renderer/utils/dialogWrap.js";
 import {
-    FILE, getFile, getRecentFiles, normalize, storeFile,
+    getFile, getRecentFiles, normalize, storeFile,
 } from "./filesystem.js";
+import { showBackupsDialog } from "./okDialogs.js";
+import { FILE } from "../common/fileTypes.js";
 
 export async function showOpenDialog(key) {
     function handleClose() {
@@ -17,28 +19,39 @@ export async function showOpenDialog(key) {
         sendAndExit(key, { success: true, file });
     }
 
+    function handleBackupsButtonClick() {
+        closeDialog();
+        showBackupsDialog(key);
+    }
+
     const recents = await getRecentFiles();
 
     loadDialog(OpenDialog, {
         recents,
         onClose: handleClose,
         onFileSelect: handleFileSelect,
+        onBackupsButtonClick: handleBackupsButtonClick,
     });
 }
 
 export async function open(key, location) {
-    const file = await getFile(location);
-    sendAndExit(key, { success: true, file });
+    try {
+        const file = await getFile(location);
+        sendAndExit(key, { success: !!file, file });
+    } catch (e) {
+        sendAndExit(key, { success: false, message: e.message });
+    }
 }
 
 export function showSaveDialog(key, contents, hint) {
     function handleClose() {
-        sendAndExit(key, { success: false });
+        sendAndExit(key, { success: false, hideError: true });
     }
 
-    function handleNameSelect(name) {
+    function handlePathSelect(selectedPath) {
         closeDialog();
-        return save(key, contents, normalize(path.join("/home/", name)));
+        const withExtension = selectedPath.includes(".") ? selectedPath : `${selectedPath}.${hint.split(".").pop()}`;
+        return save(key, contents, withExtension);
     }
 
     function handleDownloadClick() {
@@ -58,15 +71,19 @@ export function showSaveDialog(key, contents, hint) {
     loadDialog(SaveDialog, {
         defaultValue: hint,
         onClose: handleClose,
-        onNameSelect: handleNameSelect,
+        onPathSelect: handlePathSelect,
         onDownloadClick: handleDownloadClick,
     });
 }
 
 
 export async function save(key, content, location) {
-    await storeFile(content, normalize(location), FILE);
-    sendAndExit(key, { success: true, name: path.basename(location), location });
+    try {
+        await storeFile(content, normalize(location), FILE);
+        sendAndExit(key, { success: true, name: path.basename(location), location });
+    } catch (e) {
+        sendAndExit(key, { success: false, message: e.message });
+    }
 }
 
 

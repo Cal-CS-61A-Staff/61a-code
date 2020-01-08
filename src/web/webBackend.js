@@ -2,7 +2,7 @@ import {
     CLAIM_MENU, ERR, EXIT, GET_RECENT_FILES,
     INTERACT_PROCESS,
     KILL_PROCESS,
-    OPEN_FILE, OUT, SAVE_FILE, SHOW_ERROR_DIALOG,
+    OPEN_FILE, OUT, SAVE_FILE, SHOW_ERROR_DIALOG, SHOW_OK_BACKUPS_DIALOG,
     SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, SHOW_SHARE_DIALOG, START_CONSOLE,
 } from "../common/communicationEnums.js";
 import { PYTHON, SCHEME, SQL } from "../common/languages.js";
@@ -17,6 +17,7 @@ import startConsole from "./webConsole.js";
 import {
     getRecents, showOpenDialog, showSaveDialog, open, save,
 } from "./fileDialogs.js";
+import { showBackupsDialog } from "./okDialogs.js";
 
 let handler;
 
@@ -57,6 +58,8 @@ function receive(arg) {
             showShareDialog(arg.key, arg.name, arg.contents);
         } else if (arg.type === START_CONSOLE) {
             startConsole(arg.key);
+        } else if (arg.type === SHOW_OK_BACKUPS_DIALOG) {
+            showBackupsDialog(arg.key);
         } else {
             console.error(`Unknown (or missing) type: ${arg.type}`);
         }

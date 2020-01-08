@@ -1,6 +1,7 @@
 import path from "path-browserify";
 import { checkArgs, resolveRelativePath } from "./utils.js";
-import { DIRECTORY, getFile } from "../filesystem.js";
+import { getFile } from "../filesystem.js";
+import { DIRECTORY } from "../../common/fileTypes.js";
 
 export default async function ls(args, workingDirectory, out, err) {
     checkArgs("ls", args, 0, 1);

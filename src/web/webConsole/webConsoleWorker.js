@@ -9,8 +9,12 @@ import edit from "./edit.js";
 import run from "./run.js";
 
 import { normalize } from "../filesystem.js";
+import pwd from "./pwd.js";
+import post from "../../common/post.js";
 
 let location = "~";
+
+let username = null;
 
 export function changeDirectory(newLocation) {
     const normalized = normalize(newLocation);
@@ -38,10 +42,14 @@ function exit(val) {
     postMessage({ exit: true, val });
 }
 
-stderr(genPrompt());
+post("/api/user").then(({ data: { email } }) => {
+    [username] = email.split("@");
+}).catch(() => {
+    username = "anonymous";
+}).then(() => stderr(genPrompt()));
 
 const COMMANDS = {
-    help, ls, cd, mkdir, rm, cat, edit, run,
+    help, ls, cd, mkdir, rm, cat, edit, run, pwd,
 };
 
 onmessage = async (e) => {
@@ -71,5 +79,5 @@ onmessage = async (e) => {
 };
 
 function genPrompt() {
-    return `anonymous ${location} $ `;
+    return `${username} ${location} $ `;
 }
