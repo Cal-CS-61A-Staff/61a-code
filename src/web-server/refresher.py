@@ -6,6 +6,7 @@ from constants import CSV_ROOT
 
 from authorized_staff import setup_authorized_staff
 from named_shortlinks import setup_named_shortlinks
+from ok_server_interface import setup_ok_server_interface
 from preloaded_tables import setup_preloaded_tables
 from shortlink_generator import setup_shortlink_generator
 from shortlink_paths import setup_shortlink_paths
@@ -45,4 +46,5 @@ setup_funcs = [
     setup_shortlink_generator,
     setup_shortlink_paths,
     setup_stored_files,
+    setup_ok_server_interface,
 ]

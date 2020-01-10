@@ -53,7 +53,7 @@ function receive(arg) {
         } else if (arg.type === CLAIM_MENU) {
             assignMenuKey(arg.key);
         } else if (arg.type === SHOW_ERROR_DIALOG) {
-            showErrorDialog(arg.title, arg.message);
+            showErrorDialog(arg.key, arg.title, arg.message);
         } else if (arg.type === SHOW_SHARE_DIALOG) {
             showShareDialog(arg.key, arg.name, arg.contents);
         } else if (arg.type === START_CONSOLE) {
