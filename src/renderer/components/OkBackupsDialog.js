@@ -8,8 +8,10 @@ function OKBackupsDialog({ assignments, onFileSelect }) {
     const [selectedIndex, setSelectedIndex] = useState(null);
     const selected = selectedIndex === null ? null : assignments[selectedIndex];
 
+    const assignment = selected && selected.name.split("/").pop();
+
     const backups = useAsync(
-        () => (selected ? getBackups(selected.name.split("/").pop()) : null),
+        () => (selected ? getBackups(assignment) : null),
         null, [selected],
     );
 
@@ -24,6 +26,8 @@ function OKBackupsDialog({ assignments, onFileSelect }) {
         header = "Backups";
     }
 
+    const prefix = selected && `/cs61a/${assignment}/`;
+
     return (
         <>
             <CardList
@@ -34,7 +38,7 @@ function OKBackupsDialog({ assignments, onFileSelect }) {
             />
             <CardList
                 header={header}
-                items={backups ? backups.map(x => x.name) : []}
+                items={backups ? backups.map(x => x.location.slice(prefix.length)) : []}
                 onClick={i => onFileSelect(backups[i])}
             />
         </>

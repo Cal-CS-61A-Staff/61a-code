@@ -1,5 +1,11 @@
 /* eslint-disable no-restricted-globals */
 import { join } from "path";
+import {
+    STATUS_WAITING,
+    INDEX_WAITING,
+    INDEX_QUEUE,
+    STATUS_DATA, STATUS_DONE, STATUS_FAIL,
+} from "../common/ipcEnums.js";
 
 self.window = self;
 // eslint-disable-next-line func-names
@@ -48,15 +54,41 @@ function ab2str(buf) {
     return out.join("");
 }
 
-function blockingInput() {
+function blockingInput(message) {
     if (self.Atomics) {
-        const arr = new Int32Array(commBuff);
-        self.Atomics.wait(arr, 0, 0);
-        arr[0] = 0;
+        wait();
         return ab2str(strBuff);
     } else {
-        throw Error("input() is not supported in your browser. Try using Chrome instead!");
+        throw Error(message);
     }
+}
+
+function wait() {
+    const arr = new Int32Array(commBuff);
+    self.Atomics.wait(arr, INDEX_WAITING, STATUS_WAITING);
+    arr[INDEX_WAITING] = STATUS_WAITING;
+    return true;
+}
+
+function read(location) {
+    if (!self.Atomics) {
+        throw Error("Your browser does not support synchronous imports. Try using Chrome instead!");
+    }
+    postMessage({ readFile: true, location });
+    const arr = new Int32Array(commBuff);
+    const data = [];
+    while (wait()) {
+        const status = arr[INDEX_QUEUE];
+        if (status === STATUS_DATA) {
+            data.push(ab2str(strBuff));
+        } else if (status === STATUS_DONE) {
+            break;
+        } else if (status === STATUS_FAIL) {
+            throw Error("File not found!");
+        }
+        postMessage({ continueReadFile: true });
+    }
+    return data.join("");
 }
 
 let handler;
@@ -71,6 +103,7 @@ function initialize() {
     self.stdout = { write: val => postMessage({ out: true, val }) };
     self.stderr = { write: val => postMessage({ err: true, val }) };
     self.exit = { write: val => postMessage({ exit: true, val }) };
+    self.filesystem = { read };
     self.blockingInput = { wait: blockingInput };
     __BRYTHON__.brython();
     __BRYTHON__.idb_open();

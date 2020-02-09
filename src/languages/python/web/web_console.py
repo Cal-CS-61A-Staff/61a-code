@@ -285,7 +285,9 @@ def record_exec(code, wrap):
 
 def input(prompt=""):
     print(prompt, end="")
-    return browser.self.blockingInput.wait()
+    return browser.self.blockingInput.wait(
+        "input() is not supported in your browser. Try using Chrome instead!"
+    )
 
 
 class TreeList(list):
@@ -345,7 +347,40 @@ def init_turtle():
     # turtle.set_canvas(JSONCanvas(None, None))
 
 
-init_turtle()
+class LocalFinder:
+    @staticmethod
+    def find_spec(name, path, target_module=None):
+        if path is not None or target_module is not None:
+            return None
+
+        try:
+            contents = browser.self.filesystem.read("/cs61a/proj04/" + name + ".py")
+        except:
+            return
+
+        class Loader:
+            origin = "cs61a/hw01/hw01.py"
+            has_location = True
+            submodule_search_locations = None
+            loader_state = None
+            cached = None
+            parent = None
+
+            @staticmethod
+            def create_module(spec):
+                return None
+
+            @staticmethod
+            def exec_module(module):
+                exec(contents, module.__dict__)
+
+        loader = Loader()
+        loader.name = name
+        loader.loader = loader
+        return loader
+
+
+sys.meta_path = [LocalFinder()] + sys.meta_path
 
 
 editor_ns = {

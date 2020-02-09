@@ -64,30 +64,26 @@ async function getFileWorker(db, location) {
                 type: DIRECTORY,
                 time: 1,
             };
-        } else if (location.split("/").length === 3) {
-            const assignment = location.split("/").pop();
-            try {
-                const backups = await getBackups(assignment);
-                return {
-                    name: assignment,
-                    location,
-                    content: backups.map(({ name }) => `/cs61a/${assignment}/${name}`),
-                    type: DIRECTORY,
-                    time: 1,
-                };
-            } catch {
-                return undefined;
-            }
         } else {
+            // /cs61a/assignment/path
+            const assignment = location.split("/")[2];
             try {
-                const [assignment, file] = await backupSplit(location);
                 const backups = await getBackups(assignment);
                 for (const backup of backups) {
-                    if (backup.name === file) {
+                    if (backup.location === location) {
                         return backup;
                     }
                 }
-                return undefined;
+                const content = backups
+                    .filter(({ location: x }) => x.startsWith(location))
+                    .map(({ location: x }) => `${location}/${x.slice(location.length).split("/")[1]}`);
+                return {
+                    name: assignment,
+                    location,
+                    content: [...new Set(content)],
+                    type: DIRECTORY,
+                    time: 1,
+                };
             } catch {
                 return undefined;
             }
@@ -132,7 +128,7 @@ export async function getBackups(assignment) {
                 for (const [name, content] of Object.entries(contents)) {
                     if (name !== "submit") {
                         backups.push({
-                            name,
+                            name: name.split("/").pop(),
                             location: `/cs61a/${assignment}/${name}`,
                             content,
                             type: FILE,
@@ -211,11 +207,9 @@ function isBackupPath(location) {
 }
 
 async function backupSplit(location) {
-    const elems = location.split("/").slice(2); // [assignment, file]
-    if (elems.length !== 2) {
-        throw Error("Unable to write to path.");
-    }
-    const [assignment, file] = elems;
+    const assignment = location.split("/")[2];
+    const prefix = `/cs61a/${assignment}/`;
+    const file = location.slice(prefix.length);
     const assignments = await getAssignments();
     if (!assignments.some(({ name }) => name.split("/").pop() === assignment)) {
         throw Error("Assignment not found.");
