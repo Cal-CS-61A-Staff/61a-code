@@ -202,15 +202,18 @@ def atomic(elem):
     listlike = list, tuple
     return not isinstance(elem, listlike) and not is_tree(elem)
 
+def link_empty(elem):
+    return elem == "nil"
+
+def is_link(elem):
+	return old_type(elem).__name__ == "Link"
 
 def is_tree(elem):
     return old_type(elem).__name__ == "Tree" or hasattr(elem, "__is_debug_tree")
 
-
 def inline(elem):
     inline = int, bool, float, str, old_type(None)
     return isinstance(elem, inline)
-
 
 def is_leaf(tree):
     return (
@@ -220,19 +223,20 @@ def is_leaf(tree):
         and not tree.branches
     )
 
-
 def label(tree):
     return tree[0] if isinstance(tree, list) else tree.label
-
 
 def branches(tree):
     return tree[1:] if isinstance(tree, list) else tree.branches
 
-
 def draw(lst):
     heap = {}
+    link_dict = {}
+    solved_link = []
 
     def draw_worker(elem):
+        if link_empty(elem):
+            return ["empty", []]
         if inline(elem):
             return ["inline", repr(elem)]
         if not id(elem) in heap:
@@ -251,11 +255,38 @@ def draw(lst):
             return [repr(label(tree))]
         return [repr(label(tree)), [draw_tree(branch) for branch in branches(tree)]]
 
+    def transfer(link):
+        head = link_dict[link]
+        solved_link.append(link)
+        if inline(link.first):
+            head[0] = link.first
+        else:
+            head[0] = link_dict[link.first]
+            if link.first not in solved_link:
+                transfer(link.first)
+        if link.rest:
+            head[1] = link_dict[link.rest]
+            if link.rest not in solved_link:
+                transfer(link.rest)
+
+    def search(link):
+        if not link:
+            return
+        if link not in link_dict:
+            link_dict[link] = ["nil", "nil"]
+        if is_link(link.first) and link.first not in link_dict:
+            search(link.first)
+        if is_link(link.rest) and link.rest not in link_dict:
+            search(link.rest)
+
     if is_tree(lst):
         data = ["Tree", draw_tree(lst)]
+    elif is_link(lst):
+        search(lst)
+        transfer(lst)
+        data = [draw_worker(link_dict[lst]), heap]
     else:
         data = [draw_worker(lst), heap]
-
     wrap_debug(data)
 
 

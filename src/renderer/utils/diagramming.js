@@ -18,6 +18,8 @@ export function getDims() {
 
 const charWidth = getDims()[0];
 
+let depthToArrows = {};
+
 export const minWidth = charWidth * 4 + 5;
 
 function calcContentLength(elem) {
@@ -53,9 +55,36 @@ function branchArrow(container, x1, y1, x2, y2, color) {
         .stroke({ width: 2, color });
 }
 
-function curvedArrow(container, x1, y1, x2, y2, color) {
-    straightArrow(container, x1, y1, x2, y2, color);
+/* eslint-disable no-param-reassign */
+function curvedArrow(container, x1, y1, x2, y2, color, depth) {
+    if (y1 !== y2 || x1 === x2 + minWidth / 2) {
+        straightArrow(container, x1, y1, x2, y2, color);
+    } else {
+        if (depthToArrows[depth] === undefined) {
+            depthToArrows[depth] = 1;
+        } else {
+            depthToArrows[depth] += 1;
+        }
+        const offset = 10;
+        container.circle(5).dx(x1 - 5 / 2).dy(y1 - 5 / 2).fill(color);
+        container
+            .polygon("0,0 -4,4 -4,-4")
+            .fill(color)
+            .dx(x2 + minWidth / 2).dy(y2 - minWidth / 2)
+            .rotate(90, x2 + minWidth / 2, y2 - minWidth / 2);
+        container
+            .line(x1, y1, x1, y1 - minWidth / 2 - offset)
+            .stroke({ width: 2, color });
+        container
+            .line(x1, y1 - minWidth / 2 - offset, x2 + minWidth / 2, y2 - minWidth / 2 - offset)
+            .stroke({ width: 2, color });
+        container
+            .line(x2 + minWidth / 2, y2 - minWidth / 2 - offset,
+                x2 + minWidth / 2, y2 - minWidth / 2)
+            .stroke({ width: 2, color });
+    }
 }
+/* eslint-enable no-param-reassign */
 
 export function displayTree(data, container) {
     const indents = [10];
@@ -115,7 +144,7 @@ export function displayElem(
             y1 = y + minWidth / 2;
         }
         if (cache.has(id[1])) {
-            curvedArrow(container, x1, y1, ...cache.get(id[1]), color);
+            curvedArrow(container, x1, y1, ...cache.get(id[1]), color, depth);
             return 0;
         }
         let x2;
@@ -182,7 +211,12 @@ export function displayElem(
                 .back();
         }
         // container.text(newDepth.toString(10)).dx(x).dy(y);
+        depthToArrows = {};
         return newDepth;
+    } else if (id[0] === "empty") {
+        container.line(x, y + minWidth, x + minWidth, y)
+            .stroke({ width: 2, color });
+        return 0;
     } else {
         const width = calcContentLength(id);
         container.text(id[1])
