@@ -1,0 +1,40 @@
+.output, .preview {
+    padding: 0 5px;
+    font-family: Monaco, Consolas, monospace;
+    color: white;
+    font-size: 14px;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.6;
+    padding-bottom: 100px;
+}
+
+.output * {
+    overflow-anchor: none;
+}
+
+.outputScrollAnchor {
+    overflow-anchor: auto;
+    height: 1px;
+}
+
+.outputControls {
+    display: inline-block;
+    height: 100%;
+    width: 2em;
+    border-right: 1px dashed white;
+    overflow-x: hidden;
+    text-align: center;
+}
+
+.outputWrapper {
+    display: inline-block;
+    height: 100%;
+    position: relative;
+    width: calc(100% - 2em - 1px);
+    bottom: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    cursor: text;
+}

@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import "../style/FileSelector.css";
+
 export default class UploadFileSelector extends Component {
     handleDragEnter = (e) => {
         e.preventDefault();

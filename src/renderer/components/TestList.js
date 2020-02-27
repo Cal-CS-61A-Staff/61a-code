@@ -1,6 +1,8 @@
 import React from "react";
 import TestGroup from "./TestGroup";
 
+import "../style/TestList.css";
+
 export default function TestList(props) {
     const problems = {};
     for (const elem of props.data) {

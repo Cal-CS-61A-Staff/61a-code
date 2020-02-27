@@ -1,0 +1,7 @@
+.FileTree {
+    margin-top: 10px;
+    overflow: auto;
+    border: 1px solid white;
+    padding: 15px;
+    flex-grow: 1;
+}

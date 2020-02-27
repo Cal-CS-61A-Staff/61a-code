@@ -1,4 +1,5 @@
 import React from "react";
+import "../style/FolderIndicator.css";
 
 export default function FolderIndicator(props) {
     return (props.folderName

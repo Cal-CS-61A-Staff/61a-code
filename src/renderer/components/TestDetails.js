@@ -2,6 +2,8 @@ import React from "react";
 import SuccessIcon from "./SuccessIcon";
 import CommandIcon from "./CommandIcon";
 
+import "../style/TestDetails.css";
+
 export default class TestDetails extends React.Component {
     constructor(props) {
         super(props);

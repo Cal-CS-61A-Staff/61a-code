@@ -2,6 +2,8 @@ import React from "react";
 import SuccessIcon from "./SuccessIcon";
 import TestElem from "./TestElem";
 
+import "../style/TestList.css";
+
 export default class TestGroup extends React.Component {
     handleClick = () => {
         this.props.onProblemClick(this.props.name);

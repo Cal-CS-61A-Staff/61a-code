@@ -1,0 +1,22 @@
+.testListItem {
+    padding: 5px;
+    border-bottom: 1px solid white;
+    color: white;
+    font-family: Verdana, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+    font-size: 10pt;
+    user-select: none;
+}
+
+.testListItem:hover {
+    background: dimgray;
+}
+
+.testElem {
+    background-color: gray;
+    padding-left: 40px;
+}
+
+.testList {
+    height: 100%;
+    overflow-y: auto;
+}

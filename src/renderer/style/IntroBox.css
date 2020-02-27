@@ -1,0 +1,16 @@
+.introHolder {
+    top: 40%;
+    left: 50%;
+    position: relative;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+
+.introTitle {
+    font-size: 48px;
+    font-family: "Source Sans Pro", sans-serif;
+    font-weight: 200;
+    color: white;
+
+    margin-bottom: 20px;
+}

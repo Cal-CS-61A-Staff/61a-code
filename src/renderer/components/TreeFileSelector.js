@@ -2,6 +2,8 @@ import React from "react";
 import FileTree from "./FileTree.js";
 import { FILE } from "../../common/fileTypes.js";
 
+import "../style/FileSelector.css";
+
 export default function TreeFileSelector({ onFileSelect }) {
     const handleFileSelect = (file) => {
         if (file.type === FILE) {

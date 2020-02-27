@@ -1,6 +1,7 @@
 import * as React from "react";
 import NavButton from "./NavButton.js";
 import PositionSlider from "./PositionSlider.js";
+import "../style/PositionChooser.css";
 
 // PositionChooser.propTypes = {
 //     onChange: PropTypes.func,

@@ -1,0 +1,11 @@
+.navBar {
+    left: 0;
+    right: 0;
+    height: 42px;
+    top: 0;
+    position: absolute;
+    background-color: black;
+    color: white;
+    vertical-align: center;
+    user-select: none;
+}

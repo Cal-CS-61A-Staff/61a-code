@@ -11,6 +11,7 @@ import { OPEN_FILE } from "../../common/communicationEnums.js";
 import { DIRECTORY } from "../../common/fileTypes.js";
 import { useAuthData } from "../utils/okUtils.js";
 import { login } from "../utils/auth.js";
+import "../style/FileTree.css";
 
 const LOCKED = "LOCKED";
 

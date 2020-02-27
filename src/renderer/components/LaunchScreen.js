@@ -13,6 +13,7 @@ import { openHelp } from "../utils/help.js";
 import { login, logout } from "../utils/auth.js";
 import { useAsync } from "../utils/hooks.js";
 import FileSelector from "./FileSelector.js";
+import "../style/LaunchScreen.css";
 
 function closeTab() {
     if (ELECTRON) {

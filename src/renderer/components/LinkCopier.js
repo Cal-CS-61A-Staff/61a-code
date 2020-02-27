@@ -1,4 +1,5 @@
 import React from "react";
+import "../style/FileNameField.css";
 
 export default function LinkCopier({ link, children }) {
     const handleClick = () => {

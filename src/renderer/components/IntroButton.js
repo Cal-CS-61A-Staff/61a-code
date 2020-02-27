@@ -1,4 +1,5 @@
 import React from "react";
+import "../style/IntroButton.css";
 
 export default function IntroButton(props) {
     return (

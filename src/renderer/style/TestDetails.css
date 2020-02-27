@@ -1,0 +1,31 @@
+.testDetails {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.testDetailsHeader {
+    padding-left: 10px;
+    color: white;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    border-bottom: solid 5px;
+    font-size: 24px;
+    font-family: Monaco, Consolas, monospace;
+}
+
+.testDetailsCongrats {
+    text-align: center;
+    position: relative;
+    top: 40%
+}
+
+.rawOKPyOutput {
+    padding: 0 5px;
+    font-family: Monaco, Consolas, monospace;
+    color: white;
+    font-size: 14px;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.6;
+}
