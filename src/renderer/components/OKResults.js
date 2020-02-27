@@ -5,6 +5,7 @@ import ReactDOM from "react-dom";
 import glWrap from "../utils/glWrap";
 import TestDetails from "./TestDetails";
 import TestList from "./TestList";
+import "../style/OKResults.css";
 
 class OKResults extends React.Component {
     static getActiveTest(props) {

@@ -1,4 +1,5 @@
 import React from "react";
+import "../style/CardListElement.css";
 
 export default function CardListElement({ name, selected, onClick }) {
     return (

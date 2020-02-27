@@ -1,0 +1,59 @@
+.recentHolder {
+    flex: 1 1 auto;
+    max-height: 80%;
+    overflow-y: hidden;
+}
+
+.browserFileSelector {
+    overflow-y: auto;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 24px;
+    font-weight: 200;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.TreeFileSelector {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 90%;
+}
+
+.localFileSelector {
+    width: 90%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.fileDropTarget {
+    flex-grow: 1;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 2px dotted white;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.centeredTextHolder {
+    display: table-cell;
+    vertical-align: middle;
+    line-height: normal;
+}
+
+.fileUploadButton {
+    width: 100%;
+    height: 40px;
+    border: 1px solid white;
+    display: table;
+    text-align: center;
+}
+
+.fileUploadButton:hover {
+    background-color: dimgray;
+    cursor: pointer;
+}

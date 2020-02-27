@@ -15,6 +15,7 @@ import { sendNoInteract } from "../utils/communication.js";
 import Console from "./Console.js";
 import { openHelp } from "../utils/help.js";
 import { login, logout } from "../utils/auth.js";
+import "../style/MainScreen.css";
 
 export default class MainScreen extends React.Component {
     constructor(props) {

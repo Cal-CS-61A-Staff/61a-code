@@ -1,0 +1,22 @@
+.LaunchScreenHeader {
+    margin-block-end: 10px;
+    margin-bottom: 10px;
+}
+
+.BackupButton {
+    width: 80%;
+    height: 42px;
+    margin-top: 20px;
+    border-radius: 40px;
+    border: 1px solid white;
+    background-color: white;
+    color: #272d35;
+    vertical-align: middle;
+    font-size: 18px;
+    font-family: Calibri, sans-serif;
+    transition: all 0.3s ease-out;
+}
+
+.BackupButton:hover {
+    background-color: #f0f0f0;
+}

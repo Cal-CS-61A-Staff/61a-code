@@ -2,6 +2,8 @@ import * as React from "react";
 import * as hljs from "highlight.js";
 import { getCurrentCursorPosition, setCurrentCursorPosition } from "../utils/cursorPositioning.js";
 
+import "../style/StdinElem.css";
+
 export default class StdinElem extends React.Component {
     constructor(props) {
         super(props);

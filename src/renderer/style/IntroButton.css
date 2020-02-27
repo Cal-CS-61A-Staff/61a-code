@@ -1,0 +1,28 @@
+.introButton {
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 0);
+
+    width: 240px;
+    height: 40px;
+    margin-bottom: 5px;
+
+    line-height: 40px;
+    color: white;
+    font-size: 14px;
+
+    transition: all 0.4s;
+    background-color: #272d35;
+    box-shadow: 0px 0px 6px #272d35;
+    border-radius: 40px;
+    
+    font-family: "Verdana", "Consolas", sans-serif;
+
+    cursor: pointer;
+}
+
+.introButton:hover {
+    background-color: rgba(32, 37, 43, 0.95);
+    box-shadow: 0px 0px 6px rgba(32, 37, 43, 0.95);
+    transform: translate(-50%, 0) scale(1.1);
+}

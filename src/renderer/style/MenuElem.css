@@ -1,0 +1,21 @@
+.menuElem {
+    flex-shrink: 0;
+    flex-grow: 0;
+    margin: 5px;
+    padding: 0 10px 0 10px;
+    color: white;
+    text-align: center;
+    font-family: "Source Sans Pro", sans-serif;
+    line-height: 26px;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+    border-radius: 40px;
+    transition: all 0.4s;
+}
+
+.menuElem:hover {
+    background-color: #1b1f24;
+    box-shadow: 0px 0px 6px #1b1f24;
+    transform: scale(1.1);
+}

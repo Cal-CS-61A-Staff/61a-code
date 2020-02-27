@@ -1,0 +1,19 @@
+.ModalButton {
+    flex: 0;
+}
+
+.fileDownloadBtn {
+    width: 100%;
+    height: 42px;
+    vertical-align: middle;
+    background-color: transparent;
+    color: white;
+    font-size: 18px;
+    font-family: Calibri, sans-serif;
+}
+
+.fileDownloadBtn:hover {
+    color: white;
+    cursor: pointer;
+    background-color: dimgray;
+}

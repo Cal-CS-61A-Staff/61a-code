@@ -3,6 +3,7 @@ import {
     MENU_NEW,
 } from "../../common/communicationEnums.js";
 import MenuElem from "./MenuElem.js";
+import "../style/BottomBar.css";
 
 export default function MenuBar() {
     const menuOptions = [

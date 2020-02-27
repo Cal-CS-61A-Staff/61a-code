@@ -1,0 +1,4 @@
+.consoleInput:focus {
+    outline: none;
+    -webkit-user-modify: read-write-plaintext-only;
+}

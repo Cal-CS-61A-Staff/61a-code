@@ -1,5 +1,6 @@
 import React from "react";
 import NavBarIcon from "./NavBarIcon";
+import "../style/NavBarIcons.css";
 
 export default function NavBarIcons(props) {
     const actions = ["Format", "Debug", "Run"];

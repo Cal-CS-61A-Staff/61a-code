@@ -1,6 +1,8 @@
 import React from "react";
 import SuccessIcon from "./SuccessIcon";
 
+import "../style/TestList.css";
+
 export default class TestElem extends React.Component {
     constructor(props) {
         super(props);

@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import React from "react";
 import CardListElement from "./CardListElement.js";
+import "../style/CardList.css";
 
 export default function CardList({
     header, items, onClick, selectedIndex,

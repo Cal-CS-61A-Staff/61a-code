@@ -1,6 +1,7 @@
 import React from "react";
 import FolderIndicator from "./FolderIndicator";
 import FileIndicator from "./FileIndicator";
+import "../style/PathIndicator.css";
 
 export default function PathIndicator(props) {
     const folderPath = props.path.slice(0, props.path.length - 1);

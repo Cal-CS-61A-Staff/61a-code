@@ -1,0 +1,31 @@
+.fileNameField {
+    background-color: black;
+    color: white;
+    font-size: 16pt;
+    font-family: 'Consolas', 'Monaco', monospace;
+    padding: 5px;
+    width: calc(100% - 75px);
+    vertical-align: middle;
+    border: 1px solid white;
+}
+
+.fileNameField:focus {
+    outline-color: white;
+}
+
+.fileNameSubmitBtn {
+    width: 70px;
+    height: 42px;
+    margin-left: 5px;
+    vertical-align: middle;
+    background-color: black;
+    color: white;
+    font-size: 18px;
+    font-family: Calibri, sans-serif;
+}
+
+.fileNameSubmitBtn:hover {
+    color: white;
+    cursor: pointer;
+    background-color: dimgray;
+}

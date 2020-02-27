@@ -1,0 +1,10 @@
+.menuBar {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 38px;
+    display: flex;
+    z-index: 1;
+    pointer-events: none;
+}

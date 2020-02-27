@@ -7,6 +7,8 @@ import { dialogWrap } from "../utils/dialogWrap.js";
 import FileTree from "./FileTree.js";
 import { FILE } from "../../common/fileTypes.js";
 
+import "../style/SaveDialog.css";
+
 function SaveDialog({ defaultValue, onPathSelect, onDownloadClick }) {
     const [targetFolder, setTargetFolder] = useState("/home");
 

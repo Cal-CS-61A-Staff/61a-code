@@ -11,6 +11,7 @@ import {
 } from "../../common/communicationEnums.js";
 import MenuElem from "./MenuElem.js";
 import { useAuthData } from "../utils/okUtils.js";
+import "../style/MenuBar.css";
 
 export default function MenuBar() {
     const authData = useAuthData();

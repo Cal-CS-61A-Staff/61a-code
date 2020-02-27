@@ -30,26 +30,6 @@ html {
     pointer-events: none;
 }
 
-.bottomBar {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    left: 0;
-    height: 30px;
-    display: flex;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.browserFileSelector {
-    overflow-y: auto;
-    font-family: "Source Sans Pro", sans-serif;
-    font-size: 24px;
-    font-weight: 200;
-    text-align: center;
-    flex-shrink: 0;
-}
-
 .fileCard {
     height: 50px;
     line-height: 30px;
@@ -93,6 +73,10 @@ html {
     user-select: none;
 }
 
+.modalCol {
+    flex: 0 0 50%;
+}
+
 .modalHeader {
     font-family: "Source Sans Pro", sans-serif;
     font-weight: 200;
@@ -108,96 +92,6 @@ html {
     height: calc(100% - 90px);
 }
 
-.modalCol {
-    flex: 0 0 50%;
-}
-
-.fileNameField {
-    background-color: black;
-    color: white;
-    font-size: 16pt;
-    font-family: 'Consolas', 'Monaco', monospace;
-    padding: 5px;
-    width: calc(100% - 75px);
-    vertical-align: middle;
-    border: 1px solid white;
-}
-
-.fileNameField:focus {
-    outline-color: white;
-}
-
-.fileNameSubmitBtn {
-    width: 70px;
-    height: 42px;
-    margin-left: 5px;
-    vertical-align: middle;
-    background-color: black;
-    color: white;
-    font-size: 18px;
-    font-family: Calibri, sans-serif;
-}
-
-.fileNameSubmitBtn:hover {
-    color: white;
-    cursor: pointer;
-    background-color: dimgray;
-}
-
-.fileDownloadBtn {
-    width: 100%;
-    height: 42px;
-    vertical-align: middle;
-    background-color: transparent;
-    color: white;
-    font-size: 18px;
-    font-family: Calibri, sans-serif;
-}
-
-.fileDownloadBtn:hover {
-    color: white;
-    cursor: pointer;
-    background-color: dimgray;
-}
-
-.fileUploadButton {
-    width: 100%;
-    height: 40px;
-    border: 1px solid white;
-    display: table;
-    text-align: center;
-}
-
-.fileUploadButton:hover {
-    background-color: dimgray;
-    cursor: pointer;
-}
-
-.localFileSelector {
-    width: 90%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.fileDropTarget {
-    flex-grow: 1;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    border: 2px dotted white;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.centeredTextHolder {
-  display: table-cell;
-  vertical-align: middle;
-  line-height: normal;
-}
-
 .close {
     color: #aaa;
     float: right;
@@ -209,35 +103,6 @@ html {
     color: white;
     text-decoration: none;
     cursor: pointer;
-}
-
-.menuBar {
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
-    height: 30px;
-    display: flex;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.menuElem {
-    flex-shrink: 0;
-    flex-grow: 0;
-    margin: 2px;
-    padding: 0 10px 0 10px;
-    color: white;
-    text-align: center;
-    font-family: "Source Sans Pro", sans-serif;
-    line-height: 26px;
-    cursor: pointer;
-    user-select: none;
-    pointer-events: auto;
-}
-
-.menuElem:hover {
-    background-color: #6c6c6c;
 }
 
 /* Launch screen */
@@ -252,226 +117,10 @@ html {
     user-select: none;
 }
 
-.introColumn {
-    flex: 50%;
-    border-right: 1px solid white;
-    text-align: center;
-}
-
-.introHolder {
-    top: 40%;
-    left: 50%;
-    position: relative;
-    text-align: center;
-    transform: translate(-50%, -50%);
-}
-
-.introTitle {
-    font-size: 48px;
-    font-family: "Source Sans Pro", sans-serif;
-    font-weight: 200;
-    color: white;
-
-    margin-bottom: 16px;
-}
-
-.introButton {
-    position: relative;
-    left: 50%;
-    transform: translate(-50%, 0);
-
-    width: 200px;
-    height: 24px;
-    margin-bottom: 8px;
-
-    line-height: 24px;
-
-    color: white;
-    font-size: 14px;
-    border: 1px solid white;
-    font-family: "Verdana", "Consolas", sans-serif;
-
-    cursor: pointer;
-}
-
-.introButton:hover {
-    background-color: #6c6c6c;
-}
-
-.recentColumn {
-    flex: 50%;
-    padding: 10vh 10% 25vh;
-    color: white;
-    display: flex;
-    align-items: center;
-}
-
-.recentHolder {
-    flex: 1 1 auto;
-    max-height: 80%;
-    overflow-y: hidden;
-}
-
-.LaunchScreenHeader {
-    margin-block-end: 10px;
-}
-
-
 /* Main screen */
-
-#tabRoot {
-    position: absolute;
-    left: 0;
-    top: 30px; /* Header Height */
-    bottom: 0; /* Footer Height */
-    width: 100%;
-}
-
-.navBar {
-    left: 0;
-    right: 0;
-    height: 30px;
-    top: 0;
-    position: absolute;
-    background-color: black;
-    color: white;
-    vertical-align: center;
-    user-select: none;
-}
-
-.pathIndicator {
-    position: absolute;
-    left: 10px;
-    top: 7px;
-}
-
-.pathIndicatorElem {
-    font-family: "Verdana", sans-serif;
-    font-size: 10pt;
-}
-
-.folderIndicator {
-    font-weight: lighter;
-    color: slategrey;
-}
-
-.fileIndicator {
-}
-
-.commandIcons {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-}
 
 .activeLine {
     background: darkblue;
-}
-
-.output, .preview {
-    padding: 0 5px;
-    font-family: Monaco, Consolas, monospace;
-    color: white;
-    font-size: 14px;
-    text-align: left;
-    white-space: pre-wrap;
-    word-break: break-all;
-    line-height: 1.6;
-    padding-bottom: 100px;
-}
-
-.output * {
-    overflow-anchor: none;
-}
-
-.outputScrollAnchor {
-    overflow-anchor: auto;
-    height: 1px;
-}
-
-.outputControls {
-    display: inline-block;
-    height: 100%;
-    width: 2em;
-    border-right: 1px dashed white;
-    overflow-x: hidden;
-    text-align: center;
-}
-
-.outputWrapper {
-    display: inline-block;
-    height: 100%;
-    position: relative;
-    width: calc(100% - 2em - 1px);
-    bottom: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    cursor: text;
-}
-
-.consoleInput:focus {
-    outline: none;
-    -webkit-user-modify: read-write-plaintext-only;
-}
-
-.okResults {
-    width: 100%;
-    height: 100%;
-}
-
-.testList {
-    height: 100%;
-    overflow-y: auto;
-}
-
-.testListItem {
-    padding: 5px;
-    border-bottom: 1px solid white;
-    color: white;
-    font-family: Verdana, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
-    font-size: 10pt;
-    user-select: none;
-}
-
-.testListItem:hover {
-    background: dimgray;
-}
-
-.testElem {
-    background-color: gray;
-    padding-left: 40px;
-}
-
-.testDetails {
-    height: 100%;
-    overflow-y: auto;
-}
-
-.testDetailsHeader {
-    padding-left: 10px;
-    color: white;
-    padding-top: 7px;
-    padding-bottom: 7px;
-    border-bottom: solid 5px;
-    font-size: 24px;
-    font-family: Monaco, Consolas, monospace;
-}
-
-.testDetailsCongrats {
-    text-align: center;
-    position: relative;
-    top: 40%
-}
-
-.rawOKPyOutput {
-    padding: 0 5px;
-    font-family: Monaco, Consolas, monospace;
-    color: white;
-    font-size: 14px;
-    text-align: left;
-    white-space: pre-wrap;
-    word-break: break-all;
-    line-height: 1.6;
 }
 
 .commandIcon {
@@ -532,30 +181,6 @@ html {
 
 .MuiTreeItem-content {
     padding: 5px 0 5px 0;
-}
-
-.TreeFileSelector {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 90%;
-}
-
-.FileTree {
-    margin-top: 10px;
-    overflow: auto;
-    border: 1px solid white;
-    padding: 15px;
-    flex-grow: 1;
-}
-
-.ModalButton {
-    flex: 0;
-}
-
-.directoryIndicator {
-    margin: 20px 0 10px 0;
-    line-height: 30px;
 }
 
 .newFolderButton {

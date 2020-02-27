@@ -1,0 +1,9 @@
+.folderIndicator {
+    font-weight: lighter;
+    color: slategrey;
+}
+
+.pathIndicatorElem {
+    font-family: "Verdana", sans-serif;
+    font-size: 10pt;
+}

@@ -2,6 +2,7 @@ import React from "react";
 import { dialogWrap } from "../utils/dialogWrap.js";
 import LinkCopier from "./LinkCopier.js";
 import StaffLinkCopier from "./StaffLinkCopier.js";
+import "../style/ShareDialog.css";
 
 function ShareDialog({ link, fileData }) {
     return (

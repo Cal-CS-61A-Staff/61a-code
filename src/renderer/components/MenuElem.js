@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Mousetrap from "mousetrap";
 import "mousetrap-global-bind";
 import { sendMenuEvent } from "../../web/webMenuHandler.js";
+import "../style/MenuElem.css";
 
 export default class MenuElem extends Component {
     componentDidMount() {
