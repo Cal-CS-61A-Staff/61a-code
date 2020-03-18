@@ -4,10 +4,12 @@ import * as ReactDOM from "react-dom";
 import glWrap from "../utils/glWrap.js";
 
 import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-min-noconflict/ext-searchbox";
+
 import "ace-builds/src-noconflict/mode-scheme";
 import "ace-builds/src-noconflict/mode-sql";
 import "ace-builds/src-noconflict/theme-merbivore_soft";
-import "ace-builds/src-min-noconflict/ext-searchbox";
 
 
 class Editor extends React.Component {
@@ -47,14 +49,14 @@ class Editor extends React.Component {
                 ref={this.editorRef}
                 value={code}
                 onChange={this.onChange}
-                name="UNIQUE_ID_OF_DIV"
+                name="editor-component"
                 width="100%"
                 height="100%"
                 fontSize={14}
                 readOnly={
                     this.props.debugData ? this.props.debugData.code !== this.props.text : false
                 }
-                editorProps={{
+                setOptions={{
                     enableBasicAutocompletion: true,
                     enableLiveAutocompletion: true,
                 }}
