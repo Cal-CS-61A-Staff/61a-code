@@ -1,60 +1,64 @@
 import React from "react";
+import AceEditor from "react-ace";
 import * as ReactDOM from "react-dom";
 import glWrap from "../utils/glWrap.js";
-import MonacoEditor from "../../../static/monaco-react/editor.js";
+
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-scheme";
+import "ace-builds/src-noconflict/mode-sql";
+import "ace-builds/src-noconflict/theme-merbivore_soft";
+import "ace-builds/src-min-noconflict/ext-searchbox";
+
 
 class Editor extends React.Component {
     constructor(props) {
         super(props);
-        this.highlights = [];
         this.editorRef = React.createRef();
         this.monaco = null;
         this.props.glContainer.on("show", () => this.props.onActivate());
     }
 
-    componentDidUpdate() {
-        if (!this.props.debugData) {
-            if (this.highlights !== []) {
-                this.highlights = this.editorRef.current.editor.deltaDecorations(
-                    this.highlights, [],
-                );
-            }
-            return;
-        }
-        const { line } = this.props.debugData;
-        this.highlights = this.editorRef.current.editor.deltaDecorations(this.highlights, [
-            { range: new this.monaco.Range(line, 1, line, 1000), options: { isWholeLine: true, className: "activeLine" } },
-        ]);
-        this.editorRef.current.editor.revealLineInCenterIfOutsideViewport(line);
+    componentDidMount() {
+        this.editorRef.current.editor.focus();
+        this.editorRef.current.editor.getSession().setUseSoftTabs(true);
+        this.props.onActivate();
+        this.props.glContainer.on("resize", () => this.editorRef.current.editor.resize());
     }
 
     onChange = (newValue) => {
         this.props.onChange(newValue);
     };
 
-    editorDidMount = (editor, monaco) => {
-        this.monaco = monaco;
-        editor.focus();
-        this.props.onActivate();
-        this.props.glContainer.on("resize", editor.layout.bind(editor));
-    };
-
     render() {
         const code = this.props.debugData ? this.props.debugData.code : this.props.text;
-        const options = {
-            selectOnLineNumbers: true,
-            fontSize: 14,
-            readOnly: this.props.debugData ? this.props.debugData.code !== this.props.text : false,
-        };
+
+        const markers = this.props.debugData ? [{
+            startRow: this.props.debugData.line - 1,
+            startCol: 0,
+            endRow: this.props.debugData.line - 1,
+            type: "fullLine",
+            className: "activeLine",
+        }] : [];
+
         return ReactDOM.createPortal(
-            <MonacoEditor
-                language={this.props.language.toLowerCase()}
-                theme="vs-dark"
+            <AceEditor
+                mode={this.props.language.toLowerCase()}
+                theme="merbivore_soft"
                 ref={this.editorRef}
                 value={code}
-                options={options}
                 onChange={this.onChange}
-                editorDidMount={this.editorDidMount}
+                name="UNIQUE_ID_OF_DIV"
+                width="100%"
+                height="100%"
+                fontSize={14}
+                readOnly={
+                    this.props.debugData ? this.props.debugData.code !== this.props.text : false
+                }
+                editorProps={{
+                    enableBasicAutocompletion: true,
+                    enableLiveAutocompletion: true,
+                }}
+                markers={markers}
             />, this.props.glContainer.getElement().get(0),
         );
     }

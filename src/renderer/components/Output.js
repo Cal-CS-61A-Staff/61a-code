@@ -7,7 +7,7 @@ import StdinElem from "./StdinElem";
 import OutputElem from "./OutputElem";
 import glWrap from "../utils/glWrap";
 
-import "highlight.js/styles/vs2015.css";
+import "highlight.js/styles/darcula.css";
 
 class Output extends React.Component {
     constructor(props) {
