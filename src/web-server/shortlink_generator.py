@@ -14,7 +14,14 @@ def attempt_generated_shortlink(path, app):
         try:
             ret = db("SELECT * FROM staffLinks WHERE link=%s;", [path]).fetchone()
             if ret is not None:
-                return ServerFile(ret[0], ret[1], "", ret[2].decode(), False)._asdict()
+                return ServerFile(
+                    ret["link"],
+                    ret["fileName"],
+                    "",
+                    ret["fileContent"].decode(),
+                    ret["shareRef"],
+                    False,
+                )._asdict()
 
             ret = db("SELECT * FROM studentLinks WHERE link=%s;", [path]).fetchone()
 
@@ -22,7 +29,14 @@ def attempt_generated_shortlink(path, app):
                 return NOT_FOUND
 
             if check_auth(app):
-                return ServerFile(ret[0], ret[1], "", ret[2].decode(), False)._asdict()
+                return ServerFile(
+                    ret["link"],
+                    ret["fileName"],
+                    "",
+                    ret["fileContent"].decode(),
+                    ret["shareRef"],
+                    False,
+                )._asdict()
             else:
                 return NOT_AUTHORIZED
         except Exception:
@@ -31,12 +45,16 @@ def attempt_generated_shortlink(path, app):
 
 def create_shortlink_generator(app):
     def save_file(db_name):
-        file_name, file_content = request.form["fileName"], request.form["fileContent"]
+        file_name, file_content, share_ref = (
+            request.form["fileName"],
+            request.form["fileContent"],
+            request.form["shareRef"],
+        )
         with connect_db() as db:
             link = "".join(random.sample(words, 1)[0].title() for _ in range(3))
             db(
-                f"INSERT INTO {db_name} VALUES (%s, %s, %s)",
-                [link, file_name, file_content],
+                f"INSERT INTO {db_name} VALUES (%s, %s, %s, %s)",
+                [link, file_name, file_content, share_ref],
             )
         return "code.cs61a.org/" + link
 
@@ -58,11 +76,16 @@ def setup_shortlink_generator():
             """CREATE TABLE IF NOT EXISTS studentLinks (
            link varchar(128),
            fileName varchar(128),
-           fileContent BLOB)"""
+           fileContent BLOB,
+           shareRef varchar(128))"""
         )
         db(
             """CREATE TABLE IF NOT EXISTS staffLinks (
            link varchar(128),
            fileName varchar(128),
-           fileContent BLOB)"""
+           fileContent BLOB,
+           shareRef varchar(128))"""
         )
+
+
+#  ALTER TABLE staffLinks ADD shareRef varchar(128);

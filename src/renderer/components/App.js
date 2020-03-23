@@ -47,6 +47,7 @@ class App extends React.Component {
                     name: loadFile.fileName,
                     location: null,
                     content: loadFile.data,
+                    shareRef: loadFile.shareRef,
                 }, startInterpreter);
             }
         }

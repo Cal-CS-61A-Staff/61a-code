@@ -33,6 +33,8 @@ export default class File extends React.Component {
             savedText: this.props.initFile.location ? this.props.initFile.content : -1,
             location: this.props.initFile.location,
 
+            shareRef: this.props.initFile.shareRef || null,
+
             outputData: [],
             outputActive: false,
 
@@ -181,6 +183,7 @@ export default class File extends React.Component {
                 type: SAVE_FILE,
                 contents: savedText,
                 location: this.state.location,
+                shareRef: this.state.shareRef,
             });
             if (ret.success) {
                 this.setState({ savedText });
@@ -202,6 +205,7 @@ export default class File extends React.Component {
         const ret = await sendNoInteract({
             type: SHOW_SAVE_DIALOG,
             contents: savedText,
+            shareRef: this.state.shareRef,
             hint,
         });
         if (ret.success) {
@@ -225,13 +229,10 @@ export default class File extends React.Component {
             type: SHOW_SHARE_DIALOG,
             contents: savedText,
             name: this.state.name,
+            shareRef: this.state.shareRef,
         });
         if (ret.success) {
-            this.setState({
-                name: ret.name,
-                savedText,
-                location: ret.location,
-            });
+            this.setState({ shareRef: ret.shareRef });
         }
     };
 
@@ -335,6 +336,7 @@ export default class File extends React.Component {
                     onActivate={this.handleActivate}
                     onChange={this.handleEditorChange}
                     debugData={editorDebugData}
+                    shareRef={this.state.shareRef}
                 />
                 <Output
                     ref={this.outputRef}

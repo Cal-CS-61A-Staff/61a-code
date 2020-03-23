@@ -23,11 +23,10 @@ def attempt_shortlink_paths(path):
             url = os.path.join(candidate_path, trunc_path)
             data = requests.get(url)
             if data.ok:
-                print(url)
                 text = data.text
                 if path.endswith(".sql"):
                     text = ".open --new\n\n" + text
-                return {"full_name": trunc_path, "data": text}
+                return {"full_name": trunc_path, "data": text, "share_ref": None}
 
 
 def setup_shortlink_paths():

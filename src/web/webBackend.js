@@ -45,9 +45,9 @@ function receive(arg) {
         } else if (arg.type === OPEN_FILE) {
             open(arg.key, arg.location);
         } else if (arg.type === SHOW_SAVE_DIALOG) {
-            showSaveDialog(arg.key, arg.contents, arg.hint);
+            showSaveDialog(arg.key, arg.contents, arg.hint, arg.shareRef);
         } else if (arg.type === SAVE_FILE) {
-            save(arg.key, arg.contents, arg.location);
+            save(arg.key, arg.contents, arg.location, arg.shareRef);
         } else if (arg.type === GET_RECENT_FILES) {
             getRecents(arg.key);
         } else if (arg.type === CLAIM_MENU) {
@@ -55,7 +55,7 @@ function receive(arg) {
         } else if (arg.type === SHOW_ERROR_DIALOG) {
             showErrorDialog(arg.key, arg.title, arg.message);
         } else if (arg.type === SHOW_SHARE_DIALOG) {
-            showShareDialog(arg.key, arg.name, arg.contents);
+            showShareDialog(arg.key, arg.name, arg.contents, arg.shareRef);
         } else if (arg.type === START_CONSOLE) {
             startConsole(arg.key);
         } else if (arg.type === SHOW_OK_BACKUPS_DIALOG) {

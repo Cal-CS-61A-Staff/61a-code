@@ -43,7 +43,7 @@ export async function open(key, location) {
     }
 }
 
-export function showSaveDialog(key, contents, hint) {
+export function showSaveDialog(key, contents, hint, shareRef) {
     function handleClose() {
         sendAndExit(key, { success: false, hideError: true });
     }
@@ -51,7 +51,7 @@ export function showSaveDialog(key, contents, hint) {
     function handlePathSelect(selectedPath) {
         closeDialog();
         const withExtension = selectedPath.includes(".") ? selectedPath : `${selectedPath}.${hint.split(".").pop()}`;
-        return save(key, contents, withExtension);
+        return save(key, contents, withExtension, shareRef);
     }
 
     function handleDownloadClick() {
@@ -77,9 +77,9 @@ export function showSaveDialog(key, contents, hint) {
 }
 
 
-export async function save(key, content, location) {
+export async function save(key, content, location, shareRef) {
     try {
-        await storeFile(content, normalize(location), FILE);
+        await storeFile(content, normalize(location), FILE, shareRef);
         sendAndExit(key, { success: true, name: path.basename(location), location });
     } catch (e) {
         sendAndExit(key, { success: false, message: e.message });

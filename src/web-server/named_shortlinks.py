@@ -14,7 +14,9 @@ def attempt_named_shortlinks(path):
     with connect_db() as db:
         ret = db("SELECT * FROM links WHERE short_link=%s;", [path]).fetchone()
         if ret is not None:
-            return ServerFile(ret[0], ret[1], ret[2], ret[3].decode(), ret[4])._asdict()
+            return ServerFile(
+                ret[0], ret[1], ret[2], ret[3].decode(), None, ret[4]
+            )._asdict()
 
 
 def setup_named_shortlinks():
@@ -25,7 +27,9 @@ def setup_named_shortlinks():
     for line in parsed:
         short_link, full_name, url, discoverable, *_ = line
         data = requests.get(url).text
-        file = ServerFile(short_link, full_name, url, data, int(discoverable == "TRUE"))
+        file = ServerFile(
+            short_link, full_name, url, data, None, int(discoverable == "TRUE")
+        )
         all_files.append(file)
 
     with connect_db() as db:

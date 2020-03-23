@@ -42,7 +42,11 @@ def create_shortlink_handler(app):
         if raw is NOT_FOUND:
             return "File not found", 404
 
-        data = {"fileName": raw["full_name"], "data": raw["data"]}
+        data = {
+            "fileName": raw["full_name"],
+            "data": raw["data"],
+            "shareRef": raw["share_ref"],
+        }
 
         return render_template("index.html", initData={"loadFile": data})
 

@@ -55,6 +55,7 @@ export default class UploadFileSelector extends Component {
                 name: file.name ? file.name : "untitled",
                 location: null,
                 content: reader.result,
+                shareRef: null,
             });
         };
     }

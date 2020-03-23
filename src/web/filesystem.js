@@ -39,8 +39,8 @@ async function getDB() {
     return db;
 }
 
-export async function storeFile(content, location, type) {
-    return storeFileWorker(await getDB(), content, location, type);
+export async function storeFile(content, location, type, shareRef = null) {
+    return storeFileWorker(await getDB(), content, location, type, shareRef);
 }
 
 export async function getFile(location) {
@@ -172,7 +172,7 @@ async function addToDirectory(db, location, dirname) {
     await db.put(FILE_STORE, directory);
 }
 
-async function storeFileWorker(db, content, location, type) {
+async function storeFileWorker(db, content, location, type, shareRef = null) {
     if (isHomePath(location)) {
         if (location === "/home") {
             throw Error("Cannot modify home directory.");
@@ -182,7 +182,12 @@ async function storeFileWorker(db, content, location, type) {
         }
         await addToDirectory(db, location, path.dirname(location));
         await db.put(FILE_STORE, {
-            name: path.basename(location), location, content, type, time: new Date().getTime(),
+            name: path.basename(location),
+            location,
+            content,
+            type,
+            shareRef,
+            time: new Date().getTime(),
         });
     } else if (isBackupPath(location)) {
         if (type !== FILE) {
