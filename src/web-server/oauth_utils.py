@@ -1,14 +1,11 @@
-from db import connect_db
-
-
 def check_auth(app):
-    email = get_user_data(app)["email"]
-    with connect_db() as db:
-        authorized = [
-            prefix + "@berkeley.edu"
-            for (prefix, *_) in db("SELECT * FROM authorized").fetchall()
-        ]
-    return email in authorized
+    data = get_user_data(app)
+    for participation in data["participations"]:
+        if participation["course"]["offering"].startswith(
+            "cal/cs61a"
+        ) and participation["role"] in ["staff", "instructor", "grader"]:
+            return True
+    return False
 
 
 def get_user_data(app):

@@ -3,7 +3,7 @@ import { addAuthListener, getCurrAuthData } from "./auth.js";
 
 export function isStaff(authData) {
     return authData.data.participations.some(
-        ({ course, role }) => ["staff", "instructor"].includes(role) && course.offering.startsWith("cal/cs61a/"),
+        ({ course, role }) => ["staff", "instructor", "grader"].includes(role) && course.offering.startsWith("cal/cs61a/"),
     );
 }
 

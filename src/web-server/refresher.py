@@ -4,7 +4,6 @@ from flask import redirect
 
 from constants import CSV_ROOT
 
-from authorized_staff import setup_authorized_staff
 from named_shortlinks import setup_named_shortlinks
 from ok_server_interface import setup_ok_server_interface
 from preloaded_tables import setup_preloaded_tables
@@ -21,10 +20,7 @@ def create_refresher(app):
     @app.route("/data/refresh")
     def sync_refresh():
         refresh()
-        return (
-            "Success! All public shortlinks, members of staff, and stored files successfully updated!",
-            200,
-        )
+        return "Success! Configuration successfully updated!", 200
 
     @app.route("/api/async_refresh", methods=["POST"])
     @app.route("/api/_async_refresh", methods=["POST"])  # deprecated
@@ -40,7 +36,6 @@ def create_refresher(app):
 
 
 setup_funcs = [
-    setup_authorized_staff,
     setup_named_shortlinks,
     setup_preloaded_tables,
     setup_shortlink_generator,

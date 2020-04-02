@@ -42,4 +42,7 @@ def setup_named_shortlinks():
     data LONGBLOB, 
     discoverable BOOLEAN)"""
         )
-        db("INSERT INTO links VALUES (%s, %s, %s, %s, %s)", all_files)
+        db(
+            "INSERT INTO links VALUES (%s, %s, %s, %s, %s)",
+            [[x[:4] + x[5:]] for x in all_files],
+        )
