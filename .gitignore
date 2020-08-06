@@ -4,3 +4,5 @@ node_modules/
 thumbs.db
 IGNORE*
 .idea/
+*.pyc
+Pipfile.lock
