@@ -3,12 +3,9 @@ import os
 
 import requests
 
+from auth import read_spreadsheet
 from constants import CSV_ROOT
 from db import connect_db
-
-CSV_SHORTLINKS_PATHS_SUFFIX = (
-    "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=355056023"
-)
 
 
 def attempt_shortlink_paths(path):
@@ -30,8 +27,7 @@ def attempt_shortlink_paths(path):
 
 
 def setup_shortlink_paths():
-    response = requests.get(CSV_ROOT + CSV_SHORTLINKS_PATHS_SUFFIX)
-    parsed = csv.reader(response.text.split("\n"))
+    parsed = read_spreadsheet("Shortlink Paths")
     next(parsed)  # discard headers
     paths = []
     for candidate_path, requested_path, *_ in parsed:

@@ -1,14 +1,11 @@
-import csv
 import re
 from base64 import b64encode, b64decode
 
 import requests
 from flask import jsonify
 
-from constants import CSV_ROOT
+from auth import read_spreadsheet
 from db import connect_db
-
-CSV_PRELOADED_TABLES_SUFFIX = "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=1808429477"
 
 
 def create_preloaded_tables(app):
@@ -31,8 +28,7 @@ def create_preloaded_tables(app):
 
 def setup_preloaded_tables():
     # refresh SQL preloaded tables
-    response = requests.get(CSV_ROOT + CSV_PRELOADED_TABLES_SUFFIX)
-    parsed = csv.reader(response.text.split("\n"))
+    parsed = read_spreadsheet("Preloaded SQL Tables")
     next(parsed)  # discard headers
     init_sql = []
     for line in parsed:

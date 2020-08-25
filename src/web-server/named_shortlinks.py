@@ -2,12 +2,9 @@ import csv
 
 import requests
 
+from auth import query, read_spreadsheet
 from constants import ServerFile, CSV_ROOT
 from db import connect_db
-
-CSV_SHORTLINKS_SUFFIX = (
-    "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=0"
-)
 
 
 def attempt_named_shortlinks(path):
@@ -20,8 +17,7 @@ def attempt_named_shortlinks(path):
 
 
 def setup_named_shortlinks():
-    response = requests.get(CSV_ROOT + CSV_SHORTLINKS_SUFFIX)
-    parsed = csv.reader(response.text.split("\n"))
+    parsed = read_spreadsheet("Shortlinks")
     next(parsed)  # discard headers
     all_files = []
     for line in parsed:

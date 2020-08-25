@@ -202,18 +202,23 @@ def atomic(elem):
     listlike = list, tuple
     return not isinstance(elem, listlike) and not is_tree(elem)
 
+
 def link_empty(elem):
     return elem == "nil"
 
+
 def is_link(elem):
-	return old_type(elem).__name__ == "Link"
+    return old_type(elem).__name__ == "Link"
+
 
 def is_tree(elem):
     return old_type(elem).__name__ == "Tree" or hasattr(elem, "__is_debug_tree")
 
+
 def inline(elem):
     inline = int, bool, float, str, old_type(None)
     return isinstance(elem, inline)
+
 
 def is_leaf(tree):
     return (
@@ -223,11 +228,14 @@ def is_leaf(tree):
         and not tree.branches
     )
 
+
 def label(tree):
     return tree[0] if isinstance(tree, list) else tree.label
 
+
 def branches(tree):
     return tree[1:] if isinstance(tree, list) else tree.branches
+
 
 def draw(lst):
     heap = {}

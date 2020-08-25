@@ -8,21 +8,18 @@ import braceexpand
 import requests
 from flask import request, jsonify
 
+from auth import read_spreadsheet
 from constants import CSV_ROOT
 from db import connect_db
 from oauth_utils import get_user_data
 
-CSV_OK_CONFIG_SUFFIX = (
-    "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=636861075"
-)
 
 CACHE = {}
 
 
 def setup_ok_server_interface():
     CACHE.clear()
-    response = requests.get(CSV_ROOT + CSV_OK_CONFIG_SUFFIX)
-    parsed = csv.reader(response.text.split("\n"))
+    parsed = read_spreadsheet("OK Config Paths")
     _, _, _, _, semester = next(parsed)
     lookups = []
     for line in parsed:

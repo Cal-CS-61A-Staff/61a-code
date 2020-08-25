@@ -3,12 +3,9 @@ import csv
 import requests
 from flask import abort
 
+from auth import read_spreadsheet
 from constants import CSV_ROOT
 from db import connect_db
-
-CSV_STORED_FILES_SUFFIX = (
-    "/export?format=csv&id=1-1v3N9fak7a-pf70zBhAIUuzplRw84NdLP5ptrhq_fKnI&gid=169284641"
-)
 
 
 def create_stored_files(app):
@@ -25,8 +22,7 @@ def create_stored_files(app):
 
 def setup_stored_files():
     # refresh stored files
-    response = requests.get(CSV_ROOT + CSV_STORED_FILES_SUFFIX)
-    parsed = csv.reader(response.text.split("\n"))
+    parsed = read_spreadsheet("Saved Files")
     next(parsed)  # discard headers
     stored_files = []
     for line in parsed:
