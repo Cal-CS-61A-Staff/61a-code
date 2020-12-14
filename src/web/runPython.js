@@ -27,8 +27,8 @@ function str2ab(strBuff, str) {
 export default function runPyScript(key, script, args) {
     return new Promise((resolve) => {
         const worker = new Worker("/pythonWorker.js");
-        const commBuff = window.Atomics ? new window.SharedArrayBuffer(4 * NUM_POSITIONS) : null;
-        const strBuff = window.Atomics ? new window.SharedArrayBuffer(strBuffLen) : null;
+        const commBuff = window.SharedArrayBuffer ? new window.SharedArrayBuffer(4 * NUM_POSITIONS) : null;
+        const strBuff = window.SharedArrayBuffer ? new window.SharedArrayBuffer(strBuffLen) : null;
 
         const getCommBuffArray = () => new Int32Array(commBuff);
 
@@ -83,7 +83,7 @@ export default function runPyScript(key, script, args) {
             registerProcess(key, {
                 stdin: {
                     write: (line) => {
-                        if (window.Atomics) {
+                        if (window.SharedArrayBuffer) {
                             str2ab(strBuff, line);
                             notify();
                         }
