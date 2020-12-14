@@ -16,7 +16,7 @@ module.exports = {
         brython: true,
         __BRYTHON__: true,
         importScripts: true,
-        SQL: true,
+        initSqlJs: true,
         initData: true,
     },
     rules: {
