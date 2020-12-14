@@ -18,6 +18,7 @@ module.exports = {
         importScripts: true,
         initSqlJs: true,
         initData: true,
+        VERSION: true,
     },
     rules: {
         'import/no-unresolved': false,

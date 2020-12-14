@@ -9,6 +9,10 @@ export default function IntroBox({ onCreateClick, onOpenClick }) {
     return (
         <div className="introHolder">
             <div className="introTitle">61A Code</div>
+            <div className="versionNumber">
+                v
+                {VERSION}
+            </div>
             <IntroButton name="Create new file" onClick={() => onCreateClick()} />
             <IntroButton name="Open existing file" onClick={onOpenClick} />
             <IntroButton name="Start Python interpreter" onClick={handleClick(PYTHON)} />
