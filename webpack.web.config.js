@@ -75,6 +75,7 @@ module.exports = {
         new webpack.DefinePlugin({
             ELECTRON: false,
             __static: JSON.stringify("/static"),
+            VERSION: "\"2.0.0\"",
         }),
         new MonacoWebpackPlugin({
             output: "./static",

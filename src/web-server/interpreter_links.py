@@ -3,6 +3,7 @@ from flask import render_template
 
 def create_interpreter_links(app):
     @app.route("/python")
+    @app.route("/python/")
     def python():
         return render_template(
             "index.html",
@@ -13,6 +14,7 @@ def create_interpreter_links(app):
         )
 
     @app.route("/scheme")
+    @app.route("/scheme/")
     def scheme():
         return render_template(
             "index.html",
@@ -23,6 +25,7 @@ def create_interpreter_links(app):
         )
 
     @app.route("/sql")
+    @app.route("/sql/")
     def sql():
         return render_template(
             "index.html",

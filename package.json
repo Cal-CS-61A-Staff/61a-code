@@ -17,7 +17,7 @@
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
     "web-dev": "webpack-dev-server --hot --open --config webpack.web.config.js --mode development",
     "web-dist": "webpack --config webpack.web.config.js --mode production",
-    "web-deploy": "cd dist/web/ && rm -rf .git && git init && git add -A && git commit -m \"init\" && git remote add dokku dokku@apps.cs61a.org:code && git push --force dokku master",
+    "web-deploy": "cd dist/web/ && rm -rf .git && git init && git add -A && git commit -m \"init\" && git remote add dokku dokku@app.cs61a.org:code && git push --force dokku master",
     "web-test": "python dist/web/app.py",
     "size-profile": "webpack --config webpack.size.config.js --mode production"
   },

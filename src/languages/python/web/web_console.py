@@ -107,7 +107,7 @@ class Trace:
         for i in range(1, len(lines), 2):
             if __file__ in lines[i]:
                 continue
-            stripped += lines[i : i + 2]
+            stripped += lines[i: i + 2]
         return "\n".join(stripped)
 
 
@@ -200,7 +200,7 @@ def disable_autodraw():
 
 def atomic(elem):
     listlike = list, tuple
-    return not isinstance(elem, listlike) and not is_tree(elem)
+    return not isinstance(elem, listlike) and not is_tree_internal(elem)
 
 
 def link_empty(elem):
@@ -211,8 +211,17 @@ def is_link(elem):
     return old_type(elem).__name__ == "Link"
 
 
-def is_tree(elem):
+def is_tree_internal(elem):
     return old_type(elem).__name__ == "Tree" or hasattr(elem, "__is_debug_tree")
+
+
+def is_tree(elem):
+    if isinstance(tree, list) or len(elem) < 1:
+        return False
+    for branch in branches(elem):
+        if not is_tree(branch):
+            return False
+    return True
 
 
 def inline(elem):
@@ -222,10 +231,10 @@ def inline(elem):
 
 def is_leaf(tree):
     return (
-        isinstance(tree, list)
-        and len(tree) == 1
-        or hasattr(tree, "branches")
-        and not tree.branches
+            isinstance(tree, list)
+            and len(tree) == 1
+            or hasattr(tree, "branches")
+            and not tree.branches
     )
 
 
@@ -287,7 +296,7 @@ def draw(lst):
         if is_link(link.rest) and link.rest not in link_dict:
             search(link.rest)
 
-    if is_tree(lst):
+    if is_tree_internal(lst):
         data = ["Tree", draw_tree(lst)]
     elif is_link(lst):
         search(lst)
@@ -370,7 +379,7 @@ class LocalFinder:
             return None
 
         try:
-            contents = browser.self.filesystem.read("/cs61a/proj04/" + name + ".py")
+            contents = browser.self.filesystem.read("/home/" + name + ".py")
         except:
             return
 
@@ -396,8 +405,67 @@ class LocalFinder:
         return loader
 
 
-sys.meta_path = [LocalFinder()] + sys.meta_path
+class Tree:
+    """A tree."""
 
+    def __init__(self, label, branches=[]):
+        self.label = label
+        for branch in branches:
+            assert isinstance(branch, Tree)
+        self.branches = list(branches)
+
+    def __repr__(self):
+        if self.branches:
+            branch_str = ', ' + repr(self.branches)
+        else:
+            branch_str = ''
+        return 'Tree({0}{1})'.format(repr(self.label), branch_str)
+
+    def __str__(self):
+        return '\n'.join(self.indented())
+
+    def indented(self):
+        lines = []
+        for b in self.branches:
+            for line in b.indented():
+                lines.append('  ' + line)
+        return [str(self.label)] + lines
+
+    def is_leaf(self):
+        return not self.branches
+
+
+def tree(label, branches=[]):
+    for branch in branches:
+        assert is_tree(branch), 'branches must be trees'
+    return [label] + list(branches)
+
+
+class Link:
+    """A linked list."""
+    empty = ()
+
+    def __init__(self, first, rest=empty):
+        assert rest is Link.empty or isinstance(rest, Link)
+        self.first = first
+        self.rest = rest
+
+    def __repr__(self):
+        if self.rest:
+            rest_repr = ', ' + repr(self.rest)
+        else:
+            rest_repr = ''
+        return 'Link(' + repr(self.first) + rest_repr + ')'
+
+    def __str__(self):
+        string = '<'
+        while self.rest is not Link.empty:
+            string += str(self.first) + ' '
+            self = self.rest
+        return string + str(self.first) + '>'
+
+
+# sys.meta_path = [LocalFinder()] + sys.meta_path
 
 editor_ns = {
     "credits": credits,
@@ -412,6 +480,14 @@ editor_ns = {
     "open": open,
     "__name__": "__main__",
     "type": type,
+
+    "Tree": Tree,
+    "Link": Link,
+    "tree": tree,
+    "is_tree": is_tree,
+    "is_leaf": is_leaf,
+    "label": label,
+    "branches": branches,
 }
 
 firstLine = True
@@ -441,14 +517,14 @@ def handleInput(line):
     src += line[:-1]
 
     if _status == "main":
-        current_line = src[src.rfind(">>>") + 4 :]
+        current_line = src[src.rfind(">>>") + 4:]
         src = ">>> " + current_line
     elif _status == "3string":
-        current_line = src[src.rfind(">>>") + 4 :]
+        current_line = src[src.rfind(">>>") + 4:]
         src = ">>> " + current_line
         current_line = current_line.replace("\n... ", "\n")
     else:
-        current_line = src[src.rfind("...") + 4 :]
+        current_line = src[src.rfind("...") + 4:]
 
     src += "\n"
 
@@ -474,7 +550,7 @@ def handleInput(line):
             _status = "block"
         except SyntaxError as msg:
             if str(msg) == "invalid syntax : triple string end not found" or str(
-                msg
+                    msg
             ).startswith("Unbalanced bracket"):
                 err("... ")
                 _status = "3string"
@@ -507,7 +583,7 @@ def handleInput(line):
             err(">>> ")
             _status = "main"
     elif current_line == "":  # end of block
-        block = src[src.rfind(">>>") + 4 :]
+        block = src[src.rfind(">>>") + 4:]
         src = ">>> " + block
         block = block.splitlines()
         block = [block[0]] + [b[4:] for b in block[1:]]

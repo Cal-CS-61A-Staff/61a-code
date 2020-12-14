@@ -5,8 +5,10 @@ import { exit, stderr, stdout } from "./sqlWorker.js";
 let sql;
 let db;
 
-export function init() {
-    sql = SQL;
+export async function init() {
+    sql = await initSqlJs({
+        locateFile: file => `https://sql.js.org/dist/${file}`,
+    });
     db = newDatabase();
 }
 
