@@ -367,6 +367,7 @@ html {
     position: absolute;
     right: 5px;
     top: 5px;
+    z-index: 1;
 }
 
 .activeLine {
