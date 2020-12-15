@@ -162,7 +162,10 @@ autodraw_active = False
 
 def json_repr(elem):
     if isinstance(elem, list):
-        elem_reprs = [json_repr(x) for x in elem]
+        elem_reprs = []
+        for x in elem:
+            y = json_repr(x)
+            elem_reprs.append(y)
         return "[" + ", ".join(elem_reprs) + "]"
     elif isinstance(elem, str):
         return '"' + repr(elem)[1:-1] + '"'
@@ -183,7 +186,8 @@ def json_repr(elem):
 
 
 def wrap_debug(out):
-    print("DRAW: " + json_repr(out))
+    json = json_repr(out)
+    print("DRAW: " + json)
 
 
 def autodraw():
@@ -263,7 +267,10 @@ def draw(lst):
             elif len(elem) == 0:
                 val = ["atomic", ["inline", "Empty list"]]
             else:
-                val = ["list", [draw_worker(x) for x in elem]]
+                out = []
+                for x in elem:
+                    out.append(draw_worker(x))
+                val = ["list", out]
             heap[id(elem)] = val
         return ["ref", id(elem)]
 
