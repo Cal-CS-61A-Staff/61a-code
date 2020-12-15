@@ -27,5 +27,10 @@ export function interactProcess(key, line) {
 }
 
 export function killProcess(key) {
-    getProcess(key).kill();
+    const process = getProcess(key);
+    if (process == null) {
+        console.warn("Unable to kill process", key);
+    } else {
+        process.kill();
+    }
 }
