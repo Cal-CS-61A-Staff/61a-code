@@ -116,33 +116,15 @@ export default class File extends React.Component {
         this.outputRef.current.forceOpen();
     };
 
-    debug = async (data) => {
-        let debugData;
-        if (data) {
-            debugData = data; // data has been generated for us by parent
-        } else if (this.state.editorText !== "") {
-            debugData = await generateDebugTrace(this.identifyLanguage())(this.state.editorText);
-        } else {
-            this.debugExecutedCode();
-            return;
-        }
-        if (debugData.success) {
-            this.setState({ debugData: debugData.data, editorInDebugMode: true });
-            this.editorRef.current.forceOpen();
-            this.debugRef.current.forceOpen();
-        } else {
-            send({
-                type: SHOW_ERROR_DIALOG,
-                title: "Unable to debug",
-                message: debugData.error,
-            });
-        }
+    debug = (data) => {
+        this.debugExecutedCode(data, this.state.editorText);
     };
 
-    debugExecutedCode = async () => {
+    debugExecutedCode = async (existingDebugData, editorCode) => {
         const TEMPLATE_CODE = debugPrefix(this.identifyLanguage());
-        const code = TEMPLATE_CODE + this.state.executedCode.join("\n");
-        const debugData = await generateDebugTrace(this.identifyLanguage())(code);
+        const code = TEMPLATE_CODE + (editorCode || this.state.executedCode.join("\n"));
+        const debugData = (existingDebugData
+            || await generateDebugTrace(this.identifyLanguage())(code));
         if (debugData.success) {
             this.setState({ debugData: debugData.data, editorInDebugMode: true });
             this.editorRef.current.forceOpen();
