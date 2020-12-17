@@ -204,7 +204,7 @@ def disable_autodraw():
 
 def atomic(elem):
     listlike = list, tuple
-    return not isinstance(elem, listlike) and not is_tree_internal(elem)
+    return not isinstance(elem, listlike)
 
 
 def link_empty(elem):
@@ -549,7 +549,7 @@ def handleInput(line):
             flush()
             if _ is not None:
                 write(repr(_) + "\n")
-                if not atomic(_) and autodraw_active:
+                if (not atomic(_) or is_link(_) or is_tree_internal(_)) and autodraw_active:
                     draw(_)
             flush()
             err(">>> ")

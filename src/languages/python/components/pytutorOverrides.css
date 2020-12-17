@@ -74,3 +74,7 @@ div.ExecutionVisualizer {
 div.ExecutionVisualizer .ui-wrapper {
     min-height: 100px !important;
 }
+
+.customObjElt {
+    white-space: pre-wrap;
+}
