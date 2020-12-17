@@ -25,6 +25,8 @@ function Editor({
 }) {
     const editorRef = React.useRef();
 
+    const [displayLanguage, setDisplayLanguage] = React.useState(language);
+
     React.useEffect(() => {
         glContainer.on("show", () => onActivate());
         editorRef.current.editor.focus();
@@ -32,6 +34,10 @@ function Editor({
         onActivate();
         glContainer.on("resize", () => editorRef.current.editor.resize());
     }, []);
+
+    React.useEffect(() => {
+        setDisplayLanguage(language);
+    }, [language]);
 
     // eslint-disable-next-line consistent-return
     React.useEffect(() => {
@@ -73,7 +79,7 @@ function Editor({
 
     return ReactDOM.createPortal(
         <AceEditor
-            mode={language.toLowerCase()}
+            mode={displayLanguage.toLowerCase()}
             theme="merbivore_soft"
             ref={editorRef}
             value={code}

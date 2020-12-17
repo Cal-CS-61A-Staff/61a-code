@@ -50,7 +50,7 @@ class Output extends React.Component {
             const newHistory = state.history.slice(0, state.history.length - 1).concat([...text.trimEnd().split("\n"), ""]);
             return {
                 history: newHistory,
-                historyIndex: newHistory.length,
+                historyIndex: newHistory.length - 1,
             };
         });
     };
