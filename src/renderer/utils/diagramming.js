@@ -98,7 +98,9 @@ export function displayTree(data, container) {
 
         const elemWidth = Math.max(50, charWidth * label.toString().length + 40);
 
-        branchArrow(container, prevX, prevY, x1 + elemWidth / 2, y1, "white");
+        if (prevX != null && prevY != null) {
+            branchArrow(container, prevX, prevY, x1 + elemWidth / 2, y1, "white");
+        }
 
         // circle
         container
