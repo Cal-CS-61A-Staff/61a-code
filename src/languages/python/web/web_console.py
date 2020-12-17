@@ -497,6 +497,8 @@ editor_ns = {
     "branches": branches,
 }
 
+replace_trees(editor_ns)
+
 firstLine = True
 
 
