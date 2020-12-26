@@ -1,6 +1,6 @@
 import $ from "jquery";
 import {
-    GEN_PY_TRACE, RUN_BLACK, RUN_PY_CODE,
+    GEN_PY_TRACE, RUN_BLACK, RUN_PY_CODE, COMPILE_PY_FILE,
 } from "../constants/communicationEnums.js";
 import { err, exit, sendAndExit } from "../../../web/webBackend.js";
 import { interactProcess } from "../../../main/processes.js";
@@ -26,6 +26,8 @@ export default async function receive(arg) {
             err(arg.key, ret.error);
             exit(arg.key);
         }
+    } else if (arg.type === COMPILE_PY_FILE) {
+        await runPyScript(arg.key, arg.code, { writeOutput: true });
     }
 }
 

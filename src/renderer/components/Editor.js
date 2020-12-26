@@ -12,7 +12,8 @@ import "ace-builds/src-noconflict/mode-scheme";
 import "ace-builds/src-noconflict/mode-sql";
 import "ace-builds/src-noconflict/theme-merbivore_soft";
 
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/database";
 import firepad from "firepad/dist/firepad.min";
 import { randomString } from "../../common/misc";
 import glWrap from "../utils/glWrap.js";

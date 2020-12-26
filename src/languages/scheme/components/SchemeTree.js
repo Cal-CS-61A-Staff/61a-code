@@ -3,10 +3,10 @@ import $ from "jquery";
 import svgPanZoom from "svg-pan-zoom/dist/svg-pan-zoom.min.js";
 import SVG from "svg.js";
 
-const UNEVALUATED = "0";
-const EVALUATING = "1";
-const APPLYING = "2";
-const EVALUATED = "3";
+const UNEVALUATED = 0;
+const EVALUATING = 1;
+const APPLYING = 2;
+const EVALUATED = 3;
 
 function getDims() {
     const parentElement = document.body;

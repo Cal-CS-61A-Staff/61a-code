@@ -13,6 +13,7 @@ module.exports = {
         __static: true,
         ExecutionVisualizer: true,
         ELECTRON: true,
+        SCHEME_COMPILE: true,
         brython: true,
         __BRYTHON__: true,
         importScripts: true,

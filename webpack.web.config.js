@@ -6,7 +6,7 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 
-module.exports = {
+module.exports = env => ({
     entry: {
         main: "./src/renderer/index.js",
         pythonWorker: "./src/web/pythonWorker.js",
@@ -74,8 +74,9 @@ module.exports = {
         new HtmlWebpackTagsPlugin({ tags: ["static/pace/pace.min.js", "static/pace/pace.css"], append: false }),
         new webpack.DefinePlugin({
             ELECTRON: false,
+            SCHEME_COMPILE: env?.SCHEME_COMPILE || false,
             __static: JSON.stringify("/static"),
-            VERSION: "\"2.0.8\"",
+            VERSION: "\"2.0.9\"",
         }),
         new MonacoWebpackPlugin({
             output: "./static",
@@ -89,7 +90,7 @@ module.exports = {
         new CopyWebpackPlugin([{
             from: "static",
             to: "static",
-            ignore: "IGNORE*",
+            ignore: ["IGNORE*"],
         },
         {
             from: "src/web-server",
@@ -105,4 +106,4 @@ module.exports = {
             }],
         }),
     ],
-};
+});

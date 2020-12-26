@@ -5,7 +5,10 @@ import * as ReactDOM from "react-dom";
 import path from "path";
 
 import "./style.global.css";
+import { PYTHON } from "../common/languages";
+import { COMPILE_PY_FILE } from "../languages/python/constants/communicationEnums";
 import App from "./components/App.js";
+import { send } from "./utils/communication";
 
 if (ELECTRON) {
     const amdLoader = require("monaco-editor/min/vs/loader.js");
@@ -75,12 +78,22 @@ async function init() {
         injectDiv("modalOverlay");
     }
 
-    render(App);
+    if (!SCHEME_COMPILE) {
+        render(App);
+    }
 }
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("service-worker.js");
         console.log("service worker registered!");
+    });
+}
+
+if (SCHEME_COMPILE) {
+    const interpreter = require("./../languages/scheme/web/IGNORE_needed.py").default;
+    send({ type: COMPILE_PY_FILE, code: interpreter, handler: PYTHON }, (output) => {
+        document.head.innerHTML = "";
+        document.body.innerText = output;
     });
 }

@@ -20,6 +20,7 @@ module.exports = {
         new CleanWebpackPlugin(),
         new webpack.DefinePlugin({
             ELECTRON: true,
+            SCHEME_COMPILE: false,
             VERSION: "\"1.0.2\"",
         }),
         new webpack.ProvidePlugin({

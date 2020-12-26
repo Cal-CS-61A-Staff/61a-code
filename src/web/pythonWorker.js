@@ -24,13 +24,13 @@ onmessage = async (e) => {
         handleInput(data.input);
     } else {
         ({ code, commBuff, strBuff } = data);
-        const { transpiled } = data;
+        const { transpiled, writeOutput } = data;
         initialize();
         await doBackgroundTasks();
         if (transpiled) {
             initializeTranspiledJS();
         } else {
-            initializePython();
+            initializePython(writeOutput);
         }
     }
 };
@@ -110,9 +110,16 @@ function initialize() {
     __BRYTHON__.brython_path = "/static/brython/";
 }
 
-function initializePython() {
-    // console.log(__BRYTHON__.python_to_js(code)); // TODO: DISABLE!!!
-    __BRYTHON__.run_script(code, "__main__", true);
+function initializePython(writeOutput) {
+    if (writeOutput) {
+        postMessage("ready!");
+        setTimeout(
+            () => postMessage({ out: true, val: __BRYTHON__.python_to_js(code) }),
+            100,
+        );
+    } else {
+        __BRYTHON__.run_script(code, "__main__", true);
+    }
 }
 
 function initializeTranspiledJS() {

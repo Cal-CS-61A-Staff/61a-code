@@ -40,7 +40,11 @@ export default function runPyScript(key, script, args) {
         };
 
         worker.postMessage({
-            code: script, transpiled: args.transpiled, commBuff, strBuff,
+            code: script,
+            transpiled: args.transpiled,
+            writeOutput: args.writeOutput,
+            commBuff,
+            strBuff,
         });
         worker.onmessage = () => {
             let currFile;
